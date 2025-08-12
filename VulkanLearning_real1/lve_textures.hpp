@@ -11,7 +11,7 @@ namespace lve
 	class LveTextures
 	{
 	public:
-		LveTextures(LveDevice& device);
+		LveTextures(LveDevice& device, const char *path, VkFormat format);
 		~LveTextures();
 
 		void createTextureImage();
@@ -32,6 +32,8 @@ namespace lve
 	private:
 
 		uint32_t mipLevels;
+		VkFormat textureFormat;
+		const char *filePath;
 
 		LveDevice& lveDevice;
 		VkImage textureImage;

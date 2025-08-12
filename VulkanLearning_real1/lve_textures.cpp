@@ -10,7 +10,8 @@
 
 namespace lve
 {
-	LveTextures::LveTextures(LveDevice& device) : lveDevice{device}
+	LveTextures::LveTextures(LveDevice& device, const char *path, VkFormat format) 
+		: lveDevice{device}, filePath{path}, textureFormat{format}
 	{
 		createTextureImage();
 		createTextureImageView();
@@ -30,7 +31,7 @@ namespace lve
 	void LveTextures::createTextureImage()
 	{
 		int texWidth, texHeight, texChannels;
-		stbi_uc* pixels = stbi_load("textures/IMG_5776.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+		stbi_uc* pixels = stbi_load(filePath, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
 
 		if (!pixels) 
@@ -53,11 +54,11 @@ namespace lve
 
 		stbi_image_free(pixels);
 
-		LveTextures::createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, 
+		LveTextures::createImage(texWidth, texHeight, textureFormat, VK_IMAGE_TILING_OPTIMAL, 
 			VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
 
-		transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		transitionImageLayout(textureImage, textureFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		lveDevice.copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), 1);
 		
 		//transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, 
@@ -74,7 +75,7 @@ namespace lve
 	void LveTextures::generateMipmaps(int32_t texWidth, int32_t texHeight) {
 		
 		VkFormatProperties formatProperties;
-		lveDevice.imageProperty(VK_FORMAT_R8G8B8A8_SRGB, formatProperties);
+		lveDevice.imageProperty(textureFormat, formatProperties);
 
 		if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
 			throw std::runtime_error("texture image format does not support linear blitting!");
@@ -275,7 +276,7 @@ namespace lve
 
 	void LveTextures::createTextureImageView()
 	{
-		textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+		textureImageView = createImageView(textureImage, textureFormat);
 	}
 
 	void LveTextures::createTextureSampler()

@@ -34,7 +34,7 @@ namespace lve
 
 	void FirstApp::run()
 	{
-        LveTextures texture{ lveDevice };
+        LveTextures texture{ lveDevice, "textures/IMG_5776.png", VK_FORMAT_R8G8B8A8_SRGB };
 
         std::vector<std::unique_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
