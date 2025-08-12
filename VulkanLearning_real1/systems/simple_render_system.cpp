@@ -50,6 +50,7 @@ namespace lve
 		}
 	}
 
+	//SHADERS HERE
 	void SimpleRenderSystem::createPipeline(VkRenderPass renderPass)
 	{
 		assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");

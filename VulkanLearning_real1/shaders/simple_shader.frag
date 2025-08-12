@@ -34,6 +34,21 @@ layout(push_constant) uniform Push
 	mat4 normalMatrix;
 } push;
 
+const float M_PI = 3.1415926538;
+
+float DistributionGGX(vec3 N, vec3 H, float a)
+{
+    float a2     = a*a;
+    float NdotH  = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH*NdotH;
+	
+    float nom    = a2;
+    float denom  = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom        = M_PI * denom * denom;
+	
+    return nom / denom;
+}
+
 void main()
 {
 	vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
@@ -55,17 +70,21 @@ void main()
 		float cosAngIncidence = max(dot(surfaceNormal, directionToLight), 0);
 		vec3 intensity = light.color.xyz * light.color.w * attenuation;
 
-		diffuseLight += intensity * cosAngIncidence; //get around to deleting the 100 lol
+		diffuseLight += intensity * cosAngIncidence;
 
 		//specular
 		vec3 halfAngle = normalize(directionToLight + viewDirection);
-		float blinnTerm = dot(surfaceNormal, halfAngle);
-		blinnTerm = clamp(blinnTerm, 0, 1);
-		blinnTerm = pow(blinnTerm, texture(specular, fragUv).r * 85.0); //higher == sharper
-		specularLight += intensity * blinnTerm;
+		//float blinnTerm = dot(surfaceNormal, halfAngle);
+		//blinnTerm = clamp(blinnTerm, 0, 1);
+		//blinnTerm = pow(blinnTerm, texture(specular, fragUv).x * 80.0); //higher == sharper
+		//specularLight += intensity * blinnTerm;
+
+		//GGX - https://learnopengl.com/PBR/Theory
+		
+		specularLight += intensity * DistributionGGX(surfaceNormal, halfAngle, texture(specular, fragUv).x);
 	}
 	
 	//outColor = vec4(diffuseLight * fragColor + specularLight * fragColor, 1.0);
 	outColor = texture(texSampler, fragUv) * vec4(diffuseLight, 0.0) 
-		+ texture(specular, fragUv).r * vec4(specularLight, 0.0f);
+		+ texture(specular, fragUv).x * vec4(specularLight, 0.0f);
 }
