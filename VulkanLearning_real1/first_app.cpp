@@ -25,6 +25,8 @@ namespace lve
             .setMaxSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
         loadGameObjects();
     }
@@ -34,7 +36,9 @@ namespace lve
 
 	void FirstApp::run()
 	{
-        LveTextures texture{ lveDevice, "textures/IMG_5776.png", VK_FORMAT_R8G8B8A8_SRGB };
+        LveTextures texture{ lveDevice, "textures/planks.png", VK_FORMAT_R8G8B8A8_SRGB };
+        LveTextures specular{ lveDevice, "textures/planksSpec.png", VK_FORMAT_R8G8B8A8_SRGB };
+        LveTextures normal{ lveDevice, "textures/Planks037A_2K-PNG_NormalGl.png", VK_FORMAT_R8G8B8A8_SRGB };
 
         std::vector<std::unique_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
@@ -51,6 +55,8 @@ namespace lve
         auto globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
             .build();   
 
         std::vector<VkDescriptorSet> globalDescriptorSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -63,10 +69,21 @@ namespace lve
             imageInfo.imageView = texture.getTextureImageView();
             imageInfo.sampler = texture.getSampler();
 
+            VkDescriptorImageInfo specInfo{};
+            specInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            specInfo.imageView = specular.getTextureImageView();
+            specInfo.sampler = specular.getSampler();
+
+            VkDescriptorImageInfo nomInfo{};
+            nomInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            nomInfo.imageView = normal.getTextureImageView();
+            nomInfo.sampler = normal.getSampler();
 
             LveDescriptorWriter(*globalSetLayout, *globalPool)
                 .writeBuffer(0, &bufferInfo)
                 .writeImage(1, &imageInfo)
+                .writeImage(2, &specInfo)
+                .writeImage(3, &nomInfo)
                 .build(globalDescriptorSets[i]);
         }
 
