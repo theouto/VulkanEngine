@@ -38,7 +38,7 @@ namespace lve
 	{
         LveTextures texture{ lveDevice, "textures/Planks037A_2K-PNG_Color.png", VK_FORMAT_R8G8B8A8_SRGB };
         LveTextures specular{ lveDevice, "textures/Planks037A_2K-PNG_Roughness.png", VK_FORMAT_R8_SRGB };
-        LveTextures normal{ lveDevice, "textures/PavingStones115C_2K-PNG_NormalGl.png", VK_FORMAT_R8G8B8A8_SRGB };
+        LveTextures normal{ lveDevice, "textures/Planks037A_2K-PNG_NormalGl.png", VK_FORMAT_R8G8B8A8_SRGB };
 
         std::vector<std::unique_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)

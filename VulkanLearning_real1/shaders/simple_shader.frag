@@ -1,5 +1,4 @@
 #version 450
-#pragma glslify: ggx = require('glsl-ggx')
 
 layout (location = 0) in vec3 fragColor;
 layout (location = 1) in vec3 fragPosWorld;
@@ -86,5 +85,5 @@ void main()
 	
 	//outColor = vec4(diffuseLight * fragColor + specularLight * fragColor, 1.0);
 	outColor = texture(texSampler, fragUv) * vec4(diffuseLight, 0.0) 
-		+ texture(specular, fragUv).x * vec4(specularLight, 0.0f);
+		+ vec4(specularLight, 0.0f);
 }
