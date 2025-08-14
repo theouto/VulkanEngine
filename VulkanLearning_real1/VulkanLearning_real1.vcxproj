@@ -189,6 +189,7 @@
     <None Include="shaders\point_light.frag" />
     <None Include="shaders\point_light.vert" />
     <None Include="shaders\simple_shader.frag" />
+    <None Include="shaders\simple_shader.geom" />
     <None Include="shaders\simple_shader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

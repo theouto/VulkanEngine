@@ -5,6 +5,7 @@
 #include <glm.hpp>
 #include <gtc/constants.hpp>
 
+#include <vector>
 #include <stdexcept>
 #include <array>
 #include <map>
@@ -68,9 +69,10 @@ namespace lve
 		pipelineConfig.bindingDescriptions.clear();
 		pipelineConfig.renderPass = renderPass;
 		pipelineConfig.pipelineLayout = pipelineLayout;
+		std::vector<std::string> filePaths = { "shaders/point_light.vert.spv",
+			"shaders/point_light.frag.spv" };
 		lvePipeline = std::make_unique<LvePipeline>(lveDevice, 
-			"shaders/point_light.vert.spv",
-			"shaders/point_light.frag.spv", pipelineConfig);
+			filePaths, pipelineConfig);
 	}
 
 	void PointLightSystem::update(FrameInfo& frameInfo, GlobalUbo& ubo)

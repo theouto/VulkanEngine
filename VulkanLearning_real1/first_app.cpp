@@ -27,6 +27,7 @@ namespace lve
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
         loadGameObjects();
     }
@@ -38,7 +39,8 @@ namespace lve
 	{
         LveTextures texture{ lveDevice, "textures/Planks037A_2K-PNG_Color.png", VK_FORMAT_R8G8B8A8_SRGB };
         LveTextures specular{ lveDevice, "textures/Planks037A_2K-PNG_Roughness.png", VK_FORMAT_R8_SRGB };
-        LveTextures normal{ lveDevice, "textures/Planks037A_2K-PNG_NormalGl.png", VK_FORMAT_R8G8B8A8_SRGB };
+        LveTextures normal{ lveDevice, "textures/Planks037A_2K-PNG_NormalGL.png", VK_FORMAT_R8G8B8A8_UNORM };
+        LveTextures displacement{ lveDevice, "textures/Planks037A_2K-PNG_Displacement.png", VK_FORMAT_R8_SRGB };
 
         std::vector<std::unique_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
@@ -57,6 +59,7 @@ namespace lve
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
             .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
             .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .addBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
             .build();   
 
         std::vector<VkDescriptorSet> globalDescriptorSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -78,6 +81,11 @@ namespace lve
             nomInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             nomInfo.imageView = normal.getTextureImageView();
             nomInfo.sampler = normal.getSampler();
+
+            VkDescriptorImageInfo dispInfo{};
+            dispInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            dispInfo.imageView = normal.getTextureImageView();
+            dispInfo.sampler = displacement.getSampler();
 
             LveDescriptorWriter(*globalSetLayout, *globalPool)
                 .writeBuffer(0, &bufferInfo)

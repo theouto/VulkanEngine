@@ -10,6 +10,7 @@ layout (location = 0) out vec4 outColor;
 layout(binding = 1) uniform sampler2D texSampler;
 layout(binding = 2) uniform sampler2D specular;
 layout(binding = 3) uniform sampler2D normal;
+layout(binding = 4) uniform sampler2D displacement;
 
 struct PointLight
 {
@@ -35,6 +36,7 @@ layout(push_constant) uniform Push
 
 const float M_PI = 3.1415926538;
 
+//GGX - https://learnopengl.com/PBR/Theory
 float DistributionGGX(vec3 N, vec3 H, float a)
 {
     float a2     = a*a;
@@ -48,21 +50,102 @@ float DistributionGGX(vec3 N, vec3 H, float a)
     return nom / denom;
 }
 
+float GeometrySchlickGGX(float NdotV, float k)
+{
+    float nom   = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+	
+    return nom / denom;
+}
+  
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float k)
+{
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx1 = GeometrySchlickGGX(NdotV, k);
+    float ggx2 = GeometrySchlickGGX(NdotL, k);
+	
+    return ggx1 * ggx2;
+}
+
+
+
+vec2 parallaxOcclusionMapping(vec2 uv, vec3 viewDirection)
+{
+
+	float height =  texture(displacement, uv).r;    
+    vec2 p = viewDirection.xy / viewDirection.z * (height);
+    return uv - p; 
+
+	//const float minLayers = 8.0;
+	//const float maxLayers = 32.0;
+	//float numLayers = mix(maxLayers, minLayers, max(dot(vec3(0.0, 0.0, 1.0), viewDirection), 0.0));
+    //float layerDepth = 1.0 / numLayers;
+    //// depth of current layer
+    //float currentLayerDepth = 0.0;
+    //// the amount to shift the texture coordinates per layer (from vector P)
+    //vec2 P = viewDirection.xy; 
+    //vec2 deltaTexCoords = P / numLayers;
+	//
+	//vec2  currentTexCoords     = uv;
+	//float currentDepthMapValue = texture(displacement, currentTexCoords).r;
+	//  
+	//while(currentLayerDepth < currentDepthMapValue)
+	//{
+	//    // shift texture coordinates along direction of P
+	//    currentTexCoords -= deltaTexCoords;
+	//    // get depthmap value at current texture coordinates
+	//    currentDepthMapValue = texture(displacement, currentTexCoords).r;  
+	//    // get depth of next layer
+	//    currentLayerDepth += layerDepth;  
+	//}
+	//
+	//// get texture coordinates before collision (reverse operations)
+	//vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
+	//
+	//// get depth after and before collision for linear interpolation
+	//float afterDepth  = currentDepthMapValue - currentLayerDepth;
+	//float beforeDepth = texture(displacement, prevTexCoords).r - currentLayerDepth + layerDepth;
+	// 
+	//// interpolation of texture coordinates
+	//float weight = afterDepth / (afterDepth - beforeDepth);
+	//vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
+	//
+	//return finalTexCoords;
+}
+
 void main()
 {
 	vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
 	vec3 specularLight = vec3(0.0);
-	vec3 surfaceNormal = normalize(fragNormalWorld);
-	//vec3 surfaceNormal = normalize(texture(normal, fragUv).xyz * 2.0f - 1.0f) * normalize(fragNormalWorld);
-
+	
 	vec3 cameraPosWorld = ubo.invView[3].xyz;
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld);
+
+	vec2 UVs = parallaxOcclusionMapping(fragUv, viewDirection);
+
+	//if (UVs.x > 1.0 || UVs.y > 1.0 || UVs.x < 0.0 || UVs.y < 0.0) {discard;}
+
+	//https://github.com/h3ck0r/VKEngine/blob/main/Engine/shaders/shader.frag
+	 vec3 tangentNormal = texture(normal, UVs).rgb * 2.0 - 1.0;
+        vec3 T = normalize(mat3(push.normalMatrix) * vec3(1.0, 0.0, 0.0));
+        vec3 B = normalize(mat3(push.normalMatrix) * vec3(0.0, 1.0, 0.0));
+        vec3 N = normalize(mat3(push.normalMatrix) * fragNormalWorld);
+        mat3 TBN = mat3(T, B, N);
+      
+	vec3 surfaceNormal = normalize(normalize(TBN * tangentNormal));
+			
+	//vec3 surfaceNormal = normalize(fragNormalWorld);
+	
 
 	for (int i = 0; i < ubo.numLights; i++)
 	{
 		//diffuse
 		PointLight light = ubo.pointLights[i];
 		vec3 directionToLight = light.position.xyz - fragPosWorld;
+		
+		//float attenuation = GeometrySmith(surfaceNormal, viewDirection, light.color.xyz, 0.0f);
+
 		float attenuation = 1.0/dot(directionToLight, directionToLight); //distance squared
 		directionToLight = normalize(directionToLight);
 
@@ -80,10 +163,10 @@ void main()
 
 		//GGX - https://learnopengl.com/PBR/Theory
 		
-		specularLight += intensity * DistributionGGX(surfaceNormal, halfAngle, texture(specular, fragUv).x);
+		specularLight += intensity * DistributionGGX(surfaceNormal, halfAngle, texture(specular, UVs).x);
 	}
 	
-	//outColor = vec4(diffuseLight * fragColor + specularLight * fragColor, 1.0);
-	outColor = texture(texSampler, fragUv) * vec4(diffuseLight, 0.0) 
-		+ vec4(specularLight, 0.0f);
+	//outColor = vec4(surfaceNormal, 1.0);
+	outColor = texture(texSampler, UVs) * vec4(diffuseLight, 0.0) 
+		+  texture(texSampler, UVs) * vec4(specularLight, 0.0f);
 }

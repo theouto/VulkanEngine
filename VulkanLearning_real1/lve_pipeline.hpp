@@ -32,8 +32,7 @@ namespace lve
 	class LvePipeline
 	{
 	public:
-		LvePipeline(LveDevice &device, const std::string& vertFilePath, const std::string& fragFilePath, 
-			const PipelineConfigInfo& configInfo);
+		LvePipeline(LveDevice &device, std::vector<std::string> filePaths, const PipelineConfigInfo& configInfo);
 		~LvePipeline();
 
 		LvePipeline(const LvePipeline&) = delete;
@@ -49,6 +48,9 @@ namespace lve
 		static std::vector<char> readFile(const std::string& filepath);
 
 		void createGraphicsPipeline (const std::string& vertFilePath, const std::string& fragFilePath, 
+			const std::string& geomFilePath, const PipelineConfigInfo& configInfo);
+
+		void createGraphicsPipeline(const std::string& vertFilePath, const std::string& fragFilePath,
 			const PipelineConfigInfo& configInfo);
 
 		void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
