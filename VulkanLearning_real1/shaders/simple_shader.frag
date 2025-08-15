@@ -11,6 +11,7 @@ layout(binding = 1) uniform sampler2D texSampler;
 layout(binding = 2) uniform sampler2D specular;
 layout(binding = 3) uniform sampler2D normal;
 layout(binding = 4) uniform sampler2D displacement;
+//layout(binding = 5) uniform sampler2D metalness;
 
 struct PointLight
 {
@@ -68,61 +69,57 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float k)
     return ggx1 * ggx2;
 }
 
-
+//vec3 fresnelSchlick(float cosTheta, vec3 F0)
+//{
+//    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+//}
 
 vec2 parallaxOcclusionMapping(vec2 uv, vec3 viewDirection)
 {
+	
+	//Parallax occlusion mapping quality
+	float heightScale = 0.05f;
+	const float minLayers = 8.0f;
+	const float maxLayers = 64.0f;
+	float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0f, 0.0f, 1.0f), viewDirection)));
+	float layerDepth = 1.0f / numLayers;
+	float currentLayerDepth = 0.0f;
+	
+	vec2 S = viewDirection.xz * heightScale; 
+	vec2 deltaUVs = S / numLayers;
+	
+	vec2 UVs = fragUv;
+	float currentDepthMapValue = 1.0f - texture(displacement, UVs).r;
+	
+	while(currentLayerDepth < currentDepthMapValue)
+	{
+		UVs -= deltaUVs;
+		currentDepthMapValue = 1.0f - texture(displacement, UVs).r;
+		currentLayerDepth += layerDepth;
+	}
+	
+	vec2 prevTexCoords = UVs + deltaUVs;
+	float afterDepth  = currentDepthMapValue - currentLayerDepth;
+	float beforeDepth = 1.0f - texture(displacement, prevTexCoords).r - currentLayerDepth + layerDepth;
+	float weight = afterDepth / (afterDepth / beforeDepth);
+	
+	UVs = prevTexCoords * weight + UVs * (1.0f - weight);
 
-	float height =  texture(displacement, uv).r;    
-    vec2 p = viewDirection.xy / viewDirection.z * (height);
-    return uv - p; 
+	return UVs;
 
-	//const float minLayers = 8.0;
-	//const float maxLayers = 32.0;
-	//float numLayers = mix(maxLayers, minLayers, max(dot(vec3(0.0, 0.0, 1.0), viewDirection), 0.0));
-    //float layerDepth = 1.0 / numLayers;
-    //// depth of current layer
-    //float currentLayerDepth = 0.0;
-    //// the amount to shift the texture coordinates per layer (from vector P)
-    //vec2 P = viewDirection.xy; 
-    //vec2 deltaTexCoords = P / numLayers;
-	//
-	//vec2  currentTexCoords     = uv;
-	//float currentDepthMapValue = texture(displacement, currentTexCoords).r;
-	//  
-	//while(currentLayerDepth < currentDepthMapValue)
-	//{
-	//    // shift texture coordinates along direction of P
-	//    currentTexCoords -= deltaTexCoords;
-	//    // get depthmap value at current texture coordinates
-	//    currentDepthMapValue = texture(displacement, currentTexCoords).r;  
-	//    // get depth of next layer
-	//    currentLayerDepth += layerDepth;  
-	//}
-	//
-	//// get texture coordinates before collision (reverse operations)
-	//vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
-	//
-	//// get depth after and before collision for linear interpolation
-	//float afterDepth  = currentDepthMapValue - currentLayerDepth;
-	//float beforeDepth = texture(displacement, prevTexCoords).r - currentLayerDepth + layerDepth;
-	// 
-	//// interpolation of texture coordinates
-	//float weight = afterDepth / (afterDepth - beforeDepth);
-	//vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
-	//
-	//return finalTexCoords;
 }
 
 void main()
 {
 	vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
 	vec3 specularLight = vec3(0.0);
+	vec3 fresnel = vec3(0.0);
 	
 	vec3 cameraPosWorld = ubo.invView[3].xyz;
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld);
 
 	vec2 UVs = parallaxOcclusionMapping(fragUv, viewDirection);
+	//vec2 UVs = fragUv;
 
 	//if (UVs.x > 1.0 || UVs.y > 1.0 || UVs.x < 0.0 || UVs.y < 0.0) {discard;}
 
@@ -145,6 +142,12 @@ void main()
 		vec3 directionToLight = light.position.xyz - fragPosWorld;
 		
 		//float attenuation = GeometrySmith(surfaceNormal, viewDirection, light.color.xyz, 0.0f);
+
+		//FresnelSchlick
+		//float cosTheta = dot(directionToLight, surfaceNormal);
+		//vec3 F0 = vec3(0.04);
+		//F0 = mix(F0, texture(texSampler, UVs).rgb, metalness);
+		//fresnel = fresnelSchlick(cosTheta, F0);
 
 		float attenuation = 1.0/dot(directionToLight, directionToLight); //distance squared
 		directionToLight = normalize(directionToLight);

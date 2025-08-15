@@ -24,10 +24,8 @@ namespace lve
         globalPool = LveDescriptorPool::Builder(lveDevice)
             .setMaxSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
             .build();
         loadGameObjects();
     }
@@ -37,10 +35,16 @@ namespace lve
 
 	void FirstApp::run()
 	{
-        LveTextures texture{ lveDevice, "textures/Planks037A_2K-PNG_Color.png", VK_FORMAT_R8G8B8A8_SRGB };
-        LveTextures specular{ lveDevice, "textures/Planks037A_2K-PNG_Roughness.png", VK_FORMAT_R8_SRGB };
-        LveTextures normal{ lveDevice, "textures/Planks037A_2K-PNG_NormalGL.png", VK_FORMAT_R8G8B8A8_UNORM };
-        LveTextures displacement{ lveDevice, "textures/Planks037A_2K-PNG_Displacement.png", VK_FORMAT_R8_SRGB };
+        LveTextures texture{ lveDevice, "textures/PavingStones115C_2K-PNG_Color.png", VK_FORMAT_R8G8B8A8_SRGB };
+        LveTextures specular{ lveDevice, "textures/PavingStones115C_2K-PNG_Roughness.png", VK_FORMAT_R8_UNORM };
+        LveTextures normal{ lveDevice, "textures/PavingStones115C_2K-PNG_NormalGL.png", VK_FORMAT_R8G8B8A8_UNORM };
+        LveTextures displacement{ lveDevice, "textures/PavingStones115C_2K-PNG_Displacement.png", VK_FORMAT_R8_UNORM };
+        //LveTextures metalness{ lveDevice, "textures/PavingStones115C_2K-PNG_Reflectiveness.png", VK_FORMAT_R8_UNORM };
+
+        //LveTextures texture{ lveDevice, "textures/PavingStones115C_8K-PNG_Color.png", VK_FORMAT_R8G8B8A8_SRGB };
+        //LveTextures specular{ lveDevice, "textures/PavingStones115C_8K-PNG_Roughness.png", VK_FORMAT_R8_UNORM };
+        //LveTextures normal{ lveDevice, "textures/PavingStones115C_8K-PNG_NormalGL.png", VK_FORMAT_R8G8B8A8_UNORM };
+        //LveTextures displacement{ lveDevice, "textures/PavingStones115C_8K-PNG_Displacement.png", VK_FORMAT_R8_UNORM };
 
         std::vector<std::unique_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
@@ -60,6 +64,7 @@ namespace lve
             .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
             .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
             .addBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            //.addBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
             .build();   
 
         std::vector<VkDescriptorSet> globalDescriptorSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -84,7 +89,7 @@ namespace lve
 
             VkDescriptorImageInfo dispInfo{};
             dispInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            dispInfo.imageView = normal.getTextureImageView();
+            dispInfo.imageView = displacement.getTextureImageView();
             dispInfo.sampler = displacement.getSampler();
 
             LveDescriptorWriter(*globalSetLayout, *globalPool)
@@ -92,6 +97,7 @@ namespace lve
                 .writeImage(1, &imageInfo)
                 .writeImage(2, &specInfo)
                 .writeImage(3, &nomInfo)
+                .writeImage(4, &dispInfo)
                 .build(globalDescriptorSets[i]);
         }
 

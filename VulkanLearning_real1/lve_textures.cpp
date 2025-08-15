@@ -34,6 +34,7 @@ namespace lve
 		int format = 0;
 		
 		if (textureFormat == VK_FORMAT_R8G8B8A8_SRGB){format = 4;}
+		else if (textureFormat == VK_FORMAT_R8_UNORM) { format = 1; }
 		else if (textureFormat == VK_FORMAT_R8_SRGB) { format = 1; }
 		else if (textureFormat == VK_FORMAT_R8G8B8A8_UNORM) { format = 4; }
 		else if (textureFormat == VK_FORMAT_R8G8B8_UNORM) { format = 3; } //todo
