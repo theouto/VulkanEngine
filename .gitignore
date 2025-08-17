@@ -12,6 +12,12 @@
 *.png
 *.PNG
 *.mtl
+*.sln
+*.vcxproj
+*.filters
+*.user
+*.mtlx
+*.usdc
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
