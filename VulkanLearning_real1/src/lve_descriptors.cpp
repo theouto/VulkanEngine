@@ -1,5 +1,5 @@
-#include "lve_descriptors.hpp"
-#include "lve_textures.hpp"
+#include "../include/lve_descriptors.hpp"
+#include "../include/lve_textures.hpp"
 
 // std
 #include <array>

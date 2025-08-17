@@ -1,11 +1,11 @@
-#include "first_app.hpp"
+#include "../include/first_app.hpp"
 
-#include "keyboard_movement_controller.hpp"
-#include "lve_camera.hpp"
-#include "lve_buffer.hpp"
-#include "lve_frame_info.hpp"
-#include "systems/point_light_system.hpp"
-#include "systems/simple_render_system.hpp"
+#include "../include/keyboard_movement_controller.hpp"
+#include "../include/lve_camera.hpp"
+#include "../include/lve_buffer.hpp"
+#include "../include/lve_frame_info.hpp"
+#include "../systems/point_light_system.hpp"
+#include "../systems/simple_render_system.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -35,10 +35,18 @@ namespace lve
 
 	void FirstApp::run()
 	{
-        LveTextures texture{ lveDevice, "textures/PavingStones115C_2K-PNG_Color.png", VK_FORMAT_R8G8B8A8_SRGB };
-        LveTextures specular{ lveDevice, "textures/PavingStones115C_2K-PNG_Roughness.png", VK_FORMAT_R8_UNORM };
-        LveTextures normal{ lveDevice, "textures/PavingStones115C_2K-PNG_NormalGL.png", VK_FORMAT_R8G8B8A8_UNORM };
-        LveTextures displacement{ lveDevice, "textures/PavingStones115C_2K-PNG_Displacement.png", VK_FORMAT_R8_UNORM };
+        std::unique_ptr<LveTextures> texture = std::make_unique<LveTextures>( lveDevice, 
+            "textures/PavingStones115C_2K-PNG_Color.png", VK_FORMAT_R8G8B8A8_SRGB);
+
+        std::unique_ptr<LveTextures> specular = std::make_unique<LveTextures>( lveDevice, 
+            "textures/PavingStones115C_2K-PNG_Roughness.png", VK_FORMAT_R8_UNORM );
+        
+        std::unique_ptr<LveTextures> normal = std::make_unique<LveTextures>( lveDevice,
+            "textures/PavingStones115C_2K-PNG_NormalGL.png", VK_FORMAT_R8G8B8A8_UNORM );
+        
+        std::unique_ptr<LveTextures> displacement = std::make_unique<LveTextures>( lveDevice,
+            "textures/PavingStones115C_2K-PNG_Displacement.png", VK_FORMAT_R8_UNORM );
+
         //LveTextures metalness{ lveDevice, "textures/PavingStones115C_2K-PNG_Reflectiveness.png", VK_FORMAT_R8_UNORM };
 
         //LveTextures texture{ lveDevice, "textures/PavingStones115C_8K-PNG_Color.png", VK_FORMAT_R8G8B8A8_SRGB };
@@ -72,25 +80,10 @@ namespace lve
         {
             auto bufferInfo = uboBuffers[i]->descriptorInfo();
 
-            VkDescriptorImageInfo imageInfo{};
-            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = texture.getTextureImageView();
-            imageInfo.sampler = texture.getSampler();
-
-            VkDescriptorImageInfo specInfo{};
-            specInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            specInfo.imageView = specular.getTextureImageView();
-            specInfo.sampler = specular.getSampler();
-
-            VkDescriptorImageInfo nomInfo{};
-            nomInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            nomInfo.imageView = normal.getTextureImageView();
-            nomInfo.sampler = normal.getSampler();
-
-            VkDescriptorImageInfo dispInfo{};
-            dispInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            dispInfo.imageView = displacement.getTextureImageView();
-            dispInfo.sampler = displacement.getSampler();
+            auto imageInfo = texture->getDescriptorInfo();
+            auto specInfo = specular->getDescriptorInfo();
+            auto nomInfo = normal->getDescriptorInfo();
+            auto dispInfo = displacement->getDescriptorInfo();
 
             LveDescriptorWriter(*globalSetLayout, *globalPool)
                 .writeBuffer(0, &bufferInfo)

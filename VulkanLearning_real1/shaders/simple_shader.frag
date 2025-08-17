@@ -81,14 +81,14 @@ vec2 parallaxOcclusionMapping(vec2 uv, vec3 viewDirection)
 	float heightScale = 0.05f;
 	const float minLayers = 8.0f;
 	const float maxLayers = 64.0f;
-	float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0f, 0.0f, 1.0f), viewDirection)));
+	float numLayers = 64.0f; //mix(maxLayers, minLayers, abs(dot(normalize(fragNormalWorld), viewDirection)));
 	float layerDepth = 1.0f / numLayers;
 	float currentLayerDepth = 0.0f;
 	
-	vec2 S = viewDirection.xz * heightScale; 
+	vec2 S = vec2(viewDirection.z, -viewDirection.y) * heightScale;
 	vec2 deltaUVs = S / numLayers;
 	
-	vec2 UVs = fragUv;
+	vec2 UVs = uv;
 	float currentDepthMapValue = 1.0f - texture(displacement, UVs).r;
 	
 	while(currentLayerDepth < currentDepthMapValue)
@@ -102,7 +102,6 @@ vec2 parallaxOcclusionMapping(vec2 uv, vec3 viewDirection)
 	float afterDepth  = currentDepthMapValue - currentLayerDepth;
 	float beforeDepth = 1.0f - texture(displacement, prevTexCoords).r - currentLayerDepth + layerDepth;
 	float weight = afterDepth / (afterDepth / beforeDepth);
-	
 	UVs = prevTexCoords * weight + UVs * (1.0f - weight);
 
 	return UVs;
@@ -113,23 +112,24 @@ void main()
 {
 	vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
 	vec3 specularLight = vec3(0.0);
-	vec3 fresnel = vec3(0.0);
+
+	//https://github.com/h3ck0r/VKEngine/blob/main/Engine/shaders/shader.frag
+	vec3 T = normalize(mat3(push.normalMatrix) * vec3(1.0, 0.0, 0.0));
+    vec3 B = normalize(mat3(push.normalMatrix) * vec3(0.0, 1.0, 0.0));
+    vec3 N = normalize(mat3(push.normalMatrix) * fragNormalWorld);
+    mat3 TBN = mat3(T, B, N); 
+
+	//vec3 fresnel = vec3(0.0);
 	
 	vec3 cameraPosWorld = ubo.invView[3].xyz;
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld);
 
-	vec2 UVs = parallaxOcclusionMapping(fragUv, viewDirection);
-	//vec2 UVs = fragUv;
+	//vec2 UVs = parallaxOcclusionMapping(fragUv, viewDirection);
+	vec2 UVs = fragUv;
 
 	//if (UVs.x > 1.0 || UVs.y > 1.0 || UVs.x < 0.0 || UVs.y < 0.0) {discard;}
 
-	//https://github.com/h3ck0r/VKEngine/blob/main/Engine/shaders/shader.frag
-	 vec3 tangentNormal = texture(normal, UVs).rgb * 2.0 - 1.0;
-        vec3 T = normalize(mat3(push.normalMatrix) * vec3(1.0, 0.0, 0.0));
-        vec3 B = normalize(mat3(push.normalMatrix) * vec3(0.0, 1.0, 0.0));
-        vec3 N = normalize(mat3(push.normalMatrix) * fragNormalWorld);
-        mat3 TBN = mat3(T, B, N);
-      
+	vec3 tangentNormal = texture(normal, UVs).rgb * 2.0 - 1.0;     
 	vec3 surfaceNormal = normalize(normalize(TBN * tangentNormal));
 			
 	//vec3 surfaceNormal = normalize(fragNormalWorld);

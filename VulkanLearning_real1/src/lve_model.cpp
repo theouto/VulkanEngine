@@ -1,5 +1,5 @@
-#include "lve_model.hpp"
-#include "lve_utils.hpp"
+#include "../include/lve_model.hpp"
+#include "../include/lve_utils.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>

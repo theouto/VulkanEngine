@@ -147,40 +147,40 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="first_app.cpp" />
-    <ClCompile Include="keyboard_movement_controller.cpp" />
-    <ClCompile Include="lve_buffer.cpp" />
-    <ClCompile Include="lve_camera.cpp" />
-    <ClCompile Include="lve_descriptors.cpp" />
-    <ClCompile Include="lve_game_object.cpp" />
-    <ClCompile Include="lve_model.cpp" />
-    <ClCompile Include="lve_renderer.cpp" />
-    <ClCompile Include="lve_textures.cpp" />
-    <ClCompile Include="lve_window.cpp" />
-    <ClCompile Include="lve_pipeline.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="lve_window.hpp" />
-    <ClCompile Include="lve_device.cpp" />
-    <ClCompile Include="lve_swap_chain.cpp" />
-    <ClCompile Include="stb.cpp" />
+    <ClCompile Include="src\first_app.cpp" />
+    <ClCompile Include="src\keyboard_movement_controller.cpp" />
+    <ClCompile Include="src\lve_buffer.cpp" />
+    <ClCompile Include="src\lve_camera.cpp" />
+    <ClCompile Include="src\lve_descriptors.cpp" />
+    <ClCompile Include="src\lve_device.cpp" />
+    <ClCompile Include="src\lve_game_object.cpp" />
+    <ClCompile Include="src\lve_model.cpp" />
+    <ClCompile Include="src\lve_pipeline.cpp" />
+    <ClCompile Include="src\lve_renderer.cpp" />
+    <ClCompile Include="src\lve_swap_chain.cpp" />
+    <ClCompile Include="src\lve_textures.cpp" />
+    <ClCompile Include="src\lve_window.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\stb.cpp" />
     <ClCompile Include="systems\point_light_system.cpp" />
     <ClCompile Include="systems\simple_render_system.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="first_app.hpp" />
-    <ClInclude Include="keyboard_movement_controller.hpp" />
-    <ClInclude Include="lve_buffer.hpp" />
-    <ClInclude Include="lve_camera.hpp" />
-    <ClInclude Include="lve_descriptors.hpp" />
-    <ClInclude Include="lve_frame_info.hpp" />
-    <ClInclude Include="lve_game_object.hpp" />
-    <ClInclude Include="lve_model.hpp" />
-    <ClInclude Include="lve_pipeline.hpp" />
-    <ClInclude Include="lve_device.hpp" />
-    <ClInclude Include="lve_renderer.hpp" />
-    <ClInclude Include="lve_swap_chain.hpp" />
-    <ClInclude Include="lve_textures.hpp" />
-    <ClInclude Include="lve_utils.hpp" />
+    <ClInclude Include="include\first_app.hpp" />
+    <ClInclude Include="include\keyboard_movement_controller.hpp" />
+    <ClInclude Include="include\lve_buffer.hpp" />
+    <ClInclude Include="include\lve_camera.hpp" />
+    <ClInclude Include="include\lve_descriptors.hpp" />
+    <ClInclude Include="include\lve_device.hpp" />
+    <ClInclude Include="include\lve_frame_info.hpp" />
+    <ClInclude Include="include\lve_game_object.hpp" />
+    <ClInclude Include="include\lve_model.hpp" />
+    <ClInclude Include="include\lve_pipeline.hpp" />
+    <ClInclude Include="include\lve_renderer.hpp" />
+    <ClInclude Include="include\lve_swap_chain.hpp" />
+    <ClInclude Include="include\lve_textures.hpp" />
+    <ClInclude Include="include\lve_utils.hpp" />
+    <ClInclude Include="include\lve_window.hpp" />
     <ClInclude Include="systems\point_light_system.hpp" />
     <ClInclude Include="systems\simple_render_system.hpp" />
   </ItemGroup>

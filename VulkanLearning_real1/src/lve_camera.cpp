@@ -1,4 +1,4 @@
-#include "lve_camera.hpp"
+#include "../include/lve_camera.hpp"
 
 #include <cassert>
 #include <limits>

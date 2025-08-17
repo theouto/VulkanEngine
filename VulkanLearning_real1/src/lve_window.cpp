@@ -1,4 +1,4 @@
-#include "lve_window.hpp"
+#include "../include/lve_window.hpp"
 #include <stb_image.h>
 
 #include <stdexcept>
