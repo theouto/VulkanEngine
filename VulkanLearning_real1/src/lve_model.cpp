@@ -26,7 +26,7 @@ namespace std
 
 namespace lve
 {
-	LveModel::LveModel(LveDevice& device, const const LveModel::Builder &builder) : lveDevice{device}
+	LveModel::LveModel(LveDevice& device, const LveModel::Builder &builder) : lveDevice{device}
 	{
 		createVertexBuffers(builder.vertices);
 		createIndexBuffers(builder.indices);
