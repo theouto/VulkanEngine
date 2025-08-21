@@ -81,7 +81,7 @@ vec2 parallaxOcclusionMapping(vec2 uv, vec3 viewDirection)
 	float heightScale = 0.05f;
 	const float minLayers = 8.0f;
 	const float maxLayers = 64.0f;
-	float numLayers = 64.0f; //mix(maxLayers, minLayers, abs(dot(normalize(fragNormalWorld), viewDirection)));
+	float numLayers = mix(maxLayers, minLayers, abs(dot(normalize(fragNormalWorld), viewDirection)));
 	float layerDepth = 1.0f / numLayers;
 	float currentLayerDepth = 0.0f;
 	
@@ -124,8 +124,8 @@ void main()
 	vec3 cameraPosWorld = ubo.invView[3].xyz;
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld);
 
-	//vec2 UVs = parallaxOcclusionMapping(fragUv, viewDirection);
-	vec2 UVs = fragUv;
+	vec2 UVs = parallaxOcclusionMapping(fragUv, viewDirection);
+	//vec2 UVs = fragUv;
 
 	//if (UVs.x > 1.0 || UVs.y > 1.0 || UVs.x < 0.0 || UVs.y < 0.0) {discard;}
 

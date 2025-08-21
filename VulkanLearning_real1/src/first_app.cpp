@@ -94,14 +94,14 @@ namespace lve
                 .build(globalDescriptorSets[i]);
         }
 
-		SimpleRenderSystem simpleRenderSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
+			SimpleRenderSystem simpleRenderSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
         PointLightSystem pointLightSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
         LveCamera camera{};
 
         auto viewerObject = LveGameObject::createGameObject();
         viewerObject.transform.translation.z = -1.5f;
-
-        // https://www.glfw.org/docs/3.3/input_guide.html#raw_mouse_motion <- important
+	
+	        // https://www.glfw.org/docs/3.3/input_guide.html#raw_mouse_motion <- important
         glfwSetInputMode(lveWindow.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         if (glfwRawMouseMotionSupported())
         {
@@ -112,8 +112,8 @@ namespace lve
 
         double mouseX = 0.f;
         double mouseY = 0.f;
-
-        auto currentTime = std::chrono::high_resolution_clock::now();
+	
+	        auto currentTime = std::chrono::high_resolution_clock::now();
 		while (!lveWindow.shouldClose())
 		{
 			glfwPollEvents();
@@ -126,22 +126,26 @@ namespace lve
             cameraController.moveInPlaneXZ(lveWindow.getGLFWwindow(), frameTime, viewerObject, mouseX, mouseY);
             glfwGetCursorPos(lveWindow.getGLFWwindow(), &mouseX, &mouseY);
             camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
+	
 
             float aspect = lveRenderer.getAspectRatio();
             camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.01f, 30.f);
+		
 
-			if (auto commandBuffer = lveRenderer.beginFrame())
-			{
-                int frameIndex = lveRenderer.getFrameIndex();
-                FrameInfo frameInfo
-                {
-                    frameIndex,
-                    frameTime,
-                    commandBuffer,
-                    camera,
-                    globalDescriptorSets[frameIndex],
-                    gameObjects
-                };
+		if (auto commandBuffer = lveRenderer.beginFrame())
+		{		
+			int frameIndex = lveRenderer.getFrameIndex();
+                	FrameInfo frameInfo
+                	{
+                 		frameIndex,
+                		frameTime,
+                    		commandBuffer,
+                    		camera,
+                    		globalDescriptorSets[frameIndex],
+                    		gameObjects
+                	};
+
+		
                 //update               
                 GlobalUbo ubo{};
                 ubo.projection = camera.getProjection();
@@ -152,7 +156,7 @@ namespace lve
                 uboBuffers[frameIndex]->flush();    
 
                 //render
-				lveRenderer.beginSwapChainRenderPass(commandBuffer);
+		lveRenderer.beginSwapChainRenderPass(commandBuffer);
 				
                 //order is important!
                 simpleRenderSystem.renderGameObjects(frameInfo);
