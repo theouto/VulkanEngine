@@ -79,13 +79,13 @@ vec2 parallaxOcclusionMapping(vec2 uv, vec3 viewDirection)
 	
 	//Parallax occlusion mapping quality
 	float heightScale = 0.05f;
-	const float minLayers = 8.0f;
+	const float minLayers = 20.0f;
 	const float maxLayers = 64.0f;
 	float numLayers = mix(maxLayers, minLayers, abs(dot(normalize(fragNormalWorld), viewDirection)));
 	float layerDepth = 1.0f / numLayers;
 	float currentLayerDepth = 0.0f;
 	
-	vec2 S = vec2(viewDirection.z, -viewDirection.y) * heightScale;
+	vec2 S = vec2(viewDirection.z, viewDirection.y) * heightScale;
 	vec2 deltaUVs = S / numLayers;
 	
 	vec2 UVs = uv;
