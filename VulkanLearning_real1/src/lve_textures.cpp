@@ -166,7 +166,7 @@ namespace lve
 			0, nullptr,
 			0, nullptr,
 			1, &barrier);
-
+	
 		lveDevice.endSingleTimeCommands(commandBuffer);
 	}
 

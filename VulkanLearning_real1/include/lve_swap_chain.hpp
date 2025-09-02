@@ -81,7 +81,7 @@ class LveSwapChain {
         VkImage colorImage;
         VkDeviceMemory colorImageMemory;
         VkImageView colorImageView;
-        
+
         LveDevice &device;
         VkExtent2D windowExtent;
         

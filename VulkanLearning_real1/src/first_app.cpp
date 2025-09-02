@@ -101,6 +101,7 @@ namespace lve
         auto viewerObject = LveGameObject::createGameObject();
         viewerObject.transform.translation.z = -1.5f;
 	
+
 	        // https://www.glfw.org/docs/3.3/input_guide.html#raw_mouse_motion <- important
         glfwSetInputMode(lveWindow.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         if (glfwRawMouseMotionSupported())
@@ -113,10 +114,11 @@ namespace lve
         double mouseX = 0.f;
         double mouseY = 0.f;
 	
-	        auto currentTime = std::chrono::high_resolution_clock::now();
-		while (!lveWindow.shouldClose())
-		{
-			glfwPollEvents();
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	
+	while (!lveWindow.shouldClose())
+	{
+	    glfwPollEvents();
 
             auto newTime = std::chrono::high_resolution_clock::now();
             float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();

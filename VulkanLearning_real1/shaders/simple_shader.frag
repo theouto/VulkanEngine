@@ -124,8 +124,8 @@ void main()
 	vec3 cameraPosWorld = ubo.invView[3].xyz;
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld);
 
-	vec2 UVs = parallaxOcclusionMapping(fragUv, viewDirection);
-	//vec2 UVs = fragUv;
+	//vec2 UVs = parallaxOcclusionMapping(fragUv, viewDirection);
+	vec2 UVs = fragUv;
 
 	//if (UVs.x > 1.0 || UVs.y > 1.0 || UVs.x < 0.0 || UVs.y < 0.0) {discard;}
 
