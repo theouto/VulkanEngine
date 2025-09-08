@@ -3,6 +3,8 @@
 #include "lve_game_object.hpp"
 #include "lve_textures.hpp"
 
+#include <vector>
+
 
 //The point of the game object master will be to streamline the process of having game objects,
 //also easing the process of having objects with different textures in the scene while managing their material properties
@@ -12,13 +14,11 @@
 
 namespace lve
 {
-	struct lvobj
+	class ObjectMaster
 	{
-		//TODO
-	}
-	
-	public:
-
-	private:
-
+		public:
+		
+		private:
+			std::vector<LveTextures> textures;
+	};
 }

@@ -65,6 +65,30 @@ namespace lve
 	private:
 		void createVertexBuffers(const std::vector<Vertex> &vertices);
 		void createIndexBuffers(const std::vector<uint32_t>& indices);
+		
+
+		//Will be used for material work. Placing it in the model header file because technically all models
+		//need materials to be seen, because they all need shaders. This way I can also do defaults, and I can
+		//have the ICONIC black and purple chequered missing texture.
+		enum class MaterialPass :uint8_t
+		{
+			MainColor,
+			Transparent,
+			Other
+		};
+
+		struct MaterialPipeline
+		{
+			VkPipeline pipeline;
+			VkPipelineLayout layout;
+		};
+
+		struct MaterialInstance
+		{
+			MaterialPipeline* pipeline;
+			VkDescriptorSet materialSet;
+			MaterialPass passType;
+		};
 
 		LveDevice &lveDevice;
 
