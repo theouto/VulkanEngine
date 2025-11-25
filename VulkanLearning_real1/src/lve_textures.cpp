@@ -53,11 +53,8 @@ namespace lve
                 format = 1;
                 break;
         }
-		if (textureFormat == VK_FORMAT_R8G8B8A8_SRGB){format = 4;}
-		else if (textureFormat == VK_FORMAT_R8_UNORM) { format = 1; }
-		else if (textureFormat == VK_FORMAT_R8_SRGB) { format = 1; }
-		else if (textureFormat == VK_FORMAT_R8G8B8A8_UNORM) { format = 4; }
-		else if (textureFormat == VK_FORMAT_R8G8B8_UNORM) { format = 3; } //todo
+		
+        //else if (textureFormat == VK_FORMAT_R8G8B8_UNORM) { format = 3; } //todo
 
 		stbi_uc* pixels = stbi_load(filePath, &texWidth, &texHeight, &texChannels, format);
 		VkDeviceSize imageSize = texWidth * texHeight * format;
