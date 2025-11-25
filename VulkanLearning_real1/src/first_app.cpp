@@ -23,9 +23,8 @@ namespace lve
     {
         globalPool = LveDescriptorPool::Builder(lveDevice)
             .setMaxSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS)
             .build();
         loadGameObjects();
     }
@@ -49,11 +48,6 @@ namespace lve
 
         //LveTextures metalness{ lveDevice, "textures/PavingStones115C_2K-PNG_Reflectiveness.png", VK_FORMAT_R8_UNORM };
 
-        //LveTextures texture{ lveDevice, "textures/PavingStones115C_8K-PNG_Color.png", VK_FORMAT_R8G8B8A8_SRGB };
-        //LveTextures specular{ lveDevice, "textures/PavingStones115C_8K-PNG_Roughness.png", VK_FORMAT_R8_UNORM };
-        //LveTextures normal{ lveDevice, "textures/PavingStones115C_8K-PNG_NormalGL.png", VK_FORMAT_R8G8B8A8_UNORM };
-        //LveTextures displacement{ lveDevice, "textures/PavingStones115C_8K-PNG_Displacement.png", VK_FORMAT_R8_UNORM };
-
         std::vector<std::unique_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
         {
@@ -66,6 +60,7 @@ namespace lve
             uboBuffers[i]->map();
         }
 
+        //I will fix this garbage
         auto globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
@@ -94,7 +89,7 @@ namespace lve
                 .build(globalDescriptorSets[i]);
         }
 
-			SimpleRenderSystem simpleRenderSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
+		SimpleRenderSystem simpleRenderSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
         PointLightSystem pointLightSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
         LveCamera camera{};
 
@@ -158,7 +153,7 @@ namespace lve
                 uboBuffers[frameIndex]->flush();    
 
                 //render
-		lveRenderer.beginSwapChainRenderPass(commandBuffer);
+		        lveRenderer.beginSwapChainRenderPass(commandBuffer);
 				
                 //order is important!
                 simpleRenderSystem.renderGameObjects(frameInfo);
@@ -202,6 +197,20 @@ namespace lve
         quad.transform.translation = { 0.f, .5f, 0.f };
         quad.transform.scale = { 3.f, 1.f, 3.f };
         gameObjects.emplace(quad.getId(), std::move(quad));
+
+        for (auto& gameObject : gameObjects) {
+        // Create descriptor sets for each frame in flight
+        std::vector<LveDescriptorSetLayout> layouts(LveSwapChain::MAX_FRAMES_IN_FLIGHT, *LveGameObject::descriptorSetLayout);
+        vk::DescriptorSetAllocateInfo allocInfo{
+            .descriptorPool = *descriptorPool,
+            .descriptorSetCount = static_cast<uint32_t>(layouts.size()),
+            .pSetLayouts = layouts.data()
+        };
+
+        gameObject.second.descriptorSetLayout = lveDevice.allocateDescriptorSets(allocInfo);
+        
+        gameObject.second.createDescriptorSets();
+        }
 
         std::vector<glm::vec3> lightColors{
             {1.f, .1f, .1f},

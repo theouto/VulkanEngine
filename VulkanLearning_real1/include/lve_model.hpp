@@ -2,11 +2,13 @@
 
 #include "lve_device.hpp"
 #include "lve_buffer.hpp"
+#include "lve_textures.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 
+#include <vector>
 #include <memory>
 #include <vector>
 
@@ -45,15 +47,14 @@ namespace lve
 			void loadModel(const std::string& filepath);
 		};
 
+        
 		LveModel(LveDevice & device, const LveModel::Builder &builder);
 		~LveModel();
 
 		LveModel(const LveModel&) = delete;
 		LveModel& operator=(const LveModel&) = delete;
-		
-		
-		VkDescriptorSetLayout descriptorSetLayout;
-		VkDescriptorPool descriptorPool;
+	    
+      	VkDescriptorPool descriptorPool;
 
 		std::vector<VkDescriptorSet> descriptorSets;
 
@@ -66,31 +67,8 @@ namespace lve
 		void createVertexBuffers(const std::vector<Vertex> &vertices);
 		void createIndexBuffers(const std::vector<uint32_t>& indices);
 		
-
-		//Will be used for material work. Placing it in the model header file because technically all models
-		//need materials to be seen, because they all need shaders. This way I can also do defaults, and I can
-		//have the ICONIC black and purple chequered missing texture.
-		enum class MaterialPass :uint8_t
-		{
-			MainColor,
-			Transparent,
-			Other
-		};
-
-		struct MaterialPipeline
-		{
-			VkPipeline pipeline;
-			VkPipelineLayout layout;
-		};
-
-		struct MaterialInstance
-		{
-			MaterialPipeline* pipeline;
-			VkDescriptorSet materialSet;
-			MaterialPass passType;
-		};
-
-		LveDevice &lveDevice;
+        std::vector<std::unique_ptr<LveTextures>> textures;
+        LveDevice &lveDevice;
 
 		std::unique_ptr<LveBuffer> vertexBuffer;
 		uint32_t vertexCount;

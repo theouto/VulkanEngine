@@ -29,6 +29,19 @@ layout(set = 0, binding = 0) uniform GlobalUbo
   int numLights;
 } ubo;
 
+layout(material) uniform Material
+{
+  //I don't want branches on my shader code, but until I have a better system, this will unfortunately have to do to avoid pitch darkness.
+  bool colTex;
+  sampler2D color;
+  bool specTex;
+  sampler2D specular;
+  bool normTex;
+  sampler2D normal;
+  bool depthTex;
+  sampler2D depth;
+} mat;
+
 layout(push_constant) uniform Push
 {
 	mat4 modelMatrix;
@@ -75,8 +88,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float k)
 //}
 
 vec2 parallaxOcclusionMapping(vec2 uv, vec3 viewDirection)
-{
-	
+{	
 	//Parallax occlusion mapping quality
 	float heightScale = 0.05f;
 	const float minLayers = 20.0f;
@@ -131,7 +143,7 @@ void main()
 
 	vec3 tangentNormal = texture(normal, UVs).rgb * 2.0 - 1.0;     
 	vec3 surfaceNormal = normalize(normalize(TBN * tangentNormal));
-			
+	
 	//vec3 surfaceNormal = normalize(fragNormalWorld);
 	
 

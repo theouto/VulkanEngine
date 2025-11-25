@@ -1,5 +1,6 @@
 #include "../include/lve_game_object.hpp"
 
+#include <vector>
 namespace lve
 {
 	glm::mat4 TransformComponent::mat4() 
@@ -33,6 +34,42 @@ namespace lve
 			{translation.x, translation.y, translation.z, 1.0f} };
 	}
 
+    void LveGameObject::createDescriptorSets()
+    {
+      for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            vk::DescriptorBufferInfo bufferInfo{
+                .buffer = *gameObject.uniformBuffers[i],
+                .offset = 0,
+                .range = sizeof(UniformBufferObject)
+            };
+            vk::DescriptorImageInfo imageInfo{
+                .sampler = *textureSampler,
+                .imageView = *textureImageView,
+                .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal
+            };
+            std::array descriptorWrites{
+                LveDescriptorWriter{
+                    .dstSet = *gameObject.descriptorSets[i],
+                    .dstBinding = 0,
+                    .dstArrayElement = 0,
+                    .descriptorCount = 1,
+                    .descriptorType = vk::DescriptorType::eUniformBuffer,
+                    .pBufferInfo = &bufferInfo
+                },
+                vk::WriteDescriptorSet{
+                    .dstSet = *gameObject.descriptorSets[i],
+                    .dstBinding = 1,
+                    .dstArrayElement = 0,
+                    .descriptorCount = 1,
+                    .descriptorType = vk::DescriptorType::eCombinedImageSampler,
+                    .pImageInfo = &imageInfo
+                }
+            };
+            device.updateDescriptorSets(descriptorWrites, {});
+        }
+
+    }
+
 	glm::mat3 TransformComponent::normalMatrix()
 	{
 		const float c3 = glm::cos(rotation.z);
@@ -61,7 +98,7 @@ namespace lve
 			},
 		};
 	}
-
+ 
 	LveGameObject LveGameObject::makePointLight(float intensity, float radius, glm::vec3 color)
 	{
 		LveGameObject gameObj = LveGameObject::createGameObject();

@@ -138,7 +138,7 @@ namespace lve
 		attributeDescriptions.push_back({ 3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) });
 
 		return attributeDescriptions;
-	}
+	} 
 
 	void LveModel::Builder::loadModel(const std::string& filepath)
 	{

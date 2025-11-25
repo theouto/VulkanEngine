@@ -2,7 +2,6 @@
 
 #include "lve_device.hpp"
 #include "lve_descriptors.hpp"
-#include "lve_model.hpp"
 #include "lve_buffer.hpp"
 #include "lve_window.hpp"
 
@@ -31,6 +30,7 @@ namespace lve
 		void createTextureImageView();
 		void createTextureSampler();
 		void generateMipmaps(int32_t texWidth, int32_t texHeight);
+        texType getTexType() {return tType;}
 
 		//getter functions, used for destruction
 		VkImage& getTextureImage() { return textureImage; }

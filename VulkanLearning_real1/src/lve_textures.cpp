@@ -3,6 +3,7 @@
 #include <stb_image.h>
 #include <iostream>
 
+#include <math.h>
 #include <cassert>
 #include <cstring>
 #include <stdexcept>

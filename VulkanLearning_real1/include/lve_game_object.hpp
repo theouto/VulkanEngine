@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lve_model.hpp"
+#include "lve_textures.hpp"
 
 // libs
 #include <glm/gtc/matrix_transform.hpp>
@@ -24,6 +25,18 @@ namespace lve {
         glm::mat3 normalMatrix();
     };
 
+    struct Material 
+    {
+        bool color;
+        VkSampler tColor;
+        bool spec;
+        VkSampler tSpec;
+        bool normal;
+        VkSampler tNormal;
+        bool depth;
+        VkSampler tDepth;
+    };
+
     struct PointLightComponent
     {
         float lightIntensity = 1.0f;
@@ -31,6 +44,8 @@ namespace lve {
 
     class LveGameObject {
     public:
+
+        static constexpr int MAX_OBJECTS = 10;
         using id_t = unsigned int;
         using Map = std::unordered_map<id_t, LveGameObject>;
 
@@ -49,8 +64,13 @@ namespace lve {
         id_t getId() { return id; }
 
         std::shared_ptr<LveModel> model{};
+        Material mat{};
         glm::vec3 color{};
         TransformComponent transform{};
+        
+        void createDescriptorSets();
+		VkDescriptorSetLayout descriptorSetLayout;
+        std::vector<std::unique_ptr<LveTextures>> textures;
 
         std::unique_ptr<PointLightComponent> pointLight = nullptr;
 
