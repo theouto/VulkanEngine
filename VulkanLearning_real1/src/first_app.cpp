@@ -36,16 +36,16 @@ namespace lve
 	void FirstApp::run()
 	{
         std::unique_ptr<LveTextures> texture = std::make_unique<LveTextures>( lveDevice, 
-            "textures/PavingStones115C_2K-PNG_Color.png", VK_FORMAT_R8G8B8A8_SRGB);
+            "textures/PavingStones115C_2K-PNG_Color.png", LveTextures::COLOR);
 
         std::unique_ptr<LveTextures> specular = std::make_unique<LveTextures>( lveDevice, 
-            "textures/PavingStones115C_2K-PNG_Roughness.png", VK_FORMAT_R8_UNORM );
+            "textures/PavingStones115C_2K-PNG_Roughness.png", LveTextures::SPECULAR );
         
         std::unique_ptr<LveTextures> normal = std::make_unique<LveTextures>( lveDevice,
-            "textures/PavingStones115C_2K-PNG_NormalGL.png", VK_FORMAT_R8G8B8A8_UNORM );
+            "textures/PavingStones115C_2K-PNG_NormalGL.png", LveTextures::NORMAL);
         
         std::unique_ptr<LveTextures> displacement = std::make_unique<LveTextures>( lveDevice,
-            "textures/PavingStones115C_2K-PNG_Displacement.png", VK_FORMAT_R8_UNORM );
+            "textures/PavingStones115C_2K-PNG_Displacement.png", LveTextures::DEPTH);
 
         //LveTextures metalness{ lveDevice, "textures/PavingStones115C_2K-PNG_Reflectiveness.png", VK_FORMAT_R8_UNORM };
 

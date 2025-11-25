@@ -11,7 +11,16 @@ namespace lve
 	class LveTextures
 	{
 	public:
-		LveTextures(LveDevice& device, const char *path, VkFormat format);
+
+        enum texType
+        {
+          COLOR,
+          NORMAL,
+          SPECULAR,
+          DEPTH,
+        };
+ 
+		LveTextures(LveDevice& device, const char *path, texType tType);
 		~LveTextures();
 
 		void createTextureImage();
@@ -44,7 +53,8 @@ namespace lve
 
 		uint32_t mipLevels;
 		VkFormat textureFormat;
-		const char *filePath;
+		texType tType;
+        const char *filePath;
 
 		LveDevice& lveDevice;
 		VkImage textureImage;
@@ -52,5 +62,6 @@ namespace lve
 		VkImageCreateInfo imageInfo{};
 		VkImageView textureImageView;
 		VkSampler textureSampler;
-	};
+
+    };
 }

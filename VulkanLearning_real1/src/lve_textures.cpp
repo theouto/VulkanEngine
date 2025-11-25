@@ -6,12 +6,13 @@
 #include <cassert>
 #include <cstring>
 #include <stdexcept>
+#include <vulkan/vulkan_core.h>
 
 
 namespace lve
 {
-	LveTextures::LveTextures(LveDevice& device, const char *path, VkFormat format) 
-		: lveDevice{device}, filePath{path}, textureFormat{format}
+	LveTextures::LveTextures(LveDevice& device, const char *path, texType teType) 
+		: lveDevice{device}, filePath{path}, tType{teType}
 	{
 		createTextureImage();
 		createTextureImageView();
@@ -32,7 +33,26 @@ namespace lve
 	{
 		int texWidth, texHeight, texChannels;
 		int format = 0;
-		
+	    
+        switch (tType)
+        {
+          case COLOR:
+                textureFormat = VK_FORMAT_R8G8B8A8_SRGB;
+                format = 4;
+                break;
+          case NORMAL:
+                textureFormat = VK_FORMAT_R8G8B8A8_UNORM;
+                format = 4;
+                break;
+          case SPECULAR:
+                textureFormat = VK_FORMAT_R8_UNORM;
+                format = 1;
+                break;
+          case DEPTH:
+                textureFormat = VK_FORMAT_R8_UNORM;
+                format = 1;
+                break;
+        }
 		if (textureFormat == VK_FORMAT_R8G8B8A8_SRGB){format = 4;}
 		else if (textureFormat == VK_FORMAT_R8_UNORM) { format = 1; }
 		else if (textureFormat == VK_FORMAT_R8_SRGB) { format = 1; }
