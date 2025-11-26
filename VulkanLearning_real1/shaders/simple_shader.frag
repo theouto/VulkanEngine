@@ -11,7 +11,7 @@ layout(set = 1, binding = 1) uniform sampler2D texSampler;
 layout(set = 1, binding = 2) uniform sampler2D specular;
 layout(set = 1, binding = 3) uniform sampler2D normals;
 layout(set = 1, binding = 4) uniform sampler2D displacement;
-//layout(binding = 5) uniform sampler2D metalness;
+layout(set = 1, binding = 5) uniform sampler2D AO;
 
 struct PointLight
 {
@@ -37,6 +37,8 @@ layout(push_constant) uniform Push
 
 const float M_PI = 3.1415926538;
 
+/* divider for cleanliness */
+
 //GGX - https://learnopengl.com/PBR/Theory
 float DistributionGGX(vec3 N, vec3 H, float a)
 {
@@ -50,6 +52,8 @@ float DistributionGGX(vec3 N, vec3 H, float a)
 	
     return nom / denom;
 }
+
+/* divider for cleanliness */
 
 float GeometrySchlickGGX(float NdotV, float k)
 {
@@ -74,38 +78,42 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float k)
 //    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 //}
 
+/* divider for cleanliness */
+
 vec2 parallaxOcclusionMapping(vec2 uv, vec3 viewDirection)
 {	
+    
 	//Parallax occlusion mapping quality
-	float heightScale = 0.05f;
-	const float minLayers = 20.0f;
+	float heightScale = 0.05f;	
+    const float minLayers = 20.0f;
 	const float maxLayers = 64.0f;
 	float numLayers = mix(maxLayers, minLayers, abs(dot(normalize(fragNormalWorld), viewDirection)));
 	float layerDepth = 1.0f / numLayers;
 	float currentLayerDepth = 0.0f;
 	
-	vec2 S = vec2(viewDirection.z, viewDirection.y) * heightScale;
+	vec2 S = vec2(viewDirection.z, -1.0f * viewDirection.y) * heightScale;
 	vec2 deltaUVs = S / numLayers;
 	
 	vec2 UVs = uv;
-	float currentDepthMapValue = 1.0f - texture(displacement, UVs).r;
+	float currentDepthMapValue = (1.f - texture(displacement, UVs).r);
 	
 	while(currentLayerDepth < currentDepthMapValue)
 	{
 		UVs -= deltaUVs;
-		currentDepthMapValue = 1.0f - texture(displacement, UVs).r;
+		currentDepthMapValue = ( 1.f - texture(displacement, UVs).r);
 		currentLayerDepth += layerDepth;
 	}
 	
 	vec2 prevTexCoords = UVs + deltaUVs;
 	float afterDepth  = currentDepthMapValue - currentLayerDepth;
-	float beforeDepth = 1.0f - texture(displacement, prevTexCoords).r - currentLayerDepth + layerDepth;
+	float beforeDepth = (1.f - texture(displacement, prevTexCoords).r) - currentLayerDepth + layerDepth;
 	float weight = afterDepth / (afterDepth / beforeDepth);
 	UVs = prevTexCoords * weight + UVs * (1.0f - weight);
 
-	return UVs;
-
+	return UVs; 
 }
+
+/* divider for cleanliness */
 
 void main()
 {
@@ -158,17 +166,11 @@ void main()
 
 		//specular
 		vec3 halfAngle = normalize(directionToLight + viewDirection);
-		//float blinnTerm = dot(surfaceNormal, halfAngle);
-		//blinnTerm = clamp(blinnTerm, 0, 1);
-		//blinnTerm = pow(blinnTerm, texture(specular, fragUv).x * 80.0); //higher == sharper
-		//specularLight += intensity * blinnTerm;
-
-		//GGX - https://learnopengl.com/PBR/Theory
 		
 		specularLight += intensity * DistributionGGX(surfaceNormal, halfAngle, texture(specular, UVs).x);
 	}
 	
 	//outColor = vec4(surfaceNormal, 1.0);
-	outColor = texture(texSampler, UVs) * vec4(diffuseLight, 0.0) 
+	outColor = texture(texSampler, UVs) * vec4(diffuseLight, 0.0) * texture(AO, UVs).r
 		+  texture(texSampler, UVs) * vec4(specularLight, 0.0f);
 }
