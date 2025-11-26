@@ -10,7 +10,6 @@ layout(location = 1) out vec3 fragPosWorld;
 layout(location = 2) out vec3 fragNormalWorld;
 layout(location = 3) out vec2 fragUv;
 
-
 struct PointLight
 {
 	vec4 position;
@@ -26,19 +25,6 @@ layout(set = 0, binding = 0) uniform GlobalUbo
   PointLight pointLights[10];
   int numLights;
 } ubo;
-
-layout(material) uniform Material
-{
-  //I don't want branches on my shader code, but until I have a better system, this will unfortunately have to do to avoid pitch darkness.
-  bool colTex;
-  sampler2D color;
-  bool specTex;
-  sampler2D specular;
-  bool normTex;
-  sampler2D normal;
-  bool depthTex;
-  sampler2D depth;
-}
 
 layout(push_constant) uniform Push 
 {

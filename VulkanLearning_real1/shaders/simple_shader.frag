@@ -7,10 +7,10 @@ layout (location = 3) in vec2 fragUv;
 
 layout (location = 0) out vec4 outColor;
 
-layout(binding = 1) uniform sampler2D texSampler;
-layout(binding = 2) uniform sampler2D specular;
-layout(binding = 3) uniform sampler2D normal;
-layout(binding = 4) uniform sampler2D displacement;
+layout(set = 1, binding = 1) uniform sampler2D texSampler;
+layout(set = 1, binding = 2) uniform sampler2D specular;
+layout(set = 1, binding = 3) uniform sampler2D normal;
+layout(set = 1, binding = 4) uniform sampler2D displacement;
 //layout(binding = 5) uniform sampler2D metalness;
 
 struct PointLight
@@ -28,19 +28,6 @@ layout(set = 0, binding = 0) uniform GlobalUbo
   PointLight pointLights[10];
   int numLights;
 } ubo;
-
-layout(material) uniform Material
-{
-  //I don't want branches on my shader code, but until I have a better system, this will unfortunately have to do to avoid pitch darkness.
-  bool colTex;
-  sampler2D color;
-  bool specTex;
-  sampler2D specular;
-  bool normTex;
-  sampler2D normal;
-  bool depthTex;
-  sampler2D displacement;
-} mat;
 
 layout(push_constant) uniform Push
 {

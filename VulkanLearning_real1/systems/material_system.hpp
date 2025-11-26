@@ -8,6 +8,7 @@
 
 namespace lve
 {
+  /*
   struct Material 
   {
     bool color;
@@ -19,6 +20,7 @@ namespace lve
     bool depth;
     VkSampler tDepth;
   };
+  */
 
   enum class MaterialPass :uint8_t {
     MainColor,
@@ -38,7 +40,8 @@ namespace lve
     MaterialPass passType;
   };
 
-  struct GLTFMetallic_Roughness {
+  class MaterialSystem 
+  {
 	MaterialPipeline opaquePipeline;
 	MaterialPipeline transparentPipeline;
 
@@ -53,23 +56,19 @@ namespace lve
 
 	struct MaterialResources {
         std::unique_ptr<LveTextures> colorImage;
-		VkSampler colorSampler;
-		std::unique_ptr<LveTextures> metalRoughImage;
-		VkSampler metalRoughSampler;
+		std::unique_ptr<LveTextures> specImage;
         std::unique_ptr<LveTextures> normalMap;
-		VkSampler normalSampler;
 		std::unique_ptr<LveTextures> displacementImage;
-		VkSampler displacementSampler;
-		VkBuffer dataBuffer;
+		LveBuffer dataBuffer;
 		uint32_t dataBufferOffset;
 	};
 
 	LveDescriptorWriter writer;
 
-	void build_pipelines(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
+	void build_pipelines(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout& globalSetLayout);
 	void clear_resources(VkDevice device);
 
-	MaterialInstance write_material(VkDevice device, MaterialPass pass, const MaterialResources& resources, LveDescriptorPool& descriptorAllocator);
+	MaterialInstance write_material(LveDevice device, MaterialPass pass, MaterialResources& resources, LveDescriptorPool& descriptorAllocator);
 };
 
 }

@@ -22,7 +22,7 @@ namespace lve
 	FirstApp::FirstApp()
     {
         globalPool = LveDescriptorPool::Builder(lveDevice)
-            .setMaxSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveSwapChain::MAX_FRAMES_IN_FLIGHT)
+            .setMaxSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS)
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS)
             .build();
@@ -34,6 +34,7 @@ namespace lve
 
 	void FirstApp::run()
 	{
+        /*
         std::unique_ptr<LveTextures> texture = std::make_unique<LveTextures>( lveDevice, 
             "textures/PavingStones115C_2K-PNG_Color.png", LveTextures::COLOR);
 
@@ -47,6 +48,7 @@ namespace lve
             "textures/PavingStones115C_2K-PNG_Displacement.png", LveTextures::DEPTH);
 
         //LveTextures metalness{ lveDevice, "textures/PavingStones115C_2K-PNG_Reflectiveness.png", VK_FORMAT_R8_UNORM };
+        */
 
         std::vector<std::unique_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
@@ -62,11 +64,7 @@ namespace lve
 
         //I will fix this garbage
         auto globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
-            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
-            .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
-            .addBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)            
             //.addBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
             .build();   
 
@@ -75,17 +73,21 @@ namespace lve
         {
             auto bufferInfo = uboBuffers[i]->descriptorInfo();
 
+            /*
             auto imageInfo = texture->getDescriptorInfo();
             auto specInfo = specular->getDescriptorInfo();
             auto nomInfo = normal->getDescriptorInfo();
             auto dispInfo = displacement->getDescriptorInfo();
+            */
 
             LveDescriptorWriter(*globalSetLayout, *globalPool)
                 .writeBuffer(0, &bufferInfo)
+                /*
                 .writeImage(1, &imageInfo)
                 .writeImage(2, &specInfo)
                 .writeImage(3, &nomInfo)
                 .writeImage(4, &dispInfo)
+                */
                 .build(globalDescriptorSets[i]);
         }
 
@@ -170,26 +172,39 @@ namespace lve
 
 	void FirstApp::loadGameObjects()
 	{
-        std::vector<std::unique_ptr<LveTextures>> textures = {
+        std::unique_ptr<LveTextures> texture = std::make_unique<LveTextures>( lveDevice, 
+            "textures/PavingStones115C_2K-PNG_Color.png", LveTextures::COLOR);
 
-        std::make_unique<LveTextures>( lveDevice, 
-            "textures/PavingStones115C_2K-PNG_Color.png", LveTextures::COLOR),
+        std::unique_ptr<LveTextures> specular = std::make_unique<LveTextures>( lveDevice, 
+            "textures/PavingStones115C_2K-PNG_Roughness.png", LveTextures::SPECULAR );
+        
+        std::unique_ptr<LveTextures> normal = std::make_unique<LveTextures>( lveDevice,
+            "textures/PavingStones115C_2K-PNG_NormalGL.png", LveTextures::NORMAL);
+        
+        std::unique_ptr<LveTextures> displacement = std::make_unique<LveTextures>( lveDevice,
+            "textures/PavingStones115C_2K-PNG_Displacement.png", LveTextures::DEPTH);
 
-        std::make_unique<LveTextures>( lveDevice, 
-            "textures/PavingStones115C_2K-PNG_Roughness.png", LveTextures::SPECULAR ),
-        
-        std::make_unique<LveTextures>( lveDevice,
-            "textures/PavingStones115C_2K-PNG_NormalGL.png", LveTextures::NORMAL),
-        
-        std::make_unique<LveTextures>( lveDevice,
-            "textures/PavingStones115C_2K-PNG_Displacement.png", LveTextures::DEPTH) 
-        };
       
+        std::vector<std::unique_ptr<LveTextures>> texteres(4);
+        texteres.push_back(texture);
+        texteres.push_back(specular);
+        texteres.push_back(normal);
+        texteres.push_back(displacement);
+
+        auto matLayout = LveDescriptorSetLayout::Builder(lveDevice)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .addBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .build();
+
+        
         std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/pleasepot.obj");
         auto gameObj = LveGameObject::createGameObject();
         gameObj.model = lveModel;
         gameObj.transform.translation = { .0f, .5f, 0.f };
         gameObj.transform.scale = { .25f, -.25f, .25f };
+        gameObj.textures = texteres;
         gameObjects.emplace(gameObj.getId(), std::move(gameObj));
 
         lveModel = LveModel::createModelFromFile(lveDevice, "models/smooth_vase.obj");
@@ -197,6 +212,7 @@ namespace lve
         sVase.model = lveModel;
         sVase.transform.translation = { -.5f, .0f, 0.f };
         sVase.transform.scale = { 1.f, 1.f, 1.f };
+        sVase.textures = texteres;
         gameObjects.emplace(sVase.getId(), std::move(sVase));
 
         lveModel = LveModel::createModelFromFile(lveDevice, "models/flat_vase.obj");
@@ -204,6 +220,7 @@ namespace lve
         vase.model = lveModel;
         vase.transform.translation = { .5f, .0f, 0.f };
         vase.transform.scale = { 1.f, 1.f, 1.f };
+        vase.textures = texteres;
         gameObjects.emplace(vase.getId(), std::move(vase));
 
         lveModel = LveModel::createModelFromFile(lveDevice, "models/quad.obj");
@@ -211,7 +228,25 @@ namespace lve
         quad.model = lveModel;
         quad.transform.translation = { 0.f, .5f, 0.f };
         quad.transform.scale = { 3.f, 1.f, 3.f };
+        quad.textures = texteres;
         gameObjects.emplace(quad.getId(), std::move(quad));
+
+        for (auto &kv : gameObjects)
+        {
+          auto tex = kv.second.textures;
+
+          auto colorInfo = tex[0]->getDescriptorInfo();
+          auto specInfo = tex[1]->getDescriptorInfo();
+          auto normInfo = tex[2]->getDescriptorInfo();
+          auto dispInfo = tex[3]->getDescriptorInfo();
+
+          LveDescriptorWriter(*matLayout, *globalPool)
+                .writeImage(1, &colorInfo) // colour
+                .writeImage(2, &specInfo) //spec 
+                .writeImage(3, &normInfo) //normal
+                .writeImage(4, &dispInfo) //displacement 
+                .build(kv.second.descriptorSet);
+        }
 
         std::vector<glm::vec3> lightColors{
             {1.f, .1f, .1f},

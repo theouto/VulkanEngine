@@ -82,4 +82,25 @@ namespace lve
 		gameObj.pointLight->lightIntensity = intensity;
 		return gameObj;
 	}
+
+    void LveGameObject::write_material(LveDevice device, LveDescriptorSetLayout descLayout, LveDescriptorPool& descPool, LveBuffer &lveBuffer)
+    {
+      auto writer = LveDescriptorWriter(descLayout, descPool); 
+
+      auto colorInfo = textures[0]->getDescriptorInfo();
+      auto specInfo = textures[1]->getDescriptorInfo();
+      auto normInfo = textures[2]->getDescriptorInfo();
+      auto dispInfo = textures[3]->getDescriptorInfo();
+      auto buffInfo = lveBuffer.descriptorInfo();
+
+      //writer.clear();
+	  writer.writeBuffer(0, &buffInfo);
+	  writer.writeImage(1, &colorInfo);
+	  writer.writeImage(2, &specInfo);
+      writer.writeImage(3, &normInfo);
+	  writer.writeImage(4, &dispInfo);
+
+
+	  writer.build(descriptorSet);
+    }
 }

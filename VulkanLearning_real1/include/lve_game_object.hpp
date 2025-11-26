@@ -51,13 +51,16 @@ namespace lve {
 
         id_t getId() { return id; }
 
-        std::shared_ptr<LveModel> model{}; 
+        std::shared_ptr<LveModel> model{};
         glm::vec3 color{};
         TransformComponent transform{};
         
         void createDescriptorSets();
 		VkDescriptorSetLayout descriptorSetLayout;
+        VkDescriptorSet descriptorSet{};
         std::vector<std::unique_ptr<LveTextures>> textures;
+
+        void write_material(LveDevice device, LveDescriptorSetLayout descLayout, LveDescriptorPool& descriptorAllocator, LveBuffer &lveBuffer);
 
         std::unique_ptr<PointLightComponent> pointLight = nullptr;
 
