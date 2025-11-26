@@ -58,7 +58,7 @@ namespace lve {
         void createDescriptorSets();
 		VkDescriptorSetLayout descriptorSetLayout;
         VkDescriptorSet descriptorSet{};
-        std::vector<std::unique_ptr<LveTextures>> textures;
+        std::vector<std::shared_ptr<LveTextures>> textures;
 
         void write_material(LveDevice device, LveDescriptorSetLayout descLayout, LveDescriptorPool& descriptorAllocator, LveBuffer &lveBuffer);
 

@@ -9,7 +9,7 @@ layout (location = 0) out vec4 outColor;
 
 layout(set = 1, binding = 1) uniform sampler2D texSampler;
 layout(set = 1, binding = 2) uniform sampler2D specular;
-layout(set = 1, binding = 3) uniform sampler2D normal;
+layout(set = 1, binding = 3) uniform sampler2D normals;
 layout(set = 1, binding = 4) uniform sampler2D displacement;
 //layout(binding = 5) uniform sampler2D metalness;
 
@@ -128,7 +128,7 @@ void main()
 
 	//if (UVs.x > 1.0 || UVs.y > 1.0 || UVs.x < 0.0 || UVs.y < 0.0) {discard;}
 
-	vec3 tangentNormal = texture(normal, UVs).rgb * 2.0 - 1.0;     
+	vec3 tangentNormal = texture(normals, UVs).rgb * 2.0 - 1.0;     
 	vec3 surfaceNormal = normalize(normalize(TBN * tangentNormal));
 	
 	//vec3 surfaceNormal = normalize(fragNormalWorld);

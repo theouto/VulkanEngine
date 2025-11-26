@@ -10,6 +10,11 @@ layout(location = 1) out vec3 fragPosWorld;
 layout(location = 2) out vec3 fragNormalWorld;
 layout(location = 3) out vec2 fragUv;
 
+layout(set = 1, binding = 1) uniform sampler2D texSampler;
+layout(set = 1, binding = 2) uniform sampler2D specular;
+layout(set = 1, binding = 3) uniform sampler2D normals;
+layout(set = 1, binding = 4) uniform sampler2D displacement;
+
 struct PointLight
 {
 	vec4 position;

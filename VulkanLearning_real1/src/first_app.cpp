@@ -6,6 +6,7 @@
 #include "../include/lve_frame_info.hpp"
 #include "../systems/point_light_system.hpp"
 #include "../systems/simple_render_system.hpp"
+#include <memory>
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -22,9 +23,9 @@ namespace lve
 	FirstApp::FirstApp()
     {
         globalPool = LveDescriptorPool::Builder(lveDevice)
-            .setMaxSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS)
+            .setMaxSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS * 2)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS * 2)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS * 4)
             .build();
         loadGameObjects();
     }
@@ -172,32 +173,31 @@ namespace lve
 
 	void FirstApp::loadGameObjects()
 	{
-        std::unique_ptr<LveTextures> texture = std::make_unique<LveTextures>( lveDevice, 
+       std::shared_ptr<LveTextures> texture = std::make_shared<LveTextures>( lveDevice, 
             "textures/PavingStones115C_2K-PNG_Color.png", LveTextures::COLOR);
 
-        std::unique_ptr<LveTextures> specular = std::make_unique<LveTextures>( lveDevice, 
+        std::shared_ptr<LveTextures> specular = std::make_shared<LveTextures>( lveDevice, 
             "textures/PavingStones115C_2K-PNG_Roughness.png", LveTextures::SPECULAR );
         
-        std::unique_ptr<LveTextures> normal = std::make_unique<LveTextures>( lveDevice,
+        std::shared_ptr<LveTextures> normal = std::make_shared<LveTextures>( lveDevice,
             "textures/PavingStones115C_2K-PNG_NormalGL.png", LveTextures::NORMAL);
         
-        std::unique_ptr<LveTextures> displacement = std::make_unique<LveTextures>( lveDevice,
+        std::shared_ptr<LveTextures> displacement = std::make_shared<LveTextures>( lveDevice,
             "textures/PavingStones115C_2K-PNG_Displacement.png", LveTextures::DEPTH);
 
-      
-        std::vector<std::unique_ptr<LveTextures>> texteres(4);
+         
+        std::vector<std::shared_ptr<LveTextures>> texteres;
         texteres.push_back(texture);
         texteres.push_back(specular);
         texteres.push_back(normal);
         texteres.push_back(displacement);
-
+        
         auto matLayout = LveDescriptorSetLayout::Builder(lveDevice)
-            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
-            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
-            .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
-            .addBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+            .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+            .addBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
             .build();
-
         
         std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/pleasepot.obj");
         auto gameObj = LveGameObject::createGameObject();
