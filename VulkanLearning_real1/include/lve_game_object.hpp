@@ -24,19 +24,7 @@ namespace lve {
 
         glm::mat3 normalMatrix();
     };
-
-    struct Material 
-    {
-        bool color;
-        VkSampler tColor;
-        bool spec;
-        VkSampler tSpec;
-        bool normal;
-        VkSampler tNormal;
-        bool depth;
-        VkSampler tDepth;
-    };
-
+ 
     struct PointLightComponent
     {
         float lightIntensity = 1.0f;
@@ -63,8 +51,7 @@ namespace lve {
 
         id_t getId() { return id; }
 
-        std::shared_ptr<LveModel> model{};
-        Material mat{};
+        std::shared_ptr<LveModel> model{}; 
         glm::vec3 color{};
         TransformComponent transform{};
         

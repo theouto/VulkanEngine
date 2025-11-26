@@ -1,4 +1,5 @@
 #include "../include/lve_game_object.hpp"
+#include "../include/lve_swap_chain.hpp"
 
 #include <vector>
 namespace lve
@@ -36,37 +37,10 @@ namespace lve
 
     void LveGameObject::createDescriptorSets()
     {
-      for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            vk::DescriptorBufferInfo bufferInfo{
-                .buffer = *gameObject.uniformBuffers[i],
-                .offset = 0,
-                .range = sizeof(UniformBufferObject)
-            };
-            vk::DescriptorImageInfo imageInfo{
-                .sampler = *textureSampler,
-                .imageView = *textureImageView,
-                .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal
-            };
-            std::array descriptorWrites{
-                LveDescriptorWriter{
-                    .dstSet = *gameObject.descriptorSets[i],
-                    .dstBinding = 0,
-                    .dstArrayElement = 0,
-                    .descriptorCount = 1,
-                    .descriptorType = vk::DescriptorType::eUniformBuffer,
-                    .pBufferInfo = &bufferInfo
-                },
-                vk::WriteDescriptorSet{
-                    .dstSet = *gameObject.descriptorSets[i],
-                    .dstBinding = 1,
-                    .dstArrayElement = 0,
-                    .descriptorCount = 1,
-                    .descriptorType = vk::DescriptorType::eCombinedImageSampler,
-                    .pImageInfo = &imageInfo
-                }
-            };
-            device.updateDescriptorSets(descriptorWrites, {});
-        }
+      for (size_t i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++) 
+      {
+        //something
+      }
 
     }
 

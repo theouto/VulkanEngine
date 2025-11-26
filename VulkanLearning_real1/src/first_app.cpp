@@ -22,7 +22,7 @@ namespace lve
 	FirstApp::FirstApp()
     {
         globalPool = LveDescriptorPool::Builder(lveDevice)
-            .setMaxSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT)
+            .setMaxSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveSwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS)
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS)
             .build();
@@ -170,6 +170,21 @@ namespace lve
 
 	void FirstApp::loadGameObjects()
 	{
+        std::vector<std::unique_ptr<LveTextures>> textures = {
+
+        std::make_unique<LveTextures>( lveDevice, 
+            "textures/PavingStones115C_2K-PNG_Color.png", LveTextures::COLOR),
+
+        std::make_unique<LveTextures>( lveDevice, 
+            "textures/PavingStones115C_2K-PNG_Roughness.png", LveTextures::SPECULAR ),
+        
+        std::make_unique<LveTextures>( lveDevice,
+            "textures/PavingStones115C_2K-PNG_NormalGL.png", LveTextures::NORMAL),
+        
+        std::make_unique<LveTextures>( lveDevice,
+            "textures/PavingStones115C_2K-PNG_Displacement.png", LveTextures::DEPTH) 
+        };
+      
         std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/pleasepot.obj");
         auto gameObj = LveGameObject::createGameObject();
         gameObj.model = lveModel;
@@ -197,20 +212,6 @@ namespace lve
         quad.transform.translation = { 0.f, .5f, 0.f };
         quad.transform.scale = { 3.f, 1.f, 3.f };
         gameObjects.emplace(quad.getId(), std::move(quad));
-
-        for (auto& gameObject : gameObjects) {
-        // Create descriptor sets for each frame in flight
-        std::vector<LveDescriptorSetLayout> layouts(LveSwapChain::MAX_FRAMES_IN_FLIGHT, *LveGameObject::descriptorSetLayout);
-        vk::DescriptorSetAllocateInfo allocInfo{
-            .descriptorPool = *descriptorPool,
-            .descriptorSetCount = static_cast<uint32_t>(layouts.size()),
-            .pSetLayouts = layouts.data()
-        };
-
-        gameObject.second.descriptorSetLayout = lveDevice.allocateDescriptorSets(allocInfo);
-        
-        gameObject.second.createDescriptorSets();
-        }
 
         std::vector<glm::vec3> lightColors{
             {1.f, .1f, .1f},

@@ -39,7 +39,7 @@ layout(material) uniform Material
   bool normTex;
   sampler2D normal;
   bool depthTex;
-  sampler2D depth;
+  sampler2D displacement;
 } mat;
 
 layout(push_constant) uniform Push
