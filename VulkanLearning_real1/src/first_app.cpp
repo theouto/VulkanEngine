@@ -66,7 +66,7 @@ namespace lve
         //I will fix this garbage
         auto globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)            
-            //.addBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
             .build();   
 
         std::vector<VkDescriptorSet> globalDescriptorSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -92,7 +92,11 @@ namespace lve
                 .build(globalDescriptorSets[i]);
         }
 
-		SimpleRenderSystem simpleRenderSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
+        std::vector<VkDescriptorSetLayout> setLayouts = {
+            globalSetLayout->getDescriptorSetLayout(),
+            matLayout->getDescriptorSetLayout()};
+
+		SimpleRenderSystem simpleRenderSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), setLayouts};
         PointLightSystem pointLightSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
         LveCamera camera{};
 
@@ -113,7 +117,9 @@ namespace lve
         double mouseY = 0.f;
 	
 	auto currentTime = std::chrono::high_resolution_clock::now();
-	
+
+    std::cout << "All loaded, rendering:\n\n";
+
 	while (!lveWindow.shouldClose())
 	{
 	    glfwPollEvents();
@@ -173,13 +179,13 @@ namespace lve
 
 	void FirstApp::loadGameObjects()
 	{
-       std::shared_ptr<LveTextures> texture = std::make_shared<LveTextures>( lveDevice, 
+       std::shared_ptr<LveTextures> texSampler = std::make_shared<LveTextures>( lveDevice, 
             "textures/PavingStones115C_2K-PNG_Color.png", LveTextures::COLOR);
 
         std::shared_ptr<LveTextures> specular = std::make_shared<LveTextures>( lveDevice, 
             "textures/PavingStones115C_2K-PNG_Roughness.png", LveTextures::SPECULAR );
         
-        std::shared_ptr<LveTextures> normal = std::make_shared<LveTextures>( lveDevice,
+        std::shared_ptr<LveTextures> normals = std::make_shared<LveTextures>( lveDevice,
             "textures/PavingStones115C_2K-PNG_NormalGL.png", LveTextures::NORMAL);
         
         std::shared_ptr<LveTextures> displacement = std::make_shared<LveTextures>( lveDevice,
@@ -187,12 +193,12 @@ namespace lve
 
          
         std::vector<std::shared_ptr<LveTextures>> texteres;
-        texteres.push_back(texture);
+        texteres.push_back(texSampler);
         texteres.push_back(specular);
-        texteres.push_back(normal);
+        texteres.push_back(normals);
         texteres.push_back(displacement);
         
-        auto matLayout = LveDescriptorSetLayout::Builder(lveDevice)
+        matLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
             .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
             .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
