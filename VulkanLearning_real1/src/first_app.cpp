@@ -37,22 +37,7 @@ namespace lve
 
 	void FirstApp::run()
 	{
-        /*
-        std::unique_ptr<LveTextures> texture = std::make_unique<LveTextures>( lveDevice, 
-            "textures/PavingStones115C_2K-PNG_Color.png", LveTextures::COLOR);
-
-        std::unique_ptr<LveTextures> specular = std::make_unique<LveTextures>( lveDevice, 
-            "textures/PavingStones115C_2K-PNG_Roughness.png", LveTextures::SPECULAR );
         
-        std::unique_ptr<LveTextures> normal = std::make_unique<LveTextures>( lveDevice,
-            "textures/PavingStones115C_2K-PNG_NormalGL.png", LveTextures::NORMAL);
-        
-        std::unique_ptr<LveTextures> displacement = std::make_unique<LveTextures>( lveDevice,
-            "textures/PavingStones115C_2K-PNG_Displacement.png", LveTextures::DEPTH);
-
-        //LveTextures metalness{ lveDevice, "textures/PavingStones115C_2K-PNG_Reflectiveness.png", VK_FORMAT_R8_UNORM };
-        */
-
         std::vector<std::unique_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
         {
@@ -203,7 +188,7 @@ namespace lve
         wet_rock.push_back(displacement);
         wet_rock.push_back(ambOcc);
 
-        /*
+        
         std::vector<std::shared_ptr<LveTextures>> planks = {std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_Color.png", LveTextures::COLOR ),
         std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_Roughness.png", LveTextures::SPECULAR ),
         std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_NormalGL.png", LveTextures::NORMAL ),
@@ -211,7 +196,6 @@ namespace lve
         std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_AmbientOcclusion.png", LveTextures::SPECULAR)
         };
         
-
         
         std::vector<std::shared_ptr<LveTextures>> granite = {std::make_unique<LveTextures>( lveDevice, "textures/Granite001A_2K-PNG_Color.png", LveTextures::COLOR ),
         std::make_unique<LveTextures>( lveDevice, "textures/Granite001A_2K-PNG_Roughness.png", LveTextures::SPECULAR ),
@@ -220,14 +204,13 @@ namespace lve
         std::make_unique<LveTextures>( lveDevice, "textures/NA.png", LveTextures::SPECULAR)
         };
 
+
         std::vector<std::shared_ptr<LveTextures>> wet_sand = {std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_Color.png", LveTextures::COLOR ),
             std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_Roughness.png", LveTextures::SPECULAR ),
             std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_NormalGL.png", LveTextures::NORMAL ),
             std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_Displacement.png", LveTextures::DEPTH ),
             std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_AmbientOcclusion.png", LveTextures::SPECULAR)
         };
-       
-        */
 
         matLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
@@ -250,7 +233,7 @@ namespace lve
         sVase.model = lveModel;
         sVase.transform.translation = { -.5f, .0f, 0.f };
         sVase.transform.scale = { 1.f, 1.f, 1.f };
-        sVase.textures = wet_rock;
+        sVase.textures = granite;
         gameObjects.emplace(sVase.getId(), std::move(sVase));
 
         lveModel = LveModel::createModelFromFile(lveDevice, "models/flat_vase.obj");
@@ -266,7 +249,7 @@ namespace lve
         quad.model = lveModel;
         quad.transform.translation = { 0.f, .5f, 0.f };
         quad.transform.scale = { 3.f, 1.f, 3.f };
-        quad.textures = wet_rock;
+        quad.textures = planks;
         gameObjects.emplace(quad.getId(), std::move(quad));
 
         for (auto &kv : gameObjects)

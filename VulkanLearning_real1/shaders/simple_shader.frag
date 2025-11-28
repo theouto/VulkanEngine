@@ -74,78 +74,48 @@ float DistributionGGX(vec3 N, vec3 H, float a)
     return nom / denom;
 }
 
-/* divider for cleanliness */
+/* divider for cleanliness */ 
 
-float GeometrySchlickGGX(float NdotV, float k)
-{
-    float nom   = NdotV;
-    float denom = NdotV * (1.0 - k) + k;
-	
-    return nom / denom;
-}
-  
-float GeometrySmith(vec3 N, vec3 V, vec3 L, float k)
-{
-    float NdotV = max(dot(N, V), 0.0);
-    float NdotL = max(dot(N, L), 0.0);
-    float ggx1 = GeometrySchlickGGX(NdotV, k);
-    float ggx2 = GeometrySchlickGGX(NdotL, k);
-	
-    return ggx1 * ggx2;
-}
-
-//vec3 fresnelSchlick(float cosTheta, vec3 F0)
-//{
-//    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
-//}
-
-/* divider for cleanliness */
 vec3 BurleyDiffuse(float lightAng, float viewAng, float halfAng, vec2 UVs)
 {
   float f90 = 0.5f + 2.f * texture(specular, UVs).r * pow(cos(halfAng), 2);
+  //float termf90 = f90 - 1.f;
+  float Fl = pow((1 - lightAng), 5);
+  float Fv = pow((1 - viewAng), 5);
+  vec3 flamb = (texture(texSampler, UVs).xyz /M_PI);
 
-  return texture(texSampler, UVs).xyz * (1/M_PI) * (1 + (f90-1) * pow((1-cos(lightAng)), 5))*(1 + (f90 - 1) * pow((1 - cos(viewAng)), 5));
+  vec3 rr = flamb * f90 * (Fl + Fv + Fl*Fv*(f90 - 1.f));
+  vec3 fd = flamb * (1.f - Fl/2.f) * (1.f - Fv/2.f) + rr;
+
+  return fd;
 }
 
-
+//------------------------------------
 
 vec2 parallaxOcclusionMapping(vec2 texCoords, vec3 viewDir)
 {	
-    const float height_scale = 0.07f;
-    // number of depth layers
-    const float numLayers = 64;
-    // calculate the size of each layer
+    const float height_scale = 0.06f;
+    const float numLayers = 128;
     float layerDepth = 1.0 / numLayers;
-    // depth of current layer
     float currentLayerDepth = 0.0;
-    // the amount to shift the texture coordinates per layer (from vector P)
     vec2 P = vec2(-1.0f * viewDir.y, viewDir.z) * height_scale; 
     vec2 deltaTexCoords = P / numLayers;
 
-
-    // get initial values
     vec2  currentTexCoords     = texCoords;
     float currentDepthMapValue = 1.0f - texture(displacement, currentTexCoords).r;
   
     while(currentLayerDepth < currentDepthMapValue)
     {
-      // shift texture coordinates along direction of P
       currentTexCoords -= deltaTexCoords;
-      // get depthmap value at current texture coordinates
-      currentDepthMapValue = 1.0f - texture(displacement, currentTexCoords).r;  
-      // get depth of next layer
+      currentDepthMapValue = 1.0f - texture(displacement, currentTexCoords).r;
       currentLayerDepth += layerDepth;  
     }
 	
-    
-    // get texture coordinates before collision (reverse operations)
     vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
 
-    // get depth after and before collision for linear interpolation
     float afterDepth  = currentDepthMapValue - currentLayerDepth;
     float beforeDepth = ( 1.0f - texture(displacement, currentTexCoords).r) - currentLayerDepth + layerDepth;
  
-    // interpolation of texture coordinates
     float weight = afterDepth / (afterDepth - beforeDepth);
     vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
 
@@ -159,21 +129,15 @@ void main()
     mat3 TBN = cotangent_frame(fragNormalWorld, fragPosWorld, fragUv);
 	vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
 	vec3 specularLight = vec3(0.0);
-
-	//vec3 fresnel = vec3(0.0);
 	
 	vec3 cameraPosWorld = ubo.invView[3].xyz;
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld); 
 
 	vec2 UVs = parallaxOcclusionMapping(fragUv, TBN * viewDirection);
 	//vec2 UVs = fragUv;
-    //if (UVs.x > 1.0 || UVs.y > 1.0 || UVs.x < 0.0 || UVs.y < 0.0) {discard;}
 
 	vec3 tangentNormal = texture(normals, UVs).rgb * 2.0 - 1.0;     
-	vec3 surfaceNormal = normalize(normalize(TBN * tangentNormal));
-	
-	//vec3 surfaceNormal = normalize(fragNormalWorld);
-	
+	vec3 surfaceNormal = normalize(normalize(TBN * tangentNormal));	
 
 	for (int i = 0; i < ubo.numLights; i++)
 	{
@@ -184,8 +148,7 @@ void main()
 		float attenuation = 1.0/dot(directionToLight, directionToLight); //distance squared
 		directionToLight = normalize(directionToLight);
 
-		float cosAngIncidence = max(dot(surfaceNormal, directionToLight), 0);
-	    vec3 intensity = light.color.xyz * light.color.w * attenuation;
+        vec3 intensity = light.color.xyz * light.color.w * attenuation;
 
 		//diffuseLight += intensity * cosAngIncidence;
         
@@ -195,8 +158,8 @@ void main()
 	
         
         diffuseLight += intensity * BurleyDiffuse(
-              acos(dot(directionToLight, surfaceNormal)),
-              acos(dot(viewDirection, surfaceNormal)),
+              dot(directionToLight, surfaceNormal),
+              dot(viewDirection, surfaceNormal),
               acos(dot(halfAngle, directionToLight)), 
               UVs);
         
@@ -215,8 +178,8 @@ void main()
     //outColor = texture(normals, UVs);
 
     //SPECULAR VIEW
-    outColor = texture(texSampler, UVs) * vec4(specularLight, 0.0f);
+    //outColor = texture(texSampler, UVs) * vec4(specularLight, 0.0f);
 
     //FINAL VIEW
-    //outColor = texture(texSampler, UVs) * vec4(diffuseLight, 0.0) * texture(AO, UVs).r +  texture(texSampler, UVs) * vec4(specularLight, 0.0f);
+    outColor = texture(texSampler, UVs) * vec4(diffuseLight, 0.0) * texture(AO, UVs).r +  texture(texSampler, UVs) * vec4(specularLight, 0.0f);
 }
