@@ -3,9 +3,11 @@
 layout (triangles) in;
 layout (triangle_strip, max_vertices = 3) out;
 
-layout(location = 0) out vec3 Normal;
+layout(location = 0) out vec3 position;
 layout(location = 1) out vec3 color;
-layout(location = 2) out vec2 texCoord;
+layout(location = 2) out vec3 normal;
+layout(location = 3) out vec2 uv;
+layout(location = 4) out mat3 TBN;
 
 layout(location = 0) in DATA
 {

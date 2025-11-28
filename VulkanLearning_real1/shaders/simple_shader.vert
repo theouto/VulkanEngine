@@ -9,6 +9,7 @@ layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec3 fragPosWorld;
 layout(location = 2) out vec3 fragNormalWorld;
 layout(location = 3) out vec2 fragUv;
+//layout(location = 4) out mat3 TBN;
 
 /*
 layout(set = 1, binding = 1) uniform sampler2D texSampler;
@@ -39,12 +40,39 @@ layout(push_constant) uniform Push
   mat4 normalMatrix;
 } push;
 
+/*
+mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
+{
+    // get edge vectors of the pixel triangle
+    vec3 dp1 = dFdx(p);
+    vec3 dp2 = dFdy(p);
+    vec2 duv1 = dFdx(uv);
+    vec2 duv2 = dFdy(uv);
+
+    // solve the linear system
+    vec3 dp2perp = cross( dp2, N );
+    vec3 dp1perp = cross( N, dp1 );
+    vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
+    vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
+
+    // construct a scale-invariant frame 
+    float invmax = inversesqrt( max( dot(T,T), dot(B,B) ) );
+    return mat3( T * invmax, B * invmax, N );
+}
+*/
 void main() 
 {
   vec4 positionWorld = push.modelMatrix * vec4(position, 1.0);
   gl_Position = ubo.projection * ubo.view * positionWorld;
 
+  /*
+  vec3 T   = normalize(mat3(push.modelMatrix) * aTangent);
+  vec3 B   = normalize(mat3(push.modelMatrix) * aBitangent);
+  vec3 N   = normalize(mat3(push.modelMatrix) * normal);
+  */
+ 
   fragNormalWorld = normalize(mat3(push.normalMatrix) * normal);
+ // TBN = cotangent_frame(fragNormalWorld, position, uv);
   fragPosWorld = positionWorld.xyz;
   fragColor = color;
   fragUv = uv;
