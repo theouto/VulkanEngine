@@ -109,55 +109,64 @@ vec3 BurleyDiffuse(float lightAng, float viewAng, float halfAng, vec2 UVs)
 
 
 
-vec2 parallaxOcclusionMapping(vec2 uv, vec3 viewDirection)
+vec2 parallaxOcclusionMapping(vec2 texCoords, vec3 viewDir)
 {	
-    
-	//Parallax occlusion mapping quality
-	float heightScale = 0.05f;	
-    const float minLayers = 20.0f;
-	const float maxLayers = 64.0f;
-	float numLayers = mix(maxLayers, minLayers, abs(dot(normalize(fragNormalWorld), viewDirection)));
-	float layerDepth = 1.0f / numLayers;
-	float currentLayerDepth = 0.0f;
-	
-	vec2 S = vec2(viewDirection.z, -1.0f * viewDirection.y) * heightScale;
-	vec2 deltaUVs = S / numLayers;
-	
-	vec2 UVs = uv;
-	float currentDepthMapValue = (1.f - texture(displacement, UVs).r);
-	
-	while(currentLayerDepth < currentDepthMapValue)
-	{
-		UVs -= deltaUVs;
-		currentDepthMapValue = ( 1.f - texture(displacement, UVs).r);
-		currentLayerDepth += layerDepth;
-	}
-	
-	vec2 prevTexCoords = UVs + deltaUVs;
-	float afterDepth  = currentDepthMapValue - currentLayerDepth;
-	float beforeDepth = (1.f - texture(displacement, prevTexCoords).r) - currentLayerDepth + layerDepth;
-	float weight = afterDepth / (afterDepth / beforeDepth);
-	UVs = prevTexCoords * weight + UVs * (1.0f - weight);
+    const float height_scale = 0.07f;
+    // number of depth layers
+    const float numLayers = 64;
+    // calculate the size of each layer
+    float layerDepth = 1.0 / numLayers;
+    // depth of current layer
+    float currentLayerDepth = 0.0;
+    // the amount to shift the texture coordinates per layer (from vector P)
+    vec2 P = vec2(-1.0f * viewDir.y, viewDir.z) * height_scale; 
+    vec2 deltaTexCoords = P / numLayers;
 
-	return UVs; 
+
+    // get initial values
+    vec2  currentTexCoords     = texCoords;
+    float currentDepthMapValue = 1.0f - texture(displacement, currentTexCoords).r;
+  
+    while(currentLayerDepth < currentDepthMapValue)
+    {
+      // shift texture coordinates along direction of P
+      currentTexCoords -= deltaTexCoords;
+      // get depthmap value at current texture coordinates
+      currentDepthMapValue = 1.0f - texture(displacement, currentTexCoords).r;  
+      // get depth of next layer
+      currentLayerDepth += layerDepth;  
+    }
+	
+    
+    // get texture coordinates before collision (reverse operations)
+    vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
+
+    // get depth after and before collision for linear interpolation
+    float afterDepth  = currentDepthMapValue - currentLayerDepth;
+    float beforeDepth = ( 1.0f - texture(displacement, currentTexCoords).r) - currentLayerDepth + layerDepth;
+ 
+    // interpolation of texture coordinates
+    float weight = afterDepth / (afterDepth - beforeDepth);
+    vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
+
+	return currentTexCoords; 
 }
 
 /* divider for cleanliness */
 
 void main()
 {
+    mat3 TBN = cotangent_frame(fragNormalWorld, fragPosWorld, fragUv);
 	vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
 	vec3 specularLight = vec3(0.0);
 
 	//vec3 fresnel = vec3(0.0);
 	
 	vec3 cameraPosWorld = ubo.invView[3].xyz;
-	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld);
+	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld); 
 
-	//vec2 UVs = parallaxOcclusionMapping(fragUv, viewDirection);
-	vec2 UVs = fragUv;
-    mat3 TBN = cotangent_frame(fragNormalWorld, fragPosWorld, UVs);
-	
+	vec2 UVs = parallaxOcclusionMapping(fragUv, TBN * viewDirection);
+	//vec2 UVs = fragUv;
     //if (UVs.x > 1.0 || UVs.y > 1.0 || UVs.x < 0.0 || UVs.y < 0.0) {discard;}
 
 	vec3 tangentNormal = texture(normals, UVs).rgb * 2.0 - 1.0;     
