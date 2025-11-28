@@ -13,7 +13,7 @@ layout(set = 1, binding = 2) uniform sampler2D specular;
 layout(set = 1, binding = 3) uniform sampler2D normals;
 layout(set = 1, binding = 4) uniform sampler2D displacement;
 layout(set = 1, binding = 5) uniform sampler2D AO;
-//layout(set = 1, binding = 6) uniform sampler2D roughness;
+layout(set = 1, binding = 6) uniform sampler2D metalness;
 
 struct PointLight
 {
@@ -78,7 +78,7 @@ float DistributionGGX(vec3 N, vec3 H, float a)
 
 vec3 BurleyDiffuse(float lightAng, float viewAng, float halfAng, vec2 UVs)
 {
-  float f90 = 0.5f + 2.f * texture(specular, UVs).r * pow(cos(halfAng), 2);
+  float f90 = 0.5f + 2.f * texture(metalness, UVs).r * pow(cos(halfAng), 2);
   //float termf90 = f90 - 1.f;
   float Fl = pow((1 - lightAng), 5);
   float Fv = pow((1 - viewAng), 5);
@@ -124,6 +124,29 @@ vec2 parallaxOcclusionMapping(vec2 texCoords, vec3 viewDir)
 
 /* divider for cleanliness */
 
+float GeometrySchlickGGX(float NdotV, float k)
+{
+    float nom   = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+	
+    return nom / denom;
+}
+  
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float k)
+{
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx1 = GeometrySchlickGGX(NdotV, k);
+    float ggx2 = GeometrySchlickGGX(NdotL, k);
+	
+    return ggx1 * ggx2;
+}
+
+vec3 fresnelSchlick(float cosTheta, vec3 F0)
+{
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
 void main()
 {
     mat3 TBN = cotangent_frame(fragNormalWorld, fragPosWorld, fragUv);
@@ -138,6 +161,12 @@ void main()
 
 	vec3 tangentNormal = texture(normals, UVs).rgb * 2.0 - 1.0;     
 	vec3 surfaceNormal = normalize(normalize(TBN * tangentNormal));	
+    
+    //fresnel schlick
+    vec3 F0 = vec3(0.04);
+    float halfView = dot(normalize(viewDirection + surfaceNormal), surfaceNormal); 
+    F0 = mix(F0, texture(texSampler, UVs).rgb, texture(metalness, UVs).r);
+    
 
 	for (int i = 0; i < ubo.numLights; i++)
 	{
@@ -150,26 +179,25 @@ void main()
 
         vec3 intensity = light.color.xyz * light.color.w * attenuation;
 
-		//diffuseLight += intensity * cosAngIncidence;
-        
-
 		//specular
 		vec3 halfAngle = normalize(directionToLight + viewDirection);
-	
+
+
         
         diffuseLight += intensity * BurleyDiffuse(
               dot(directionToLight, surfaceNormal),
               dot(viewDirection, surfaceNormal),
               acos(dot(halfAngle, directionToLight)), 
               UVs);
-        
 		
         specularLight += intensity * DistributionGGX(surfaceNormal, halfAngle, texture(specular, UVs).x);
 	}
 
+    vec4 diffuse = texture(texSampler, UVs) * vec4(diffuseLight, 0.0) * texture(AO, UVs).r;
+    vec4 spec = texture(texSampler, UVs) * vec4(specularLight, 0.0f);
 
     //DIFFUSE VIEW
-    //outColor = vec4(diffuseLight, 0.0);
+    outColor = vec4(diffuseLight, 0.0);
     
     //AO VIEW
     //outColor = vec4(1.f, 1.f, 1.f, 1.f) * texture(AO, UVs).r;
@@ -181,5 +209,5 @@ void main()
     //outColor = texture(texSampler, UVs) * vec4(specularLight, 0.0f);
 
     //FINAL VIEW
-    outColor = texture(texSampler, UVs) * vec4(diffuseLight, 0.0) * texture(AO, UVs).r +  texture(texSampler, UVs) * vec4(specularLight, 0.0f);
+    //outColor = diffuse + spec;
 }
