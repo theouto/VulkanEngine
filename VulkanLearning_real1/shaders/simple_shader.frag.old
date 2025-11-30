@@ -39,7 +39,7 @@ layout(push_constant) uniform Push
 
 const float M_PI = 3.1415926538;
 
-//==============================================================================
+/* divider for cleanliness */
 
 mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
 {
@@ -60,7 +60,37 @@ mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
     return mat3( T * invmax, B * invmax, N );
 }
 
-//==============================================================================
+//GGX - https://learnopengl.com/PBR/Theory
+float DistributionGGX(vec3 N, vec3 H, float a)
+{
+    float a2     = a*a;
+    float NdotH  = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH*NdotH;
+	
+    float nom    = a2;
+    float denom  = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom        = M_PI * denom * denom;
+	
+    return nom / denom;
+}
+
+/* divider for cleanliness */ 
+
+vec3 BurleyDiffuse(float lightAng, float viewAng, float halfAng, vec2 UVs)
+{
+  float f90 = 0.5f + 2.f * texture(metalness, UVs).r * pow(cos(halfAng), 2);
+  //float termf90 = f90 - 1.f;
+  float Fl = pow((1 - lightAng), 5);
+  float Fv = pow((1 - viewAng), 5);
+  vec3 flamb = (texture(texSampler, UVs).xyz /M_PI);
+
+  vec3 rr = flamb * f90 * (Fl + Fv + Fl*Fv*(f90 - 1.f));
+  vec3 fd = flamb * (1.f - Fl/2.f) * (1.f - Fv/2.f) + rr;
+
+  return fd;
+}
+
+//------------------------------------
 
 vec2 parallaxOcclusionMapping(vec2 texCoords, vec3 viewDir)
 {	
@@ -92,57 +122,33 @@ vec2 parallaxOcclusionMapping(vec2 texCoords, vec3 viewDir)
 	return currentTexCoords; 
 }
 
-//==============================================================================
+/* divider for cleanliness */
 
-float DistributionGGX(vec3 N, vec3 H, float a)
+float GeometrySchlickGGX(float NdotV, float k)
 {
-    float a2     = a*a;
-    float NdotH  = max(dot(N, H), 0.0);
-    float NdotH2 = NdotH*NdotH;
-	
-    float nom    = a2;
-    float denom  = (NdotH2 * (a2 - 1.0) + 1.0);
-    denom        = M_PI * denom * denom;
-	
-    return nom / denom;
-}
-
-//==============================================================================
-
-float GeometrySchlickGGX(float NdotV, float roughness)
-{
-    float r = (roughness + 1.0);
-    float k = (r*r) / 8.0;
-
     float nom   = NdotV;
     float denom = NdotV * (1.0 - k) + k;
-
+	
     return nom / denom;
 }
-
-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+  
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float k)
 {
     float NdotV = max(dot(N, V), 0.0);
     float NdotL = max(dot(N, L), 0.0);
-    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
-    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
-
+    float ggx1 = GeometrySchlickGGX(NdotV, k);
+    float ggx2 = GeometrySchlickGGX(NdotL, k);
+	
     return ggx1 * ggx2;
 }
-
-//==============================================================================
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-//==============================================================================
-
 void main()
 {
-    //essentials, these are fine, so I don't need to change them
-
     mat3 TBN = cotangent_frame(fragNormalWorld, fragPosWorld, fragUv);
 	vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
 	vec3 specularLight = vec3(0.0);
@@ -151,57 +157,58 @@ void main()
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld); 
 
 	vec2 UVs = parallaxOcclusionMapping(fragUv, TBN * viewDirection);
+	//vec2 UVs = fragUv;
 
 	vec3 tangentNormal = texture(normals, UVs).rgb * 2.0 - 1.0;     
 	vec3 surfaceNormal = normalize(normalize(TBN * tangentNormal));
-
+    
+    //fresnel schlick
     vec3 F0 = vec3(0.04);
     float halfView = dot(normalize(viewDirection + surfaceNormal), surfaceNormal); 
     F0 = mix(F0, texture(texSampler, UVs).rgb, texture(metalness, UVs).r);
+    vec3 fres = fresnelSchlick(halfView, F0);
 
-    vec3 Lo = vec3(0.f);
-    for(int i = 0; i < ubo.numLights; i++)
-    {
-        PointLight light = ubo.pointLights[i];
+	for (int i = 0; i < ubo.numLights; i++)
+	{
+		//diffuse
+        
+		PointLight light = ubo.pointLights[i];
 		vec3 directionToLight = light.position.xyz - fragPosWorld;
 		float attenuation = 1.0/dot(directionToLight, directionToLight); //distance squared
-		
-        directionToLight = normalize(directionToLight);
+		directionToLight = normalize(directionToLight);
 
         vec3 intensity = light.color.xyz * light.color.w * attenuation;
-        vec3 halfAngle = normalize(directionToLight + viewDirection); 
 
-        vec3 fres = fresnelSchlick(clamp(dot(halfAngle, viewDirection), 0.f, 1.f), F0);
-        float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(specular, UVs).r);
-        float specular = DistributionGGX(surfaceNormal, halfAngle, texture(specular, UVs).x);
+		//specular
+		vec3 halfAngle = normalize(directionToLight + viewDirection);
         
-        vec3 numerator = specular * diff * fres;
-        float denominator = 4.0 * max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0) + 0.0001;
-        vec3 spec = numerator / denominator;
-
-        vec3 kD = vec3(1.f) - fres;
-
-        kD *= 1.f - texture(metalness, UVs).r;
-
-        float NdotL = max(dot(surfaceNormal, directionToLight), 0.f);
-
-        Lo += (kD * texture(texSampler, UVs).rgb / M_PI + spec) * intensity * NdotL;
-    }
+        diffuseLight += intensity * BurleyDiffuse(
+              dot(directionToLight, surfaceNormal),
+              dot(viewDirection, surfaceNormal),
+              acos(dot(halfAngle, directionToLight)), 
+              UVs);
+		
+        specularLight += intensity * DistributionGGX(surfaceNormal, halfAngle, texture(specular, UVs).x);
+	}
 
     vec4 diffuse = texture(texSampler, UVs) * vec4(diffuseLight, 0.0) * texture(AO, UVs).r;
+    vec4 spec = texture(texSampler, UVs) * vec4(specularLight, 0.0f);
 
-    //debug view. Hey, might come in handy, it did in the past!
-    //ENV VIEW
+    //FRESNEL VIEW
+    //outColor = vec4(fres, 0.0);
+
+    //DIFFUSE VIEW
     //outColor = vec4(diffuseLight, 0.0);
- 
+    
     //AO VIEW
     //outColor = vec4(1.f, 1.f, 1.f, 1.f) * texture(AO, UVs).r;
- 
+    
     //NORMAL VIEW
     //outColor = texture(normals, UVs);
 
-    //LIGHT-IMPACT VIEW
+    //SPECULAR VIEW
     //outColor = texture(texSampler, UVs) * vec4(specularLight, 0.0f);
 
     //FINAL VIEW
-    outColor = diffuse + vec4(Lo, 0.f);}
+    outColor = (diffuse + spec);
+}

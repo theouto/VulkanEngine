@@ -171,7 +171,7 @@ void main()
         vec3 intensity = light.color.xyz * light.color.w * attenuation;
         vec3 halfAngle = normalize(directionToLight + viewDirection); 
 
-        vec3 fres = fresnelSchlick(clamp(dot(halfAngle, viewDirection), 0.f, 1.f), F0);
+        vec3 fres = fresnelSchlick(halfAngle, F0);
         float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(specular, UVs).r);
         float specular = DistributionGGX(surfaceNormal, halfAngle, texture(specular, UVs).x);
         
@@ -179,13 +179,13 @@ void main()
         float denominator = 4.0 * max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0) + 0.0001;
         vec3 spec = numerator / denominator;
 
-        vec3 kD = vec3(1.f) - fres;
+        vec3 kD = vec3(1.f) - F;
 
-        kD *= 1.f - texture(metalness, UVs).r;
+        kD *= 1.f - texture(metalness, UVs);
 
         float NdotL = max(dot(surfaceNormal, directionToLight), 0.f);
 
-        Lo += (kD * texture(texSampler, UVs).rgb / M_PI + spec) * intensity * NdotL;
+        Lo += (kD * texture(texSampler, UVs) / M_PI + spec) * intensity * NdotL;
     }
 
     vec4 diffuse = texture(texSampler, UVs) * vec4(diffuseLight, 0.0) * texture(AO, UVs).r;
