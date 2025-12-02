@@ -3,6 +3,7 @@
 #include <stb_image.h>
 #include <iostream>
 
+#include <iostream>
 #include <math.h>
 #include <cassert>
 #include <cstring>
@@ -62,6 +63,7 @@ namespace lve
 
 		if (!pixels) 
 		{
+            std::cout << filePath << '\n';
 			throw std::runtime_error("failed to load texture image!");
 		}
 

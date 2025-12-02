@@ -180,6 +180,9 @@ namespace lve
         
         std::shared_ptr<LveTextures> ambOcc = std::make_shared<LveTextures>( lveDevice, 
             "textures/PavingStones115C_2K-PNG_AmbientOcclusion.png", LveTextures::SPECULAR);
+
+        std::shared_ptr<LveTextures> metal = std::make_shared<LveTextures> (lveDevice, 
+            "textures/NA.png", LveTextures::SPECULAR);
          
         std::vector<std::shared_ptr<LveTextures>> wet_rock;
         wet_rock.push_back(texSampler);
@@ -187,8 +190,9 @@ namespace lve
         wet_rock.push_back(normals);
         wet_rock.push_back(displacement);
         wet_rock.push_back(ambOcc);
+        wet_rock.push_back(metal);
 
-        
+       /* 
         std::vector<std::shared_ptr<LveTextures>> planks = {std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_Color.png", LveTextures::COLOR ),
         std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_Roughness.png", LveTextures::SPECULAR ),
         std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_NormalGL.png", LveTextures::NORMAL ),
@@ -211,6 +215,7 @@ namespace lve
             std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_Displacement.png", LveTextures::DEPTH ),
             std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_AmbientOcclusion.png", LveTextures::SPECULAR)
         };
+        */
 
         matLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
@@ -218,6 +223,7 @@ namespace lve
             .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
             .addBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
             .addBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+            .addBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
             .build();
         
         std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/pleasepot.obj");
@@ -233,7 +239,7 @@ namespace lve
         sVase.model = lveModel;
         sVase.transform.translation = { -.5f, .0f, 0.f };
         sVase.transform.scale = { 1.f, 1.f, 1.f };
-        sVase.textures = granite;
+        sVase.textures = wet_rock;
         gameObjects.emplace(sVase.getId(), std::move(sVase));
 
         lveModel = LveModel::createModelFromFile(lveDevice, "models/flat_vase.obj");
@@ -249,7 +255,7 @@ namespace lve
         quad.model = lveModel;
         quad.transform.translation = { 0.f, .5f, 0.f };
         quad.transform.scale = { 3.f, 1.f, 3.f };
-        quad.textures = planks;
+        quad.textures = wet_rock;
         gameObjects.emplace(quad.getId(), std::move(quad));
 
         for (auto &kv : gameObjects)
@@ -261,6 +267,7 @@ namespace lve
           auto normInfo = tex[2]->getDescriptorInfo();
           auto dispInfo = tex[3]->getDescriptorInfo();
           auto ambInfo = tex[4]->getDescriptorInfo();
+          auto metalInfo = tex[5]->getDescriptorInfo();
 
           LveDescriptorWriter(*matLayout, *globalPool)
                 .writeImage(1, &colorInfo) // colour
@@ -268,6 +275,7 @@ namespace lve
                 .writeImage(3, &normInfo) //normal
                 .writeImage(4, &dispInfo) //displacement
                 .writeImage(5, &ambInfo)
+                .writeImage(6, &metalInfo)
                 .build(kv.second.descriptorSet);
         }
 
