@@ -60,12 +60,26 @@ mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
     return mat3( T * invmax, B * invmax, N );
 }
 
+//Yes, I'm still trying for burley
+float BurleyDiffuse(float lightAng, float viewAng, float halfAng, vec2 UVs)
+{
+  float f90 = 0.5f + 2.f * texture(metalness, UVs).r * pow(halfAng, 2);
+  float termf90 = f90 - 1.f;
+  float Fl = pow((1 - lightAng), 5);
+  float Fv = pow((1 - viewAng), 5);
+  //vec3 flamb = (texture(texSampler, UVs).rgb /M_PI);
+
+  float fd = (1 + termf90*Fl)*(1 + termf90*Fv);
+
+  return fd;
+}
+
 //==============================================================================
 
 vec2 parallaxOcclusionMapping(vec2 texCoords, vec3 viewDir)
 {	
     const float height_scale = 0.06f;
-    const float numLayers = 128;
+    const float numLayers = 64;
     float layerDepth = 1.0 / numLayers;
     float currentLayerDepth = 0.0;
     vec2 P = vec2(-1.0f * viewDir.y, viewDir.z) * height_scale; 
@@ -162,7 +176,7 @@ void main()
     vec3 Lo = vec3(0.f);
     for(int i = 0; i < ubo.numLights; i++)
     {
-        PointLight light = ubo.pointLights[i];
+       PointLight light = ubo.pointLights[i];
 		vec3 directionToLight = light.position.xyz - fragPosWorld;
 		float attenuation = 1.0/dot(directionToLight, directionToLight); //distance squared
 		
@@ -173,6 +187,15 @@ void main()
 
         vec3 fres = fresnelSchlick(clamp(dot(halfAngle, viewDirection), 0.f, 1.f), F0);
         float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(specular, UVs).r);
+
+        /*
+        float diff = 1/M_PI * BurleyDiffuse(
+              dot(directionToLight, surfaceNormal),
+              dot(viewDirection, surfaceNormal),
+              dot(halfAngle, directionToLight), 
+              UVs);
+        */
+
         float specular = DistributionGGX(surfaceNormal, halfAngle, texture(specular, UVs).x);
         
         vec3 numerator = specular * diff * fres;

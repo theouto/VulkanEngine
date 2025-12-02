@@ -38,7 +38,9 @@ class LveDevice {
   LveDevice &operator=(const LveDevice &) = delete;
   LveDevice(LveDevice &&) = delete;
   LveDevice &operator=(LveDevice &&) = delete;
-
+  
+  VkInstance getInstance() {return instance;}
+  VkPhysicalDevice getPhysicalDevice() {return physicalDevice;}
   VkCommandPool getCommandPool() { return commandPool; }
   VkDevice device() { return device_; }
   VkSurfaceKHR surface() { return surface_; }

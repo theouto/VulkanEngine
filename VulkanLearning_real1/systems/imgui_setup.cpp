@@ -1,18 +1,21 @@
-#include "../include/lve_window.hpp"
+#include "imgui_setup.hpp"
 
-/*
 #include <imgui.h>
-#include <backe>
+#include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_vulkan.h>
 
 namespace lve 
 {
-  void init_imgui()
-{
-	// 1: create descriptor pool for IMGUI
-	//  the size of the pool is very oversize, but it's copied from imgui demo
-	//  itself.
-	VkDescriptorPoolSize pool_sizes[] = { { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+  Imgui_LVE::Imgui_LVE(LveDevice &device, LveWindow &window, LveSwapChain &chain) 
+      : lveDevice{device}, lveWindow{window}, swapChain{chain}
+  {
+    init_imgui();
+  }
+
+  void Imgui_LVE::init_imgui()
+  {
+    
+    VkDescriptorPoolSize pool_sizes[] = { { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
 		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
 		{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
 		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
@@ -32,45 +35,56 @@ namespace lve
 	pool_info.pPoolSizes = pool_sizes;
 
 	VkDescriptorPool imguiPool;
-	VK_CHECK(vkCreateDescriptorPool(_device, &pool_info, nullptr, &imguiPool));
+	vkCreateDescriptorPool(lveDevice.device(), &pool_info, nullptr, &imguiPool);
 
-	// 2: initialize imgui library
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-	// this initializes the core structures of imgui
-	ImGui::CreateContext();
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsClassic();
 
-	// this initializes imgui for SDL
-	ImGui_ImplSDL2_InitForVulkan(_window);
-
-	// this initializes imgui for Vulkan
-	ImGui_ImplVulkan_InitInfo init_info = {};
-	init_info.Instance = _instance;
-	init_info.PhysicalDevice = _chosenGPU;
-	init_info.Device = _device;
-	init_info.Queue = _graphicsQueue;
+    // Setup Platform/Renderer bindings
+    ImGui_ImplGlfw_InitForVulkan(lveWindow.getGLFWwindow(), true);
+   
+    ImGui_ImplVulkan_InitInfo init_info = {};
+	init_info.Instance = lveDevice.getInstance();
+	init_info.PhysicalDevice = lveDevice.getPhysicalDevice();
+	init_info.Device = lveDevice.device();
+	init_info.Queue = lveDevice.presentQueue();
 	init_info.DescriptorPool = imguiPool;
 	init_info.MinImageCount = 3;
 	init_info.ImageCount = 3;
 	init_info.UseDynamicRendering = true;
 
-	//dynamic rendering parameters for imgui to use
-	init_info.PipelineRenderingCreateInfo = {.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO};
-	init_info.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
-	init_info.PipelineRenderingCreateInfo.pColorAttachmentFormats = &_swapchainImageFormat;
-	
-
-	init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-
 	ImGui_ImplVulkan_Init(&init_info);
 
-	ImGui_ImplVulkan_CreateFontsTexture();
-
+    /*
 	// add the destroy the imgui created structures
 	_mainDeletionQueue.push_function([=]() {
 		ImGui_ImplVulkan_Shutdown();
 		vkDestroyDescriptorPool(_device, imguiPool, nullptr);
 	});
-}
+    */
+  }
+
+  void Imgui_LVE::run()
+  {
+    
+    // imgui new frame
+    ImGui_ImplVulkan_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    //some imgui UI to test
+    ImGui::ShowDemoWindow();
+
+    //make imgui calculate internal draw structures
+    ImGui::Render();
+  }
 
 }
-*/
