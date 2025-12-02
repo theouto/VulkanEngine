@@ -196,7 +196,7 @@ void main()
               UVs);
         */
 
-        float specular = DistributionGGX(surfaceNormal, halfAngle, texture(specular, UVs).x);
+        float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(specular, UVs).x, 0.f, 1.f));
         
         vec3 numerator = specular * diff * fres;
         float denominator = 4.0 * max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0) + 0.0001;

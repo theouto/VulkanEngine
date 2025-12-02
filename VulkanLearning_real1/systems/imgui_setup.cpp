@@ -1,5 +1,5 @@
 #include "imgui_setup.hpp"
-
+/*
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_vulkan.h>
@@ -69,7 +69,7 @@ namespace lve
 		ImGui_ImplVulkan_Shutdown();
 		vkDestroyDescriptorPool(_device, imguiPool, nullptr);
 	});
-    */
+    
   }
 
   void Imgui_LVE::run()
@@ -88,3 +88,4 @@ namespace lve
   }
 
 }
+*/

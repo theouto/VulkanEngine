@@ -182,7 +182,7 @@ namespace lve
             "textures/PavingStones115C_2K-PNG_AmbientOcclusion.png", LveTextures::SPECULAR);
 
         std::shared_ptr<LveTextures> metal = std::make_shared<LveTextures> (lveDevice, 
-            "textures/NA.png", LveTextures::SPECULAR);
+            "textures/NAM.png", LveTextures::SPECULAR);
          
         std::vector<std::shared_ptr<LveTextures>> wet_rock;
         wet_rock.push_back(texSampler);
@@ -201,40 +201,45 @@ namespace lve
         };
         
         
+
         std::vector<std::shared_ptr<LveTextures>> granite = {std::make_unique<LveTextures>( lveDevice, "textures/Granite001A_2K-PNG_Color.png", LveTextures::COLOR ),
         std::make_unique<LveTextures>( lveDevice, "textures/Granite001A_2K-PNG_Roughness.png", LveTextures::SPECULAR ),
         std::make_unique<LveTextures>( lveDevice, "textures/Granite001A_2K-PNG_NormalGL.png", LveTextures::NORMAL ),
         std::make_unique<LveTextures>( lveDevice, "textures/Granite001A_2K-PNG_Displacement.png", LveTextures::DEPTH ),
-        std::make_unique<LveTextures>( lveDevice, "textures/NA.png", LveTextures::SPECULAR)
+        std::make_unique<LveTextures>( lveDevice, "textures/NA.png", LveTextures::SPECULAR),
+        std::make_unique<LveTextures>(lveDevice, "textures/NAM.png", LveTextures::SPECULAR)
         };
+        
 
-
+       
         std::vector<std::shared_ptr<LveTextures>> wet_sand = {std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_Color.png", LveTextures::COLOR ),
             std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_Roughness.png", LveTextures::SPECULAR ),
             std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_NormalGL.png", LveTextures::NORMAL ),
             std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_Displacement.png", LveTextures::DEPTH ),
-            std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_AmbientOcclusion.png", LveTextures::SPECULAR)
+            std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_AmbientOcclusion.png", LveTextures::SPECULAR),
+            std::make_unique<LveTextures>(lveDevice, "textures/NAM.png", LveTextures::SPECULAR)
         };
-        */
+       */
+
+        std::vector<std::shared_ptr<LveTextures>> sMetal = {std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_8K-PNG_Color.png", LveTextures::COLOR ),
+            std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_8K-PNG_Roughness.png", LveTextures::SPECULAR ),
+            std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_8K-PNG_NormalGL.png", LveTextures::NORMAL ),
+            std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_8K-PNG_Displacement.png", LveTextures::DEPTH ),
+            std::make_unique<LveTextures>( lveDevice, "textures/NA.png", LveTextures::SPECULAR),
+            std::make_unique<LveTextures>(lveDevice, "textures/Metal051A_8K-PNG_Metalness.png", LveTextures::SPECULAR)
+        };
+
 
         matLayout = LveDescriptorSetLayout::Builder(lveDevice)
-            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-            .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-            .addBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-            .addBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-            .addBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //albedo
+            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //specular
+            .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //normal
+            .addBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //roughness
+            .addBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //AO
+            .addBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //metalness
             .build();
         
-        std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/pleasepot.obj");
-        auto gameObj = LveGameObject::createGameObject();
-        gameObj.model = lveModel;
-        gameObj.transform.translation = { .0f, .5f, 0.f };
-        gameObj.transform.scale = { .25f, -.25f, .25f };
-        gameObj.textures = wet_rock;
-        gameObjects.emplace(gameObj.getId(), std::move(gameObj));
-
-        lveModel = LveModel::createModelFromFile(lveDevice, "models/smooth_vase.obj");
+        std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/smooth_vase.obj");
         auto sVase = LveGameObject::createGameObject();
         sVase.model = lveModel;
         sVase.transform.translation = { -.5f, .0f, 0.f };
@@ -255,7 +260,7 @@ namespace lve
         quad.model = lveModel;
         quad.transform.translation = { 0.f, .5f, 0.f };
         quad.transform.scale = { 3.f, 1.f, 3.f };
-        quad.textures = wet_rock;
+        quad.textures = sMetal;
         gameObjects.emplace(quad.getId(), std::move(quad));
 
         for (auto &kv : gameObjects)
@@ -289,14 +294,14 @@ namespace lve
             {.0157f, 0.824f, 0.745f}    //0x04d3be
         };
         
-        auto pointLight = LveGameObject::makePointLight(0.2f);
+        auto pointLight = LveGameObject::makePointLight(0.9f);
         pointLight.color = {1.f, 1.f, 1.f};
         pointLight.transform.translation = glm::vec3(0.7f, -0.2f, 0.7f);
         gameObjects.emplace(pointLight.getId(), std::move(pointLight));
 
         for (int i = 0; i < lightColors.size(); i++) 
         {
-            pointLight = LveGameObject::makePointLight(0.2f);
+            pointLight = LveGameObject::makePointLight(0.7f);
             pointLight.color = lightColors[i];
             auto rotateLight = glm::rotate(
                 glm::mat4(1.f),

@@ -8,10 +8,10 @@ namespace lve
   {
     public:
     
-    Imgui_LVE(LveDevice &device, LveWindow &window, LveSwapChain &swap);
-    ~Imgui_LVE();
-    void init_imgui();
-    void run();
+    //Imgui_LVE(LveDevice &device, LveWindow &window, LveSwapChain &swap);
+    //~Imgui_LVE();
+    //void init_imgui();
+    //void run();
 
     LveSwapChain &swapChain;
     LveDevice &lveDevice;
