@@ -1,5 +1,6 @@
 #include "../include/keyboard_movement_controller.hpp"
 
+#include <GLFW/glfw3.h>
 #include <iostream>
 #include <limits>
 
@@ -15,14 +16,17 @@ namespace lve
 		
 		double mouseX;
 		double mouseY;
-		glfwGetCursorPos(window, &mouseX, &mouseY);
+        if (mousecontrol)
+        {
+		    glfwGetCursorPos(window, &mouseX, &mouseY);
 		
-		//if I want a sensitivity field then I just multiply the result below by a passed through sensitivity value
-		float rotx = (float)(mouseY - oMouseY);
-		float roty = (float)(mouseX - oMouseX);			
+		    //if I want a sensitivity field then I just multiply the result below by a passed through sensitivity value
+		    float rotx = (float)(mouseY - oMouseY);
+		    float roty = (float)(mouseX - oMouseX);			
 
-		rotate.y += roty;
-		rotate.x -= rotx;
+	    	rotate.y += roty;
+      		rotate.x -= rotx;
+        }
 
 		if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon()) {
 			gameObject.transform.rotation += lookSpeed * dt * rotate;
@@ -45,6 +49,17 @@ namespace lve
 		if (glfwGetKey(window, keys.moveLeft) == GLFW_PRESS) moveDir -= rightDir;
 		if (glfwGetKey(window, keys.moveUp) == GLFW_PRESS) moveDir += upDir;
 		if (glfwGetKey(window, keys.moveDown) == GLFW_PRESS) moveDir -= upDir;
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS) 
+        {
+          mousecontrol = false;
+          glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        }
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_3) == GLFW_PRESS) 
+        {
+          mousecontrol = true;
+          glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);        
+        }
+
 		if (glfwGetKey(window, keys.close) == GLFW_PRESS) glfwTerminate();
 
 		if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon())

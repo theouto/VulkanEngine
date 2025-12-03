@@ -29,6 +29,7 @@ namespace lve
 		};
 
         void moveInPlaneXZ(GLFWwindow* window, float dt, LveGameObject &gameObject, double oMouseX, double oMouseY);
+        bool mousecontrol;
 
         KeyMappings keys{};
         float moveSpeed{ 3.f };

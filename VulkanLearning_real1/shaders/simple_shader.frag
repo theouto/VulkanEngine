@@ -60,16 +60,24 @@ mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
     return mat3( T * invmax, B * invmax, N );
 }
 
+
+float fresnelSchlick(float cosTheta, float F0)
+{
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
 //Yes, I'm still trying for burley
 float BurleyDiffuse(float lightAng, float viewAng, float halfAng, vec2 UVs)
 {
-  float f90 = 0.5f + 2.f * texture(metalness, UVs).r * pow(halfAng, 2);
+  float f90 = 0.5f + 2.f * (1 - texture(specular, UVs).r) * pow(halfAng, 2);
   float termf90 = f90 - 1.f;
-  float Fl = pow((1 - lightAng), 5);
-  float Fv = pow((1 - viewAng), 5);
+  //float Fl = pow((1 - lightAng), 5);
+  float Fl = fresnelSchlick(lightAng, f90);
+  //float Fv = pow((1 - viewAng), 5);
+  float Fv = fresnelSchlick(viewAng, f90);
   //vec3 flamb = (texture(texSampler, UVs).rgb /M_PI);
 
-  float fd = (1 + termf90*Fl)*(1 + termf90*Fv);
+  float fd = Fl * Fv;
 
   return fd;
 }
@@ -196,7 +204,7 @@ void main()
               UVs);
         */
 
-        float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(specular, UVs).x, 0.f, 1.f));
+        float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(specular, UVs).x, 0.001f, 1.f));
         
         vec3 numerator = specular * diff * fres;
         float denominator = 4.0 * max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0) + 0.0001;

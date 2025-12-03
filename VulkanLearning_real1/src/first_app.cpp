@@ -6,6 +6,7 @@
 #include "../include/lve_frame_info.hpp"
 #include "../systems/point_light_system.hpp"
 #include "../systems/simple_render_system.hpp"
+#include <GLFW/glfw3.h>
 #include <algorithm>
 #include <glm/ext/vector_float3.hpp>
 #include <memory>
@@ -98,8 +99,9 @@ namespace lve
             glfwSetInputMode(lveWindow.getGLFWwindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
         }     
 
+        glfwSetInputMode(lveWindow.getGLFWwindow(), GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
         KeyboardMovementController cameraController{};
-
+        cameraController.mousecontrol = true;
         double mouseX = 0.f;
         double mouseY = 0.f;
 	
@@ -211,7 +213,7 @@ namespace lve
         };
         
 
-       
+       */
         std::vector<std::shared_ptr<LveTextures>> wet_sand = {std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_Color.png", LveTextures::COLOR ),
             std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_Roughness.png", LveTextures::SPECULAR ),
             std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_NormalGL.png", LveTextures::NORMAL ),
@@ -219,16 +221,16 @@ namespace lve
             std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_AmbientOcclusion.png", LveTextures::SPECULAR),
             std::make_unique<LveTextures>(lveDevice, "textures/NAM.png", LveTextures::SPECULAR)
         };
-       */
-
-        std::vector<std::shared_ptr<LveTextures>> sMetal = {std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_8K-PNG_Color.png", LveTextures::COLOR ),
-            std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_8K-PNG_Roughness.png", LveTextures::SPECULAR ),
-            std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_8K-PNG_NormalGL.png", LveTextures::NORMAL ),
-            std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_8K-PNG_Displacement.png", LveTextures::DEPTH ),
+       
+        /*
+        std::vector<std::shared_ptr<LveTextures>> sMetal = {std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_Color.png", LveTextures::COLOR ),
+            std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_Roughness.png", LveTextures::SPECULAR ),
+            std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_NormalGL.png", LveTextures::NORMAL ),
+            std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_Displacement.png", LveTextures::DEPTH ),
             std::make_unique<LveTextures>( lveDevice, "textures/NA.png", LveTextures::SPECULAR),
-            std::make_unique<LveTextures>(lveDevice, "textures/Metal051A_8K-PNG_Metalness.png", LveTextures::SPECULAR)
+            std::make_unique<LveTextures>(lveDevice, "textures/Metal051A_2K-PNG_Metalness.png", LveTextures::SPECULAR)
         };
-
+        */
 
         matLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //albedo
@@ -260,7 +262,7 @@ namespace lve
         quad.model = lveModel;
         quad.transform.translation = { 0.f, .5f, 0.f };
         quad.transform.scale = { 3.f, 1.f, 3.f };
-        quad.textures = sMetal;
+        quad.textures = wet_sand;
         gameObjects.emplace(quad.getId(), std::move(quad));
 
         for (auto &kv : gameObjects)
