@@ -1,9 +1,6 @@
 #include "imgui_setup.hpp"
-/*
-#include <imgui.h>
-#include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_vulkan.h>
 
+/*
 namespace lve 
 {
   Imgui_LVE::Imgui_LVE(LveDevice &device, LveWindow &window, LveSwapChain &chain) 
@@ -63,28 +60,19 @@ namespace lve
 
 	ImGui_ImplVulkan_Init(&init_info);
 
-    /*
+
 	// add the destroy the imgui created structures
-	_mainDeletionQueue.push_function([=]() {
+	//_mainDeletionQueue.push_function([=]() {
 		ImGui_ImplVulkan_Shutdown();
-		vkDestroyDescriptorPool(_device, imguiPool, nullptr);
-	});
+		vkDestroyDescriptorPool(lveDevice.device(), imguiPool, nullptr);
+	//});
     
   }
-
-  void Imgui_LVE::run()
+ 
+  VkRenderingAttachmentInfo Imgui_LVE::attachment_info(VkImageView view, VkClearValue* clear, VkImageLayout layout)
   {
     
-    // imgui new frame
-    ImGui_ImplVulkan_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-
-    //some imgui UI to test
-    ImGui::ShowDemoWindow();
-
-    //make imgui calculate internal draw structures
-    ImGui::Render();
+    return VkRenderingAttachmentInfo{};
   }
 
 }
