@@ -13,10 +13,7 @@ namespace lve
 	LvePipeline::LvePipeline(LveDevice& device, std::vector<std::string> filePaths, 
 		const PipelineConfigInfo& configInfo) : lveDevice{device}
 	{
-		if (filePaths.size() == 2)
-		{
 			createGraphicsPipeline(filePaths[0], filePaths[1], configInfo);
-		}
 		
 	}
 

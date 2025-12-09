@@ -62,21 +62,9 @@ namespace lve
         {
             auto bufferInfo = uboBuffers[i]->descriptorInfo();
 
-            /*
-            auto imageInfo = texture->getDescriptorInfo();
-            auto specInfo = specular->getDescriptorInfo();
-            auto nomInfo = normal->getDescriptorInfo();
-            auto dispInfo = displacement->getDescriptorInfo();
-            */
 
             LveDescriptorWriter(*globalSetLayout, *globalPool)
-                .writeBuffer(0, &bufferInfo)
-                /*
-                .writeImage(1, &imageInfo)
-                .writeImage(2, &specInfo)
-                .writeImage(3, &nomInfo)
-                .writeImage(4, &dispInfo)
-                */
+                .writeBuffer(0, &bufferInfo) 
                 .build(globalDescriptorSets[i]);
         }
 
