@@ -1,110 +1,75 @@
 #include "skybox_system.hpp"
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include <memory>
 #include <string>
 #include <vector>
+#include <stdexcept>
+#include <vulkan/vulkan_core.h>
 
 namespace lve
 {
-  SkyboxSystem::~SkyboxSystem()
+  struct SkyboxPushConstants
   {
-    /*
-    for (int i = 0; i < m_uniformBuffers.size(); i++) {
-		m_uniformBuffers[i].Destroy(m_pVulkanCore->GetDevice());
+	glm::mat4 view{ 1.f };
+  };
+
+  SkyboxSystem::~SkyboxSystem(){}
+
+  void SkyboxSystem::createPipeLineLayout(VkDescriptorSetLayout globalSetLayout)
+  {
+    VkPushConstantRange pushConstantRange{};
+	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+	pushConstantRange.offset = 0;
+	pushConstantRange.size = sizeof(SkyboxPushConstants);
+
+	std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout };
+
+	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+	pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+	pipelineLayoutInfo.pushConstantRangeCount = 1;
+	pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
+	if (vkCreatePipelineLayout(lveDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create pipeline layout");
 	}
-    */
-
-	vkDestroyShaderModule(lveDevice->device(), vs, NULL);
-	vkDestroyShaderModule(lveDevice->device(), fs, NULL);
-
-	delete lvePipeline;
   }
 
-  void SkyboxSystem::init(const char* filename)
+  void SkyboxSystem::init()
   {
-    //for some reason it will not allow me to initialise the buffer vector with a set size. Will investigate later, probably doing something wrong
-    buffers.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
-
-    for (int i = 0; i < buffers.size(); i++)
-    {
-      buffers[i] = std::make_unique<LveBuffer>(
-            *lveDevice,
-            UNIFORM_BUFFER_SIZE,
-            1,
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-       buffers[i]->map();
-    }
-
-	cubemapTexture = std::make_shared<LveTextures>( *lveDevice, filename, LveTextures::COLOR);	
-	
-	const PipelineConfigInfo pd = PipelineConfigInfo();	
-
-    std::vector<std::string> skybox = {"../shaders/skybox.vert", "../shaders/skybox.frag"};
-	
-    LvePipeline dd(*lveDevice, skybox, pd);
-    lvePipeline = &dd;
-
-	createDescriptorSets();
+    cubemapTexture = std::make_shared<LveTextures>(lveDevice, "textures/NEEERDDDD.png", LveTextures::COLOR);
   }
 
-  void SkyboxSystem::createDescriptorSets()
+  void SkyboxSystem::createPipeline(VkRenderPass renderPass)
   {
-    int NumSubmeshes = 1;
-	lvePipeline->AllocateDescriptorSets(NumSubmeshes, descriptorSets);
+    assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 
-	int NumBindings = 2; // Uniform, Cubemap
+		PipelineConfigInfo pipelineConfig{};
+		LvePipeline::defaultPipelineConfigInfo(pipelineConfig);
+		pipelineConfig.attributeDescriptions.clear();
+		pipelineConfig.bindingDescriptions.clear();
+		pipelineConfig.renderPass = renderPass;
+		pipelineConfig.pipelineLayout = pipelineLayout;
+		std::vector<std::string> filePaths = { "shaders/skybox.vert.spv",
+			"shaders/skybox.frag.spv" };
+		lvePipeline = std::make_unique<LvePipeline>(lveDevice, 
+			filePaths, pipelineConfig);
+  }
 
-	std::vector<VkWriteDescriptorSet> WriteDescriptorSet(imageCount * NumBindings);
+  void SkyboxSystem::render(FrameInfo& frameInfo)
+  {
+    lvePipeline->bind(frameInfo.commandBuffer);
+    vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+			0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
 
-	VkDescriptorImageInfo ImageInfo = {
-		.sampler = cubemapTexture->getSampler(),
-		.imageView = cubemapTexture->getTextureImageView(),
-		.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-	};
+    SkyboxPushConstants push{};
+    push.view = frameInfo.camera.getView();
 
-	std::vector<VkDescriptorBufferInfo> BufferInfo_Uniforms(imageCount);
-
-	int WdsIndex = 0;
-
-	for (int ImageIndex = 0; ImageIndex < imageCount; ImageIndex++) {
-		BufferInfo_Uniforms[ImageIndex].buffer = buffers[ImageIndex]->getBuffer();
-		BufferInfo_Uniforms[ImageIndex].offset = 0;
-		BufferInfo_Uniforms[ImageIndex].range = VK_WHOLE_SIZE;
-	}
-
-	for (int ImageIndex = 0; ImageIndex < imageCount; ImageIndex++) {
-		VkDescriptorSet DstSet = descriptorSets[ImageIndex][0];
-
-		VkWriteDescriptorSet wds = {
-			.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-			.dstSet = DstSet,
-			.dstBinding = 2,
-			.dstArrayElement = 0,
-			.descriptorCount = 1,
-			.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-			.pBufferInfo = &BufferInfo_Uniforms[ImageIndex]
-		};
-
-		assert(WdsIndex < WriteDescriptorSet.size());
-		WriteDescriptorSet[WdsIndex++] = wds;
-
-		wds = {
-			.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-			.dstSet = DstSet,
-			.dstBinding = 4,
-			.dstArrayElement = 0,
-			.descriptorCount = 1,
-			.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-			.pImageInfo = &ImageInfo
-		};
-
-		assert(WdsIndex < WriteDescriptorSet.size());
-		WriteDescriptorSet[WdsIndex++] = wds;
-	}
-
-	vkUpdateDescriptorSets(lveDevice->device(), 
-		                   (uint32_t)WriteDescriptorSet.size(), WriteDescriptorSet.data(), 0, NULL);
+    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				0, sizeof(SkyboxPushConstants), &push);
   }
 
 }

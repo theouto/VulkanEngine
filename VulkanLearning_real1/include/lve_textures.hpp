@@ -15,8 +15,7 @@ namespace lve
         {
           COLOR,
           NORMAL,
-          SPECULAR,
-          DEPTH,
+          SINGLE_UNORM
         };
  
 		LveTextures(LveDevice& device, const char *path, texType tType);

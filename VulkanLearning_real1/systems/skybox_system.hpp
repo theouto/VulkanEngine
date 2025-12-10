@@ -4,8 +4,11 @@
 #include "../include/lve_renderer.hpp"
 #include "../include/lve_buffer.hpp"
 #include "../include/lve_pipeline.hpp"
+#include "../include/lve_descriptors.hpp"
+#include "../include/lve_frame_info.hpp"
 
 #include <memory>
+#include <vulkan/vulkan_core.h>
 
 #define UNIFORM_BUFFER_SIZE sizeof(glm::mat4)
 
@@ -16,32 +19,29 @@ namespace lve
   {
     public:
     
-    SkyboxSystem(LveRenderer* lveRender, LveDevice* device, const char* filename) : 
-      lveRenderer{lveRender}, lveDevice{device} 
-    {init(filename);}
+    SkyboxSystem(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : 
+      lveDevice{device}
+    {
+      createPipeLineLayout(globalSetLayout);
+      createPipeline(renderPass);
+      init();
+    }
     
     ~SkyboxSystem();
-
-    void init(const char* filename);
-    void destroy();
-
-    void recordCommandBuffer(VkCommandBuffer commandBuffer, int imageIndex);
-    void update(int imageIndex, const glm::mat4& transformation);
+    
+    void init();
+    //void update(FrameInfo& frameInfo, GlobalUbo &ubo);
+	void render(FrameInfo &frameInfo);
 
     private:
+		
+    void createPipeLineLayout(VkDescriptorSetLayout globalSetLayout);
+	void createPipeline(VkRenderPass renderPass);
 
-    void createDescriptorSets();
-
-    LveDevice* lveDevice;
-    LveRenderer* lveRenderer = NULL;
-    int imageCount = LveSwapChain::MAX_FRAMES_IN_FLIGHT;
-    std::shared_ptr<LveTextures> cubemapTexture = NULL;
-    std::vector<std::unique_ptr<LveBuffer>> buffers;
-    std::vector<std::vector<VkDescriptorSet>> descriptorSets;
-    VkShaderModule vs = VK_NULL_HANDLE;
-    VkShaderModule fs = VK_NULL_HANDLE;
-
-    LvePipeline* lvePipeline = NULL;
+    std::shared_ptr<LveTextures> cubemapTexture;
+	LveDevice& lveDevice;
+	std::unique_ptr<LvePipeline> lvePipeline;
+	VkPipelineLayout pipelineLayout;
   };
 
 }

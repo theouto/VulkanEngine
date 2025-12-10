@@ -6,6 +6,7 @@
 #include "../include/lve_frame_info.hpp"
 #include "../systems/point_light_system.hpp"
 #include "../systems/simple_render_system.hpp"
+#include "../systems/skybox_system.hpp"
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <glm/ext/vector_float3.hpp>
@@ -75,6 +76,7 @@ namespace lve
 		SimpleRenderSystem simpleRenderSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), setLayouts};
         PointLightSystem pointLightSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
         LveCamera camera{};
+        SkyboxSystem skybox{lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
 
         auto viewerObject = LveGameObject::createGameObject();
         viewerObject.transform.translation.z = -1.5f;
@@ -142,8 +144,8 @@ namespace lve
 		        lveRenderer.beginSwapChainRenderPass(commandBuffer);
 				
                 //order is important!
+                skybox.render(frameInfo);
                 simpleRenderSystem.renderGameObjects(frameInfo);
-                
                 pointLightSystem.render(frameInfo);
                 
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
@@ -160,19 +162,19 @@ namespace lve
             "textures/PavingStones115C_2K-PNG_Color.png", LveTextures::COLOR);
 
         std::shared_ptr<LveTextures> specular = std::make_shared<LveTextures>( lveDevice, 
-            "textures/PavingStones115C_2K-PNG_Roughness.png", LveTextures::SPECULAR );
+            "textures/PavingStones115C_2K-PNG_Roughness.png", LveTextures::SINGLE_UNORM );
         
         std::shared_ptr<LveTextures> normals = std::make_shared<LveTextures>( lveDevice,
             "textures/PavingStones115C_2K-PNG_NormalGL.png", LveTextures::NORMAL);
         
         std::shared_ptr<LveTextures> displacement = std::make_shared<LveTextures>( lveDevice,
-            "textures/PavingStones115C_2K-PNG_Displacement.png", LveTextures::DEPTH);
+            "textures/PavingStones115C_2K-PNG_Displacement.png", LveTextures::SINGLE_UNORM);
         
         std::shared_ptr<LveTextures> ambOcc = std::make_shared<LveTextures>( lveDevice, 
-            "textures/PavingStones115C_2K-PNG_AmbientOcclusion.png", LveTextures::SPECULAR);
+            "textures/PavingStones115C_2K-PNG_AmbientOcclusion.png", LveTextures::SINGLE_UNORM);
 
         std::shared_ptr<LveTextures> metal = std::make_shared<LveTextures> (lveDevice, 
-            "textures/NAM.png", LveTextures::SPECULAR);
+            "textures/NAM.png", LveTextures::SINGLE_UNORM);
          
         std::vector<std::shared_ptr<LveTextures>> wet_rock;
         wet_rock.push_back(texSampler);
@@ -203,11 +205,11 @@ namespace lve
 
        */
         std::vector<std::shared_ptr<LveTextures>> wet_sand = {std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_Color.png", LveTextures::COLOR ),
-            std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_Roughness.png", LveTextures::SPECULAR ),
+            std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_Roughness.png", LveTextures::SINGLE_UNORM ),
             std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_NormalGL.png", LveTextures::NORMAL ),
-            std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_Displacement.png", LveTextures::DEPTH ),
-            std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_AmbientOcclusion.png", LveTextures::SPECULAR),
-            std::make_unique<LveTextures>(lveDevice, "textures/NAM.png", LveTextures::SPECULAR)
+            std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_Displacement.png", LveTextures::SINGLE_UNORM ),
+            std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_AmbientOcclusion.png", LveTextures::SINGLE_UNORM),
+            std::make_unique<LveTextures>(lveDevice, "textures/NAM.png", LveTextures::SINGLE_UNORM)
         };
        
         /*

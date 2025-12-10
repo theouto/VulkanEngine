@@ -46,11 +46,7 @@ namespace lve
                 textureFormat = VK_FORMAT_R8G8B8A8_UNORM;
                 format = 4;
                 break;
-          case SPECULAR:
-                textureFormat = VK_FORMAT_R8_UNORM;
-                format = 1;
-                break;
-          case DEPTH:
+          case SINGLE_UNORM:
                 textureFormat = VK_FORMAT_R8_UNORM;
                 format = 1;
                 break;
