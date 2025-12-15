@@ -23,7 +23,7 @@ layout (location=0) in vec3 Dir;
 
 layout (location=0) out vec4 out_Color;
 
-layout(binding = 4) uniform samplerCube cubeSampler;
+layout(binding = 1) uniform samplerCube cubeSampler;
 
 void main() 
 {

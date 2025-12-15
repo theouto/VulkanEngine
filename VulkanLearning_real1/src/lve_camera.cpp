@@ -89,6 +89,18 @@ namespace lve
 		viewMatrix[3][1] = -glm::dot(v, position);
 		viewMatrix[3][2] = -glm::dot(w, position);
 
+        viewStat = glm::mat4{ 1.f };
+		viewStat[0][0] = u.x;
+		viewStat[1][0] = u.y;
+		viewStat[2][0] = u.z;
+		viewStat[0][1] = v.x;
+		viewStat[1][1] = v.y;
+		viewStat[2][1] = v.z;
+		viewStat[0][2] = w.x;
+		viewStat[1][2] = w.y;
+		viewStat[2][2] = w.z;
+
+
 		inverseViewMatrix = glm::mat4{ 1.f };
 		inverseViewMatrix[0][0] = u.x;
 		inverseViewMatrix[0][1] = u.y;

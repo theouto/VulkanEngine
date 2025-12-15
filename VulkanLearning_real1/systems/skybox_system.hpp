@@ -24,13 +24,10 @@ namespace lve
     {
       createPipeLineLayout(globalSetLayout);
       createPipeline(renderPass);
-      init();
     }
     
     ~SkyboxSystem();
     
-    void init();
-    //void update(FrameInfo& frameInfo, GlobalUbo &ubo);
 	void render(FrameInfo &frameInfo);
 
     private:

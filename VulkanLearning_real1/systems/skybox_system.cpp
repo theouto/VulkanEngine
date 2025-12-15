@@ -38,11 +38,6 @@ namespace lve
 	}
   }
 
-  void SkyboxSystem::init()
-  {
-    cubemapTexture = std::make_shared<LveTextures>(lveDevice, "textures/NEEERDDDD.png", LveTextures::COLOR);
-  }
-
   void SkyboxSystem::createPipeline(VkRenderPass renderPass)
   {
     assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
@@ -53,6 +48,7 @@ namespace lve
 		pipelineConfig.bindingDescriptions.clear();
 		pipelineConfig.renderPass = renderPass;
 		pipelineConfig.pipelineLayout = pipelineLayout;
+        pipelineConfig.depthStencilInfo.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
 		std::vector<std::string> filePaths = { "shaders/skybox.vert.spv",
 			"shaders/skybox.frag.spv" };
 		lvePipeline = std::make_unique<LvePipeline>(lveDevice, 
@@ -65,11 +61,13 @@ namespace lve
     vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
 			0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
 
-    SkyboxPushConstants push{};
-    push.view = frameInfo.camera.getView();
+    SkyboxPushConstants uboi{};
+    uboi.view = frameInfo.camera.getView();
 
     vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-				0, sizeof(SkyboxPushConstants), &push);
+				0, sizeof(SkyboxPushConstants), &uboi);
+
+    vkCmdDraw(frameInfo.commandBuffer, 36, 1, 0, 0);
   }
 
 }

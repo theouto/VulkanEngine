@@ -21,7 +21,22 @@
 
 layout (location=0) out vec3 Dir;
 
-layout (binding = 2) readonly uniform UniformBuffer { mat4 VP; } ubo;
+struct PointLight
+{
+	vec4 position;
+	vec4 color;
+};
+
+layout(set = 0, binding = 0) uniform GlobalUbo 
+{
+  mat4 projection;
+  mat4 view;
+  mat4 invView;
+  mat4 viewStat;
+  vec4 ambientLightColor; // w is intensity
+  PointLight pointLights[10];
+  int numLights;
+} ubo;
 
 const vec3 pos[8] = vec3[8](
 	vec3(-1.0,-1.0, 1.0),		// 0
@@ -48,7 +63,7 @@ void main()
 {
 	int idx = indices[gl_VertexIndex];
 	vec4 Pos = vec4(pos[idx], 1.0);
-	vec4 WVP_Pos = ubo.VP * Pos;
+	vec4 WVP_Pos = ubo.projection * ubo.viewStat * Pos;
 	gl_Position = WVP_Pos.xyww;
 	Dir = pos[idx].xyz;
 }

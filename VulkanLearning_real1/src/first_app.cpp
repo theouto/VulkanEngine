@@ -39,7 +39,9 @@ namespace lve
 
 	void FirstApp::run()
 	{
-        
+        std::shared_ptr<LveTextures>cubemapTexture = std::make_shared<LveTextures>(lveDevice, 
+                                                        "textures/NEEERDDDD.png", LveTextures::COLOR);
+
         std::vector<std::unique_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
         {
@@ -52,7 +54,6 @@ namespace lve
             uboBuffers[i]->map();
         }
 
-        //I will fix this garbage
         auto globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)            
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
@@ -62,10 +63,11 @@ namespace lve
         for (int i = 0; i < globalDescriptorSets.size(); i++)
         {
             auto bufferInfo = uboBuffers[i]->descriptorInfo();
-
+            auto skyInfo = cubemapTexture->getDescriptorInfo();
 
             LveDescriptorWriter(*globalSetLayout, *globalPool)
                 .writeBuffer(0, &bufferInfo) 
+                .writeImage(1, &skyInfo)
                 .build(globalDescriptorSets[i]);
         }
 
@@ -135,6 +137,7 @@ namespace lve
                 GlobalUbo ubo{};
                 ubo.projection = camera.getProjection();
                 ubo.view = camera.getView();
+                ubo.viewStat = camera.getviewStat();
                 ubo.inverseView = camera.getInverseView();
                 pointLightSystem.update(frameInfo, ubo);
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);

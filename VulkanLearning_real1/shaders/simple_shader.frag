@@ -26,6 +26,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo
   mat4 projection;
   mat4 view;
   mat4 invView;
+  mat4 viewStat;
   vec4 ambientLightColor; // w is intensity
   PointLight pointLights[10];
   int numLights;
@@ -60,28 +61,6 @@ mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
     return mat3( T * invmax, B * invmax, N );
 }
 
-
-float fresnelSchlick(float cosTheta, float F0)
-{
-    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
-}
-
-//Yes, I'm still trying for burley
-float BurleyDiffuse(float lightAng, float viewAng, float halfAng, vec2 UVs)
-{
-  float f90 = 0.5f + 2.f * (1 - texture(specular, UVs).r) * pow(halfAng, 2);
-  float termf90 = f90 - 1.f;
-  //float Fl = pow((1 - lightAng), 5);
-  float Fl = fresnelSchlick(lightAng, f90);
-  //float Fv = pow((1 - viewAng), 5);
-  float Fv = fresnelSchlick(viewAng, f90);
-  //vec3 flamb = (texture(texSampler, UVs).rgb /M_PI);
-
-  float fd = Fl * Fv;
-
-  return fd;
-}
-
 //==============================================================================
 
 vec2 parallaxOcclusionMapping(vec2 texCoords, vec3 viewDir)
@@ -112,6 +91,20 @@ vec2 parallaxOcclusionMapping(vec2 texCoords, vec3 viewDir)
     vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
 
 	return currentTexCoords; 
+}
+
+//==============================================================================
+
+vec3 BurleyDiffuse(float lightAng, float viewAng, float halfAng, vec2 UVs)
+{
+  float f90 = 0.5f + 2.f * ( texture(specular, UVs).r) * halfAng * halfAng;
+  float Fl = pow((1 - lightAng), 5);
+  float Fv = pow((1 - viewAng), 5);
+
+  float t1 = 1 + (1 - f90) * Fl;
+  float t2 = 1 + (1 - f90) * Fv;
+
+  return texture(texSampler, UVs).xyz * ((1/M_PI) * t2 * t1);
 }
 
 //==============================================================================
@@ -154,6 +147,16 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 
 //==============================================================================
 
+vec3 metallic(vec3 fres, float metal)
+{
+  vec3 kD = vec3(1.f) - fres;
+  kD *= 1.f - metal;
+  
+  return kD; 
+}
+
+//==============================================================================
+
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
@@ -163,8 +166,6 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 
 void main()
 {
-    //essentials, these are fine, so I don't need to change them
-
     mat3 TBN = cotangent_frame(fragNormalWorld, fragPosWorld, fragUv);
 	vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
 	vec3 specularLight = vec3(0.0);
@@ -173,9 +174,13 @@ void main()
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld); 
 
 	vec2 UVs = parallaxOcclusionMapping(fragUv, TBN * viewDirection);
+    //vec2 UVs = fragUv;
 
 	vec3 tangentNormal = texture(normals, UVs).rgb * 2.0 - 1.0;     
 	vec3 surfaceNormal = normalize(normalize(TBN * tangentNormal));
+
+    vec3 diffcont = vec3(0.f);
+    //float diffcont = 0.f;
 
     vec3 F0 = vec3(0.04);
     float halfView = dot(normalize(viewDirection + surfaceNormal), surfaceNormal); 
@@ -184,8 +189,9 @@ void main()
     vec3 Lo = vec3(0.f);
     for(int i = 0; i < ubo.numLights; i++)
     {
-       PointLight light = ubo.pointLights[i];
-		vec3 directionToLight = light.position.xyz - fragPosWorld;
+        PointLight light = ubo.pointLights[i];
+		
+        vec3 directionToLight = light.position.xyz - fragPosWorld;
 		float attenuation = 1.0/dot(directionToLight, directionToLight); //distance squared
 		
         directionToLight = normalize(directionToLight);
@@ -194,15 +200,18 @@ void main()
         vec3 halfAngle = normalize(directionToLight + viewDirection); 
 
         vec3 fres = fresnelSchlick(clamp(dot(halfAngle, viewDirection), 0.f, 1.f), F0);
+        
         float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(specular, UVs).r);
 
         /*
-        float diff = 1/M_PI * BurleyDiffuse(
+        vec3 diff = BurleyDiffuse(
               dot(directionToLight, surfaceNormal),
               dot(viewDirection, surfaceNormal),
               dot(halfAngle, directionToLight), 
               UVs);
-        */
+        
+        diffcont += diff;
+        */ 
 
         float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(specular, UVs).x, 0.001f, 1.f));
         
@@ -210,9 +219,7 @@ void main()
         float denominator = 4.0 * max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0) + 0.0001;
         vec3 spec = numerator / denominator;
 
-        vec3 kD = vec3(1.f) - fres;
-
-        kD *= 1.f - texture(metalness, UVs).r;
+        vec3 kD = metallic(fres, texture(metalness, UVs).r);
 
         float NdotL = max(dot(surfaceNormal, directionToLight), 0.f);
 
@@ -225,6 +232,9 @@ void main()
     //ENV VIEW
     //outColor = vec4(diffuseLight, 0.0);
  
+    //DIFF-Cont VIEW
+    //outColor = vec4(diffcont, 1.f);
+
     //AO VIEW
     //outColor = vec4(1.f, 1.f, 1.f, 1.f) * texture(AO, UVs).r;
  
@@ -235,4 +245,5 @@ void main()
     //outColor = texture(texSampler, UVs) * vec4(specularLight, 0.0f);
 
     //FINAL VIEW
-    outColor = diffuse + vec4(Lo, 0.f);}
+    outColor = diffuse + vec4(Lo, 0.f);
+  }
