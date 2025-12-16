@@ -218,7 +218,7 @@ namespace lve
         };
         
 
-       */
+       
         std::vector<std::shared_ptr<LveTextures>> wet_sand = {std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_Color.png", LveTextures::COLOR ),
             std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_Roughness.png", LveTextures::SINGLE_UNORM ),
             std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_NormalGL.png", LveTextures::NORMAL ),
@@ -226,18 +226,19 @@ namespace lve
             std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_AmbientOcclusion.png", LveTextures::SINGLE_UNORM),
             std::make_unique<LveTextures>(lveDevice, "textures/NAM.png", LveTextures::SINGLE_UNORM)
         };
-       
-        /*
+        
+        
         std::vector<std::shared_ptr<LveTextures>> sMetal = {std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_Color.png", LveTextures::COLOR ),
-            std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_Roughness.png", LveTextures::SPECULAR ),
+            std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_Roughness.png", LveTextures::SINGLE_UNORM ),
             std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_NormalGL.png", LveTextures::NORMAL ),
-            std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_Displacement.png", LveTextures::DEPTH ),
-            std::make_unique<LveTextures>( lveDevice, "textures/NA.png", LveTextures::SPECULAR),
-            std::make_unique<LveTextures>(lveDevice, "textures/Metal051A_2K-PNG_Metalness.png", LveTextures::SPECULAR)
+            std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_Displacement.png", LveTextures::SINGLE_UNORM ),
+            std::make_unique<LveTextures>( lveDevice, "textures/NA.png", LveTextures::SINGLE_UNORM),
+            std::make_unique<LveTextures>(lveDevice, "textures/Metal051A_2K-PNG_Metalness.png", LveTextures::SINGLE_UNORM)
         };
         */
 
         matLayout = LveDescriptorSetLayout::Builder(lveDevice)
+
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //albedo
             .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //specular
             .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //normal
@@ -267,7 +268,7 @@ namespace lve
         quad.model = lveModel;
         quad.transform.translation = { 0.f, .5f, 0.f };
         quad.transform.scale = { 3.f, 1.f, 3.f };
-        quad.textures = wet_sand;
+        quad.textures = wet_rock;
         gameObjects.emplace(quad.getId(), std::move(quad));
 
         for (auto &kv : gameObjects)

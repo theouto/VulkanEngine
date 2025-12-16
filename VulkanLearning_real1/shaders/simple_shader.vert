@@ -65,15 +65,8 @@ void main()
 {
   vec4 positionWorld = push.modelMatrix * vec4(position, 1.0);
   gl_Position = ubo.projection * ubo.view * positionWorld;
-
-  /*
-  vec3 T   = normalize(mat3(push.modelMatrix) * aTangent);
-  vec3 B   = normalize(mat3(push.modelMatrix) * aBitangent);
-  vec3 N   = normalize(mat3(push.modelMatrix) * normal);
-  */
  
   fragNormalWorld = normalize(mat3(push.normalMatrix) * normal);
- // TBN = cotangent_frame(fragNormalWorld, position, uv);
   fragPosWorld = positionWorld.xyz;
   fragColor = color;
   fragUv = uv;

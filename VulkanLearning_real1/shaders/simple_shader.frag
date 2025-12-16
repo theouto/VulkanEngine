@@ -186,7 +186,7 @@ void main()
 	vec3 cameraPosWorld = ubo.invView[3].xyz;
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld); 
 
-    vec2 boxuv = SampleSphericalMap(normalize(cameraPosWorld));
+    vec2 boxuv = SampleSphericalMap(normalize(viewDirection));
     vec3 boxcolor = texture(fakebox, boxuv).rgb;
 
 	vec2 UVs = parallaxOcclusionMapping(fragUv, TBN * viewDirection);
@@ -239,7 +239,7 @@ void main()
 
         float NdotL = max(dot(surfaceNormal, directionToLight), 0.f);
 
-        Lo += (kD * texture(texSampler, UVs).rgb / M_PI + spec) * intensity * NdotL;
+        Lo += (kD * boxcolor * texture(texSampler, UVs).rgb / M_PI + spec) * intensity * NdotL;
     }
 
     vec4 diffuse = texture(texSampler, UVs) * vec4(diffuseLight, 0.0) * texture(AO, UVs).r;
@@ -260,6 +260,9 @@ void main()
     //LIGHT-IMPACT VIEW
     //outColor = texture(texSampler, UVs) * vec4(specularLight, 0.0f);
 
+    //SKYBOX VIEW
+    outColor = vec4(boxcolor, 1.f);
+
     //FINAL VIEW
-    outColor = diffuse + vec4(Lo, 0.f);
+    //outColor = diffuse + vec4(Lo, 0.f);
   }

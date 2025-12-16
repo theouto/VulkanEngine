@@ -20,10 +20,22 @@
 #version 450
 
 layout (location=0) in vec3 Dir;
+layout (location=1) in vec3 posi;
 
 layout (location=0) out vec4 out_Color;
 
 layout(binding = 2) uniform sampler2D cubeSampler;
+
+layout(set = 0, binding = 0) uniform GlobalUbo 
+{
+  mat4 projection;
+  mat4 view;
+  mat4 invView;
+  mat4 viewStat;
+  vec4 ambientLightColor; // w is intensity
+  //PointLight pointLights[10];
+  int numLights;
+} ubo;
 
 const vec2 invAtan = vec2(0.1591, 0.3183);
 
@@ -37,7 +49,10 @@ vec2 SampleSphericalMap(vec3 v)
 
 void main() 
 {
-    vec2 uv = SampleSphericalMap(Dir);
+    vec3 cameraPosWorld = ubo.invView[3].xyz;
+	vec3 transDir = normalize(cameraPosWorld - posi);
+
+    vec2 uv = SampleSphericalMap(transDir);
     vec3 texcolor = texture(cubeSampler, uv).rgb;
 	out_Color = vec4(texcolor, 1.0);
 }

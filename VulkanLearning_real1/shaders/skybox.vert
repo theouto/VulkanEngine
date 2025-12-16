@@ -19,7 +19,10 @@
 
 #version 450
 
+layout(location = 0) in vec3 position;
+
 layout (location=0) out vec3 Dir;
+layout (location=1) out vec3 posi;
 
 struct PointLight
 {
@@ -66,4 +69,6 @@ void main()
 	vec4 WVP_Pos = ubo.projection * ubo.viewStat * Pos;
 	gl_Position = WVP_Pos.xyww;
 	Dir = pos[idx].xyz;
+
+    posi = position;
 }
