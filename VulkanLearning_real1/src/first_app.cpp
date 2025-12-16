@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <glm/ext/vector_float3.hpp>
 #include <memory>
+#include <vulkan/vulkan_core.h>
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -42,6 +43,9 @@ namespace lve
         std::shared_ptr<LveTextures>cubemapTexture = std::make_shared<LveTextures>(lveDevice, 
                                                         "textures/NEEERDDDD.png", LveTextures::COLOR);
 
+        std::shared_ptr<LveTextures> fakebox = std::make_shared<LveTextures>(lveDevice,
+                                                        "textures/MorningSkyHDRI011A_1K_TONEMAPPED.jpg", LveTextures::COLOR);
+
         std::vector<std::unique_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
         {
@@ -57,6 +61,7 @@ namespace lve
         auto globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)            
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
             .build();   
 
         std::vector<VkDescriptorSet> globalDescriptorSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -64,10 +69,12 @@ namespace lve
         {
             auto bufferInfo = uboBuffers[i]->descriptorInfo();
             auto skyInfo = cubemapTexture->getDescriptorInfo();
+            auto fakeInfo = fakebox->getDescriptorInfo();
 
             LveDescriptorWriter(*globalSetLayout, *globalPool)
                 .writeBuffer(0, &bufferInfo) 
                 .writeImage(1, &skyInfo)
+                .writeImage(2, &fakeInfo)
                 .build(globalDescriptorSets[i]);
         }
 
@@ -147,8 +154,13 @@ namespace lve
 		        lveRenderer.beginSwapChainRenderPass(commandBuffer);
 				
                 //order is important!
+                //skybox
                 skybox.render(frameInfo);
+
+                //geometry pass excl. skybox
                 simpleRenderSystem.renderGameObjects(frameInfo);
+
+                //lighting pass
                 pointLightSystem.render(frameInfo);
                 
                 lveRenderer.endSwapChainRenderPass(commandBuffer);

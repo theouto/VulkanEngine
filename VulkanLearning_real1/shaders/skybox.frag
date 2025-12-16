@@ -23,9 +23,21 @@ layout (location=0) in vec3 Dir;
 
 layout (location=0) out vec4 out_Color;
 
-layout(binding = 1) uniform samplerCube cubeSampler;
+layout(binding = 2) uniform sampler2D cubeSampler;
+
+const vec2 invAtan = vec2(0.1591, 0.3183);
+
+vec2 SampleSphericalMap(vec3 v)
+{
+    vec2 uv = vec2(atan(v.z, v.x), asin(v.y));
+    uv *= invAtan;
+    uv += 0.5;
+    return uv;
+}
 
 void main() 
 {
-	out_Color = texture(cubeSampler, Dir);
+    vec2 uv = SampleSphericalMap(Dir);
+    vec3 texcolor = texture(cubeSampler, uv).rgb;
+	out_Color = vec4(texcolor, 1.0);
 }

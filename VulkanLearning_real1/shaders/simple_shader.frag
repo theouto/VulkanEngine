@@ -4,7 +4,8 @@ layout (location = 0) in vec3 fragColor;
 layout (location = 1) in vec3 fragPosWorld;
 layout (location = 2) in vec3 fragNormalWorld;
 layout (location = 3) in vec2 fragUv;
-//layout (location = 4) in mat3 TBN;
+
+layout (binding = 2) uniform sampler2D fakebox;
 
 layout (location = 0) out vec4 outColor;
 
@@ -39,6 +40,18 @@ layout(push_constant) uniform Push
 } push;
 
 const float M_PI = 3.1415926538;
+
+const vec2 invAtan = vec2(0.1591, 0.3183);
+
+//==============================================================================
+
+vec2 SampleSphericalMap(vec3 v)
+{
+    vec2 uv = vec2(atan(v.z, v.x), asin(v.y));
+    uv *= invAtan;
+    uv += 0.5;
+    return uv;
+}
 
 //==============================================================================
 
@@ -165,13 +178,16 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 //==============================================================================
 
 void main()
-{
+{ 
     mat3 TBN = cotangent_frame(fragNormalWorld, fragPosWorld, fragUv);
 	vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
 	vec3 specularLight = vec3(0.0);
 	
 	vec3 cameraPosWorld = ubo.invView[3].xyz;
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld); 
+
+    vec2 boxuv = SampleSphericalMap(normalize(cameraPosWorld));
+    vec3 boxcolor = texture(fakebox, boxuv).rgb;
 
 	vec2 UVs = parallaxOcclusionMapping(fragUv, TBN * viewDirection);
     //vec2 UVs = fragUv;
