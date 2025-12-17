@@ -49,10 +49,11 @@ vec2 SampleSphericalMap(vec3 v)
 
 void main() 
 {
-    vec3 cameraPosWorld = ubo.invView[3].xyz;
+    vec3 cameraPosWorld = ubo.viewStat[3].xyz;
 	vec3 transDir = normalize(cameraPosWorld - posi);
 
     vec2 uv = SampleSphericalMap(transDir);
-    vec3 texcolor = texture(cubeSampler, uv).rgb;
+    vec3 texcolor = texture(cubeSampler,(-1.f * uv)).rgb;
+
 	out_Color = vec4(texcolor, 1.0);
 }

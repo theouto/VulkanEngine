@@ -239,7 +239,7 @@ void main()
 
         float NdotL = max(dot(surfaceNormal, directionToLight), 0.f);
 
-        Lo += (kD * boxcolor * texture(texSampler, UVs).rgb / M_PI + spec) * intensity * NdotL;
+        Lo += (kD * texture(texSampler, UVs).rgb / M_PI + spec) * intensity * NdotL;
     }
 
     vec4 diffuse = texture(texSampler, UVs) * vec4(diffuseLight, 0.0) * texture(AO, UVs).r;
@@ -261,8 +261,8 @@ void main()
     //outColor = texture(texSampler, UVs) * vec4(specularLight, 0.0f);
 
     //SKYBOX VIEW
-    outColor = vec4(boxcolor, 1.f);
+    //outColor = vec4(boxcolor, 1.f);
 
     //FINAL VIEW
-    //outColor = diffuse + vec4(Lo, 0.f);
+    outColor = diffuse + vec4(Lo, 0.f);
   }

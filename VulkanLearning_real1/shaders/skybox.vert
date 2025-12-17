@@ -19,8 +19,6 @@
 
 #version 450
 
-layout(location = 0) in vec3 position;
-
 layout (location=0) out vec3 Dir;
 layout (location=1) out vec3 posi;
 
@@ -70,5 +68,5 @@ void main()
 	gl_Position = WVP_Pos.xyww;
 	Dir = pos[idx].xyz;
 
-    posi = position;
+    posi = Pos.xyz;
 }
