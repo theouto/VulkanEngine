@@ -6,6 +6,7 @@
 #include "../include/lve_pipeline.hpp"
 #include "../include/lve_descriptors.hpp"
 #include "../include/lve_frame_info.hpp"
+#include "../include/lve_descriptors.hpp"
 
 #include <memory>
 #include <vulkan/vulkan_core.h>
@@ -19,25 +20,29 @@ namespace lve
   {
     public:
     
-    SkyboxSystem(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : 
-      lveDevice{device}
-    {
-      createPipeLineLayout(globalSetLayout);
-      createPipeline(renderPass);
-    }
-    
+    SkyboxSystem(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout,
+                 LveDescriptorPool &pool);
     ~SkyboxSystem();
     
 	void render(FrameInfo &frameInfo);
 
     private:
-		
-    void createPipeLineLayout(VkDescriptorSetLayout globalSetLayout);
-	void createPipeline(VkRenderPass renderPass);
+	
+    LveDevice& lveDevice;
+    std::shared_ptr<LveTextures> fakebox = std::make_shared<LveTextures>(lveDevice,
+                                 "textures/MorningSkyHDRI011A_1K_TONEMAPPED.jpg", LveTextures::COLOR);
 
+    void createPipeLineLayout(std::vector<VkDescriptorSetLayout> globalSetLayout);
+	void createPipeline(VkRenderPass renderPass);
+    void createDescriptorSets(VkDescriptorSetLayout globalSetLayout);
+
+    std::unique_ptr<LveDescriptorPool> globalPool{};
+    std::unique_ptr<LveDescriptorSetLayout> skyLayout;
+    std::vector<VkDescriptorSetLayout> skyDescriptors;
+    VkDescriptorSet skyDesc;
     std::shared_ptr<LveTextures> cubemapTexture;
-	LveDevice& lveDevice;
-	std::unique_ptr<LvePipeline> lvePipeline;
+	
+    std::unique_ptr<LvePipeline> lvePipeline;
 	VkPipelineLayout pipelineLayout;
   };
 

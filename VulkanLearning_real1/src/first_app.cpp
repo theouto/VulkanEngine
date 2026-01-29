@@ -43,9 +43,6 @@ namespace lve
         std::shared_ptr<LveTextures>cubemapTexture = std::make_shared<LveTextures>(lveDevice, 
                                                         "textures/NEEERDDDD.png", LveTextures::COLOR);
 
-        std::shared_ptr<LveTextures> fakebox = std::make_shared<LveTextures>(lveDevice,
-                                                        "textures/MorningSkyHDRI011A_1K_TONEMAPPED.jpg", LveTextures::COLOR);
-
         std::vector<std::unique_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
         {
@@ -61,7 +58,6 @@ namespace lve
         auto globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)            
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
-            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
             .build();   
 
         std::vector<VkDescriptorSet> globalDescriptorSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -69,12 +65,10 @@ namespace lve
         {
             auto bufferInfo = uboBuffers[i]->descriptorInfo();
             auto skyInfo = cubemapTexture->getDescriptorInfo();
-            auto fakeInfo = fakebox->getDescriptorInfo();
 
             LveDescriptorWriter(*globalSetLayout, *globalPool)
                 .writeBuffer(0, &bufferInfo) 
                 .writeImage(1, &skyInfo)
-                .writeImage(2, &fakeInfo)
                 .build(globalDescriptorSets[i]);
         }
 
@@ -84,14 +78,14 @@ namespace lve
 
 		SimpleRenderSystem simpleRenderSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), setLayouts};
         PointLightSystem pointLightSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
+        SkyboxSystem skybox{lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(), *globalPool};
         LveCamera camera{};
-        SkyboxSystem skybox{lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
-
+ 
         auto viewerObject = LveGameObject::createGameObject();
         viewerObject.transform.translation.z = -1.5f;
 	
 
-	        // https://www.glfw.org/docs/3.3/input_guide.html#raw_mouse_motion <- important
+	    // https://www.glfw.org/docs/3.3/input_guide.html#raw_mouse_motion <- important
         glfwSetInputMode(lveWindow.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         if (glfwRawMouseMotionSupported())
         {
@@ -160,7 +154,7 @@ namespace lve
                 //geometry pass excl. skybox
                 simpleRenderSystem.renderGameObjects(frameInfo);
 
-                //lighting pass
+                //renders light dots
                 pointLightSystem.render(frameInfo);
                 
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
@@ -226,7 +220,8 @@ namespace lve
             std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_AmbientOcclusion.png", LveTextures::SINGLE_UNORM),
             std::make_unique<LveTextures>(lveDevice, "textures/NAM.png", LveTextures::SINGLE_UNORM)
         };
-        
+        */
+
         
         std::vector<std::shared_ptr<LveTextures>> sMetal = {std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_Color.png", LveTextures::COLOR ),
             std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_Roughness.png", LveTextures::SINGLE_UNORM ),
@@ -235,7 +230,7 @@ namespace lve
             std::make_unique<LveTextures>( lveDevice, "textures/NA.png", LveTextures::SINGLE_UNORM),
             std::make_unique<LveTextures>(lveDevice, "textures/Metal051A_2K-PNG_Metalness.png", LveTextures::SINGLE_UNORM)
         };
-        */
+        
 
         matLayout = LveDescriptorSetLayout::Builder(lveDevice)
 
@@ -268,7 +263,7 @@ namespace lve
         quad.model = lveModel;
         quad.transform.translation = { 0.f, .5f, 0.f };
         quad.transform.scale = { 3.f, 1.f, 3.f };
-        quad.textures = wet_rock;
+        quad.textures = sMetal;
         gameObjects.emplace(quad.getId(), std::move(quad));
 
         for (auto &kv : gameObjects)
@@ -301,7 +296,7 @@ namespace lve
             {1.f, 1.f, 1.f},
             {.0157f, 0.824f, 0.745f}    //0x04d3be
         };
-        
+
         auto pointLight = LveGameObject::makePointLight(0.9f);
         pointLight.color = {1.f, 1.f, 1.f};
         pointLight.transform.translation = glm::vec3(0.7f, -0.2f, 0.7f);

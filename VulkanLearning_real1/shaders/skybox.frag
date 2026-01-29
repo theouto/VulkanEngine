@@ -24,7 +24,9 @@ layout (location=1) in vec3 posi;
 
 layout (location=0) out vec4 out_Color;
 
-layout(binding = 2) uniform sampler2D cubeSampler;
+//layout(binding = 2) uniform sampler2D cubeSampler;
+
+layout(set = 1, binding = 1) uniform sampler2D cubeSampler;
 
 layout(set = 0, binding = 0) uniform GlobalUbo 
 {
@@ -37,6 +39,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo
   int numLights;
 } ubo;
 
+const float M_PI = 3.1415926538;
 const vec2 invAtan = vec2(0.1591, 0.3183);
 
 vec2 SampleSphericalMap(vec3 v)
@@ -54,6 +57,17 @@ void main()
 
     vec2 uv = SampleSphericalMap(transDir);
     vec3 texcolor = texture(cubeSampler,(-1.f * uv)).rgb;
+
+    //fun experiment for a more dynamic sky, very crude, however
+    
+    /*
+    float cosy = cos(uv.y * 1.5f);
+    float cosx = abs(cos(uv.x * M_PI));
+    float termx = clamp(cosx, mix(cosx, 0.6f, 0.7f), 1.f);
+    float termy = cosy * cosy * 5.f;
+    float atmosterm = clamp(termy, mix(termy, 0.5f, 0.6f), 5.f);
+    vec3 texcolor = vec3(0.1f * (4 * termx * termx), 0.2f * termx, 1.f) * atmosterm;
+    */
 
 	out_Color = vec4(texcolor, 1.0);
 }
