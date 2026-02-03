@@ -21,34 +21,6 @@ namespace lve
 		createTextureSampler();
 	}
 
-    LveTextures::LveTextures(LveDevice& device, VkImage image, int width, int height, texType teType)
-        : lveDevice{device}, textureImage{image}, resolution{width, height}, tType{teType}
-    {
-        switch (tType)
-        {
-          case COLOR:
-                textureFormat = VK_FORMAT_R8G8B8A8_SRGB;
-                break;
-          case NORMAL:
-                textureFormat = VK_FORMAT_R8G8B8A8_UNORM;
-                break;
-          case SINGLE_UNORM:
-                textureFormat = VK_FORMAT_R8_UNORM;
-                break;
-        }
-
-        createTextureImageView();
-        createTextureSampler();
-    }
-
-    void LveTextures::update(VkImage image) 
-    {
-        textureImage = image;
-
-        createTextureImageView();
-        createTextureSampler();
-    }
-
 	LveTextures::~LveTextures() 
 	{
 		vkDestroyImageView(lveDevice.device(), textureImageView, nullptr);

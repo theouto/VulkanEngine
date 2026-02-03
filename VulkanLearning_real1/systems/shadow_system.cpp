@@ -1,4 +1,4 @@
-#include "directional_light_system.hpp"
+#include "shadow_system.hpp"
 #include <memory>
 #include <vulkan/vulkan_core.h>
 
@@ -14,8 +14,6 @@ namespace lve
   DirectionalLightSystem::DirectionalLightSystem(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) 
   : lveDevice{device}
   {
-    createRenderer();
-
     setLayouts.push_back(globalSetLayout);
     createPipeLineLayout();
 	createPipeline(renderPass);
@@ -30,13 +28,6 @@ namespace lve
             .build();
 
     setLayouts.push_back(lightSetLayout->getDescriptorSetLayout());
-  }
-
-  void DirectionalLightSystem::createRenderer()
-  {
-    std::pair<uint32_t, uint32_t> pair = {WIDTH, HEIGHT};
-    LveWindow will_be_fixed {1, 1, "lala"};
-    depthRender = std::make_unique<LveRenderer>(lveDevice, pair, will_be_fixed, true);
   }
 
   void DirectionalLightSystem::createPipeLineLayout()
@@ -72,13 +63,11 @@ namespace lve
 	lvePipeline = std::make_unique<LvePipeline>(lveDevice, filePaths, pipelineConfig);
   }
 
-  VkImage DirectionalLightSystem::drawDepth(FrameInfo &frameInfo)
+  void DirectionalLightSystem::drawDepth(FrameInfo &frameInfo)
   {
-    auto commandBuffer = depthRender->beginFrame();
+    lvePipeline->bind(frameInfo.commandBuffer);
 
-    lvePipeline->bind(commandBuffer);
-
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+		vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
 			0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
 
 		for (auto& kv : frameInfo.gameObjects)
@@ -89,10 +78,10 @@ namespace lve
 			push.modelMatrix = obj.transform.mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
 
-			vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+			vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 				0, sizeof(SimplePushConstantData), &push);
             vkCmdBindDescriptorSets(
-                commandBuffer,
+                frameInfo.commandBuffer,
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
                 pipelineLayout,
                 1,
@@ -100,11 +89,8 @@ namespace lve
                 &obj.descriptorSet,
                 0,
                 nullptr);
-			obj.model->bind(commandBuffer);
-			obj.model->draw(commandBuffer);
+			obj.model->bind(frameInfo.commandBuffer);
+			obj.model->draw(frameInfo.commandBuffer);
 		}
-
-    depthRender->endFrame();
-    
   }
 }

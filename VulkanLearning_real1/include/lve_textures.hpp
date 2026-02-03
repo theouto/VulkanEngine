@@ -21,7 +21,6 @@ namespace lve
         };
  
 		LveTextures(LveDevice& device, const char *path, texType tType);
-		LveTextures(LveDevice& device, VkImage image, int width, int height, texType tType);
         ~LveTextures();
 
 		void createTextureImage();
@@ -33,8 +32,6 @@ namespace lve
 		void createTextureSampler();
 		void generateMipmaps(int32_t texWidth, int32_t texHeight);
         texType getTexType() {return tType;}
-
-        void update(VkImage image);
 
 		//getter functions, used for destruction
 		VkImage& getTextureImage() { return textureImage; }

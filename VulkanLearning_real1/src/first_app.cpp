@@ -40,9 +40,6 @@ namespace lve
 
 	void FirstApp::run()
 	{
-        std::shared_ptr<LveTextures>cubemapTexture = std::make_shared<LveTextures>(lveDevice, 
-                                                        "textures/NEEERDDDD.png", LveTextures::COLOR);
-
         std::vector<std::unique_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
         {
@@ -64,11 +61,9 @@ namespace lve
         for (int i = 0; i < globalDescriptorSets.size(); i++)
         {
             auto bufferInfo = uboBuffers[i]->descriptorInfo();
-            auto skyInfo = cubemapTexture->getDescriptorInfo();
 
             LveDescriptorWriter(*globalSetLayout, *globalPool)
                 .writeBuffer(0, &bufferInfo) 
-                .writeImage(1, &skyInfo)
                 .build(globalDescriptorSets[i]);
         }
 

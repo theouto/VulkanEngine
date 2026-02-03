@@ -22,7 +22,7 @@ namespace lve
     static constexpr uint32_t HEIGHT = 2048;
 
 
-    DirectionalLightSystem(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
+    DirectionalLightSystem(LveDevice& device,VkRenderPass renderPass ,VkDescriptorSetLayout globalSetLayout);
     ~DirectionalLightSystem();
 
     private:
@@ -32,9 +32,8 @@ namespace lve
       void createRenderer();
       void createDescriptorSets();
 
-      std::unique_ptr<LveRenderer> depthRender;
       std::vector<VkDescriptorSetLayout> setLayouts = {};
-      VkImage drawDepth(FrameInfo &frameInfo);
+      void drawDepth(FrameInfo &frameInfo);
       VkPipelineLayout pipelineLayout;
       LveDevice& lveDevice;
       std::unique_ptr<LvePipeline> lvePipeline;
