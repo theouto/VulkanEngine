@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include "lve_device.hpp"
 #include "lve_descriptors.hpp"
 #include "lve_buffer.hpp"
@@ -19,7 +21,8 @@ namespace lve
         };
  
 		LveTextures(LveDevice& device, const char *path, texType tType);
-		~LveTextures();
+		LveTextures(LveDevice& device, VkImage image, int width, int height, texType tType);
+        ~LveTextures();
 
 		void createTextureImage();
 		void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
@@ -30,6 +33,8 @@ namespace lve
 		void createTextureSampler();
 		void generateMipmaps(int32_t texWidth, int32_t texHeight);
         texType getTexType() {return tType;}
+
+        void update(VkImage image);
 
 		//getter functions, used for destruction
 		VkImage& getTextureImage() { return textureImage; }
@@ -54,6 +59,7 @@ namespace lve
 		VkFormat textureFormat;
 		texType tType;
         const char *filePath;
+        std::pair<int, int> resolution;
 
 		LveDevice& lveDevice;
 		VkImage textureImage;

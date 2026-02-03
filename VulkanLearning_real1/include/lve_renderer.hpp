@@ -16,6 +16,7 @@ namespace lve
 	public:
 
 		LveRenderer(LveWindow &window, LveDevice& device);
+        LveRenderer(LveDevice& device, std::pair<uint32_t, uint32_t> res, LveWindow& window, bool skip_);
 		~LveRenderer();
 
 		LveRenderer(const LveRenderer&) = delete;
@@ -46,11 +47,13 @@ namespace lve
 		void freeCommandBuffers();
 		void recreateSwapChain();
 
+        bool skip = false;
 		LveWindow& lveWindow;
 		LveDevice& lveDevice;
 		std::unique_ptr<LveSwapChain> lveSwapChain;
 		std::vector<VkCommandBuffer> commandBuffers;
 
+        VkExtent2D extent = {0, 0};
 		uint32_t currentImageIndex;
 		int currentFrameIndex{0};
 		bool isFrameStarted{false};

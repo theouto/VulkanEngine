@@ -9,6 +9,7 @@
 #include <memory>
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
+#include <vector>
 
 namespace lve
 {
@@ -16,6 +17,10 @@ namespace lve
   class DirectionalLightSystem
   {
     public:
+ 
+    static constexpr uint32_t WIDTH = 2048;
+    static constexpr uint32_t HEIGHT = 2048;
+
 
     DirectionalLightSystem(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
     ~DirectionalLightSystem();
@@ -23,11 +28,17 @@ namespace lve
     private:
 
       void createPipeline(VkRenderPass renderPass);
-      void createPipeLineLayout(VkDescriptorSetLayout globalSetLayout);
+      void createPipeLineLayout();
+      void createRenderer();
+      void createDescriptorSets();
 
+      std::unique_ptr<LveRenderer> depthRender;
+      std::vector<VkDescriptorSetLayout> setLayouts = {};
       VkImage drawDepth(FrameInfo &frameInfo);
       VkPipelineLayout pipelineLayout;
       LveDevice& lveDevice;
+      std::unique_ptr<LvePipeline> lvePipeline;
+
   };
 
 }

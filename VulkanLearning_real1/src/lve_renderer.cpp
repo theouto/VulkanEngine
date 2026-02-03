@@ -4,6 +4,7 @@
 #include <array>
 #include <cassert>
 #include <stdexcept>
+#include <utility>
 
 namespace lve {
 
@@ -13,15 +14,27 @@ LveRenderer::LveRenderer(LveWindow& window, LveDevice& device)
   createCommandBuffers();
 }
 
+LveRenderer::LveRenderer(LveDevice& device, std::pair<uint32_t, uint32_t> res, LveWindow& empty, bool skip_) 
+     : lveDevice{device}, lveWindow{empty}, skip{skip_}
+{
+  extent = {res.first, res.second};
+  recreateSwapChain();
+  createCommandBuffers();
+}
+
 LveRenderer::~LveRenderer() { freeCommandBuffers(); }
 
 void LveRenderer::recreateSwapChain() {
-  auto extent = lveWindow.getExtent();
-  while (extent.width == 0 || extent.height == 0) {
-    extent = lveWindow.getExtent();
-    glfwWaitEvents();
+  
+  if (!skip)
+  {
+    extent = lveWindow.getExtent();  
+    while (extent.width == 0 || extent.height == 0) {
+      extent = lveWindow.getExtent();
+      glfwWaitEvents();
+    }
+    vkDeviceWaitIdle(lveDevice.device());
   }
-  vkDeviceWaitIdle(lveDevice.device());
 
   if (lveSwapChain == nullptr) {
     lveSwapChain = std::make_unique<LveSwapChain>(lveDevice, extent);
@@ -93,11 +106,13 @@ void LveRenderer::endFrame() {
   }
 
   auto result = lveSwapChain->submitCommandBuffers(&commandBuffer, &currentImageIndex);
-  if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
-      lveWindow.wasWindowResized()) {
+  if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+  {
+    recreateSwapChain();
+  } else if (!skip && lveWindow.wasWindowResized()) {
     lveWindow.resetWindowResizedFlag();
     recreateSwapChain();
-  } else if (result != VK_SUCCESS) {
+  }else if (result != VK_SUCCESS) {
     throw std::runtime_error("failed to present swap chain image!");
   }
 
