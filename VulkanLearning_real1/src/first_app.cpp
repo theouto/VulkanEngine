@@ -7,6 +7,7 @@
 #include "../systems/point_light_system.hpp"
 #include "../systems/simple_render_system.hpp"
 #include "../systems/skybox_system.hpp"
+#include "../systems/shadow_system.hpp"
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <glm/ext/vector_float3.hpp>
@@ -61,9 +62,11 @@ namespace lve
         for (int i = 0; i < globalDescriptorSets.size(); i++)
         {
             auto bufferInfo = uboBuffers[i]->descriptorInfo();
+            auto shadowInfo = lveRenderer.getShadowInfo();
 
             LveDescriptorWriter(*globalSetLayout, *globalPool)
                 .writeBuffer(0, &bufferInfo) 
+                .writeImage(1, &shadowInfo)
                 .build(globalDescriptorSets[i]);
         }
 
@@ -74,6 +77,7 @@ namespace lve
 		SimpleRenderSystem simpleRenderSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), setLayouts};
         PointLightSystem pointLightSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
         SkyboxSystem skybox{lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(), *globalPool};
+        DirectionalLightSystem shadowSystem{lveDevice, lveRenderer.getSwapChainShadowPass(),globalSetLayout->getDescriptorSetLayout()};
         LveCamera camera{};
  
         auto viewerObject = LveGameObject::createGameObject();

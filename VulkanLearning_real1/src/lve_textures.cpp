@@ -332,7 +332,38 @@ namespace lve
 		if (vkCreateSampler(lveDevice.device(), &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create texture sampler!");
 		}
+    }
 
+      static VkSampler createTextureSampler(LveDevice& device, VkSamplerAddressMode samplerMode)
+      {
+        VkSampler sampler;
 
-	}
+        VkSamplerCreateInfo samplerInfo{};
+		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+		samplerInfo.magFilter = VK_FILTER_LINEAR; //nearest or linear, this is the filtering
+		samplerInfo.minFilter = VK_FILTER_LINEAR; //this too
+		samplerInfo.addressModeU = samplerMode;
+		samplerInfo.addressModeV = samplerMode;
+		samplerInfo.addressModeW = samplerMode;
+		samplerInfo.anisotropyEnable = VK_TRUE;
+		
+		VkPhysicalDeviceProperties properties{};
+		device.property(properties);
+
+		samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+		samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+		samplerInfo.unnormalizedCoordinates = VK_FALSE;
+		samplerInfo.compareEnable = VK_FALSE;
+		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+		samplerInfo.mipLodBias = 0.0f;
+		samplerInfo.minLod = 0.0f;
+		samplerInfo.maxLod = VK_LOD_CLAMP_NONE;
+
+		if (vkCreateSampler(device.device(), &samplerInfo, nullptr, &sampler) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create texture sampler!");
+		}
+
+        return sampler;
+      }
 }

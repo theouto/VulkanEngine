@@ -4,6 +4,7 @@
 #include "lve_device.hpp"
 #include "lve_swap_chain.hpp"
 #include "lve_model.hpp"
+#include "lve_textures.hpp"
 
 #include <cassert>
 #include <memory>
@@ -35,6 +36,18 @@ namespace lve
 			assert(isFrameStarted && "Cannot get frame index when frame not in progress");
 			return currentFrameIndex; 
 		}
+
+        VkRenderPass getSwapChainShadowPass() const {return lveSwapChain->getShadowPass();}
+        VkDescriptorImageInfo getShadowInfo()
+        {
+            VkDescriptorImageInfo descriptorInfo{};
+
+			descriptorInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			descriptorInfo.imageView = lveSwapChain->getShadowView();
+			descriptorInfo.sampler = LveTextures::createTextureSampler(lveDevice, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER);
+
+			return descriptorInfo; 
+        }
 
 		VkCommandBuffer beginFrame();
 		void endFrame();

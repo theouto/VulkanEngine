@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <vulkan/vulkan_core.h>
 
 namespace lve {
 
@@ -25,7 +26,9 @@ class LveSwapChain {
         
         VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
         VkRenderPass getRenderPass() { return renderPass; }
+        VkRenderPass getShadowPass() {return shadowPass;}
         VkImageView getImageView(int index) { return swapChainImageViews[index]; }
+        VkImageView getShadowView() {return shadowDepthView;}
         size_t imageCount() { return swapChainImages.size(); }
         VkFormat getSwapChainImageFormat() { return swapChainImageFormat; }
         VkExtent2D getSwapChainExtent() { return swapChainExtent; }
@@ -56,6 +59,10 @@ class LveSwapChain {
         void createFramebuffers();
         void createSyncObjects();
         void createColorResources();
+
+        void createShadowRenderPass();
+        void createShadowDepthImages();
+        void createShadowFrameBuffers();        
         
         // Helper functions
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(
@@ -81,6 +88,15 @@ class LveSwapChain {
         VkImage colorImage;
         VkDeviceMemory colorImageMemory;
         VkImageView colorImageView;
+        // if it ever happens lol
+ 
+        //shadow resources
+        VkFramebuffer shadowBuffer;
+        VkRenderPass shadowPass;
+        VkDeviceMemory shadowMemory;
+        VkImage shadowImage;
+        VkImageView shadowDepthView;
+        VkExtent2D shadowExtent = {2048, 2048};
 
         LveDevice &device;
         VkExtent2D windowExtent;
