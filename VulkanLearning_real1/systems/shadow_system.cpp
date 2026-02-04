@@ -16,11 +16,11 @@ namespace lve
   {
     setLayouts.push_back(globalSetLayout);
 
-    float near_plane = 0.001f, far_plane = 100.0f;
+    float near_plane = 0.00001f, far_plane = 10000.0f;
     glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
     glm::mat4 lightView = glm::lookAt(glm::vec3(-1.0f, 2.0f, -1.f), 
                                   glm::vec3( 0.0f, 0.0f,  0.0f), 
-                                  glm::vec3( 0.0f, -1.0f,  0.0f));
+                                  glm::vec3( 0.0f, .5f,  0.0f));
     
     lightSpaceMatrix = lightProjection * lightView;
 
