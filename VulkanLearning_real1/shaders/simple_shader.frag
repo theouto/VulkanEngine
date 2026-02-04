@@ -375,10 +375,34 @@ vec3 calculateLights(vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
     return Lo;
 }
 
+vec3 calculateDiffuse(vec3 fragNormal, vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
+{
+    vec3 directionToLight = fragNormal;
+    vec3 intensity = (ubo.ambientLightColor.xyz * vec3(0.8, 0.8f, 1.2f)) * ubo.ambientLightColor.w * 80;
+
+    vec3 halfAngle = normalize(directionToLight + viewDirection);
+
+    vec3 fres = fresnelSchlick(clamp(dot(halfAngle, viewDirection), 0.f, 1.f), F0);
+ 
+    float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(specular, UVs).r);
+
+    float specular = 1.f;//DistributionGGX(surfaceNormal, halfAngle, clamp(texture(specular, UVs).x, 0.001f, 1.f));
+
+    vec3 numerator = specular * diff * fres;
+    float denominator = 4.0 * max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0) + 0.0001;
+    vec3 spec = numerator / denominator;
+
+    vec3 kD = metallic(fres, texture(metalness, UVs).r);
+
+    float NdotL = max(dot(surfaceNormal, directionToLight), 0.f);
+
+    return (kD * texture(texSampler, UVs).rgb / M_PI + spec) * intensity * NdotL;
+}
+
 void main()
 { 
     mat3 TBN = cotangent_frame(fragNormalWorld, fragPosWorld, fragUv);
-	vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
+	//vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
 	vec3 specularLight = vec3(0.0);
 	
 	vec3 cameraPosWorld = ubo.invView[3].xyz;
@@ -406,6 +430,7 @@ void main()
 
     vec3 Lo = vec3(0.f);
 
+    vec3 diffuseLight = calculateDiffuse(normalize(fragNormalWorld), surfaceNormal, UVs, viewDirection, F0);
     Lo += calculateSunLight(sun, surfaceNormal, UVs, viewDirection, F0, cameraPosWorld);
     Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
 
