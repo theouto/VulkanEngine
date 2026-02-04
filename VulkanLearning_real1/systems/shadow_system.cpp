@@ -8,32 +8,32 @@ namespace lve
   struct SimplePushConstantData
 	{
 		glm::mat4 modelMatrix{ 1.f };
-		glm::mat4 normalMatrix{ 1.f };
+        glm::mat4 lightSpaceMatrix{1.f};
 	};
 
   DirectionalLightSystem::DirectionalLightSystem(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) 
   : lveDevice{device}
   {
     setLayouts.push_back(globalSetLayout);
+
+    float near_plane = 0.1f, far_plane = 100.0f;
+    glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+    glm::mat4 lightView = glm::lookAt(glm::vec3(-1.0f, 2.0f, -1.f), 
+                                  glm::vec3( 0.0f, 0.0f,  0.0f), 
+                                  glm::vec3( 0.0f, -1.0f,  0.0f));
+    
+    lightSpaceMatrix = lightProjection * lightView;
+
     createPipeLineLayout();
 	createPipeline(renderPass);
   }
 
   DirectionalLightSystem::~DirectionalLightSystem(){}
 
-  void DirectionalLightSystem::createDescriptorSets()
-  {
-    auto lightSetLayout = LveDescriptorSetLayout::Builder(lveDevice)        
-            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
-            .build();
-
-    setLayouts.push_back(lightSetLayout->getDescriptorSetLayout());
-  }
-
   void DirectionalLightSystem::createPipeLineLayout()
   {
     VkPushConstantRange pushConstantRange{};
-	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 	pushConstantRange.offset = 0;
 	pushConstantRange.size = sizeof(SimplePushConstantData);
 
@@ -55,11 +55,12 @@ namespace lve
 
 	PipelineConfigInfo pipelineConfig{};
 	LvePipeline::defaultPipelineConfigInfo(pipelineConfig);
+    LvePipeline::defaultPipelineShadowInfo(pipelineConfig);
 
     pipelineConfig.renderPass = renderPass;
 	pipelineConfig.pipelineLayout = pipelineLayout;
-	std::vector<std::string> filePaths = { "shaders/directional_light.vert.spv",
-		"shaders/directional_light.frag.spv" };
+	std::vector<std::string> filePaths = { "shaders/shadowmap.vert.spv",
+		"shaders/shadowmap.frag.spv" };
 	lvePipeline = std::make_unique<LvePipeline>(lveDevice, filePaths, pipelineConfig);
   }
 
@@ -75,20 +76,12 @@ namespace lve
 			auto& obj = kv.second;
 			if (obj.model == nullptr) continue;
 			SimplePushConstantData push{};
+            push.lightSpaceMatrix = lightSpaceMatrix;
 			push.modelMatrix = obj.transform.mat4();
-			push.normalMatrix = obj.transform.normalMatrix();
 
-			vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+			vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
 				0, sizeof(SimplePushConstantData), &push);
-            vkCmdBindDescriptorSets(
-                frameInfo.commandBuffer,
-                VK_PIPELINE_BIND_POINT_GRAPHICS,
-                pipelineLayout,
-                1,
-                1,
-                &obj.descriptorSet,
-                0,
-                nullptr);
+            
 			obj.model->bind(frameInfo.commandBuffer);
 			obj.model->draw(frameInfo.commandBuffer);
 		}

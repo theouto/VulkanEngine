@@ -93,9 +93,6 @@ namespace lve
 
 		vkDestroyBuffer(lveDevice.device(), stagingBuffer, nullptr);
 		vkFreeMemory(lveDevice.device(), stagingBufferMemory, nullptr);
-
-		std::cout << '\n' << "texture loaded" << '\n';
-
 	}
 
 	void LveTextures::generateMipmaps(int32_t texWidth, int32_t texHeight) {
@@ -334,17 +331,15 @@ namespace lve
 		}
     }
 
-      static VkSampler createTextureSampler(LveDevice& device, VkSamplerAddressMode samplerMode)
-      {
-        VkSampler sampler;
-
+    void LveTextures::createTextureSampler(LveDevice& device, VkSampler& sampler)
+    {
         VkSamplerCreateInfo samplerInfo{};
 		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 		samplerInfo.magFilter = VK_FILTER_LINEAR; //nearest or linear, this is the filtering
 		samplerInfo.minFilter = VK_FILTER_LINEAR; //this too
-		samplerInfo.addressModeU = samplerMode;
-		samplerInfo.addressModeV = samplerMode;
-		samplerInfo.addressModeW = samplerMode;
+		samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;//samplerMode;
+		samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+		samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
 		samplerInfo.anisotropyEnable = VK_TRUE;
 		
 		VkPhysicalDeviceProperties properties{};
@@ -363,7 +358,5 @@ namespace lve
 		if (vkCreateSampler(device.device(), &samplerInfo, nullptr, &sampler) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create texture sampler!");
 		}
-
-        return sampler;
-      }
+    }
 }

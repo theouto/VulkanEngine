@@ -33,7 +33,7 @@ namespace lve
 		void generateMipmaps(int32_t texWidth, int32_t texHeight);
         texType getTexType() {return tType;}
 
-        static VkSampler createTextureSampler(LveDevice& device, VkSamplerAddressMode samplerMode);
+        static void createTextureSampler(LveDevice& device, VkSampler& sampler);
 
 		//getter functions, used for destruction
 		VkImage& getTextureImage() { return textureImage; }

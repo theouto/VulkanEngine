@@ -25,15 +25,16 @@ namespace lve
     DirectionalLightSystem(LveDevice& device,VkRenderPass renderPass ,VkDescriptorSetLayout globalSetLayout);
     ~DirectionalLightSystem();
 
+    
+    void drawDepth(FrameInfo &frameInfo);
+
     private:
 
       void createPipeline(VkRenderPass renderPass);
       void createPipeLineLayout();
-      void createRenderer();
-      void createDescriptorSets();
 
+      glm::mat4 lightSpaceMatrix{1.f};
       std::vector<VkDescriptorSetLayout> setLayouts = {};
-      void drawDepth(FrameInfo &frameInfo);
       VkPipelineLayout pipelineLayout;
       LveDevice& lveDevice;
       std::unique_ptr<LvePipeline> lvePipeline;

@@ -25,6 +25,7 @@ class LveSwapChain {
         LveSwapChain &operator=(const LveSwapChain &) = delete;
         
         VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
+        VkFramebuffer getShadowBuffer() {return shadowBuffer;}
         VkRenderPass getRenderPass() { return renderPass; }
         VkRenderPass getShadowPass() {return shadowPass;}
         VkImageView getImageView(int index) { return swapChainImageViews[index]; }
@@ -32,6 +33,7 @@ class LveSwapChain {
         size_t imageCount() { return swapChainImages.size(); }
         VkFormat getSwapChainImageFormat() { return swapChainImageFormat; }
         VkExtent2D getSwapChainExtent() { return swapChainExtent; }
+        VkExtent2D getShadowExtent() {return shadowExtent;}
         uint32_t width() { return swapChainExtent.width; }
         uint32_t height() { return swapChainExtent.height; }
         

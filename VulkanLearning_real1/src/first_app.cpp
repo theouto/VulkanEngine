@@ -42,6 +42,7 @@ namespace lve
 	void FirstApp::run()
 	{
         std::vector<std::unique_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
+        std::vector<std::unique_ptr<LveBuffer>> shadowBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
         {
             uboBuffers[i] = std::make_unique<LveBuffer>(
@@ -50,6 +51,7 @@ namespace lve
                 1,
                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+
             uboBuffers[i]->map();
         }
 
@@ -141,12 +143,15 @@ namespace lve
                 ubo.inverseView = camera.getInverseView();
                 pointLightSystem.update(frameInfo, ubo);
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
-                uboBuffers[frameIndex]->flush();    
+                uboBuffers[frameIndex]->flush();
 
-                //render
-		        lveRenderer.beginSwapChainRenderPass(commandBuffer);
-				
-                //order is important!
+                //render shadowmap
+		        lveRenderer.beginShadowRenderPass(commandBuffer);
+                shadowSystem.drawDepth(frameInfo);
+                lveRenderer.endSwapChainRenderPass(commandBuffer);
+
+                //render 
+                lveRenderer.beginSwapChainRenderPass(commandBuffer);
                 //skybox
                 skybox.render(frameInfo);
 
@@ -219,7 +224,7 @@ namespace lve
             std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_AmbientOcclusion.png", LveTextures::SINGLE_UNORM),
             std::make_unique<LveTextures>(lveDevice, "textures/NAM.png", LveTextures::SINGLE_UNORM)
         };
-        */
+        
 
         
         std::vector<std::shared_ptr<LveTextures>> sMetal = {std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_Color.png", LveTextures::COLOR ),
@@ -229,10 +234,9 @@ namespace lve
             std::make_unique<LveTextures>( lveDevice, "textures/NA.png", LveTextures::SINGLE_UNORM),
             std::make_unique<LveTextures>(lveDevice, "textures/Metal051A_2K-PNG_Metalness.png", LveTextures::SINGLE_UNORM)
         };
-        
+        */
 
         matLayout = LveDescriptorSetLayout::Builder(lveDevice)
-
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //albedo
             .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //specular
             .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //normal
@@ -244,16 +248,16 @@ namespace lve
         std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/smooth_vase.obj");
         auto sVase = LveGameObject::createGameObject();
         sVase.model = lveModel;
-        sVase.transform.translation = { -.5f, .0f, 0.f };
-        sVase.transform.scale = { 1.f, 1.f, 1.f };
+        sVase.transform.translation = { -.5f, .2f, 0.f };
+        sVase.transform.scale = { 2.f, 2.f, 2.f };
         sVase.textures = wet_rock;
         gameObjects.emplace(sVase.getId(), std::move(sVase));
 
         lveModel = LveModel::createModelFromFile(lveDevice, "models/flat_vase.obj");
         auto vase = LveGameObject::createGameObject();
         vase.model = lveModel;
-        vase.transform.translation = { .5f, .0f, 0.f };
-        vase.transform.scale = { 1.f, 1.f, 1.f };
+        vase.transform.translation = { .5f, .2f, 0.f };
+        vase.transform.scale = { 1.5f, 1.5f, 1.5f };
         vase.textures = wet_rock;
         gameObjects.emplace(vase.getId(), std::move(vase));
 
@@ -261,8 +265,8 @@ namespace lve
         auto quad = LveGameObject::createGameObject();
         quad.model = lveModel;
         quad.transform.translation = { 0.f, .5f, 0.f };
-        quad.transform.scale = { 3.f, 1.f, 3.f };
-        quad.textures = sMetal;
+        quad.transform.scale = { 6.f, 1.f, 6.f };
+        quad.textures = wet_rock;
         gameObjects.emplace(quad.getId(), std::move(quad));
 
         for (auto &kv : gameObjects)

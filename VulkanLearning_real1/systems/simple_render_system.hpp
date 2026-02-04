@@ -27,6 +27,7 @@ namespace lve
 		void createPipeLineLayout(std::vector<VkDescriptorSetLayout> &globalSetLayout);
 		void createPipeline(VkRenderPass renderPass);
 
+        glm::mat4 lightSpaceMatrix{1.f};
 		LveDevice& lveDevice;
 		std::unique_ptr<LvePipeline> lvePipeline;
 		VkPipelineLayout pipelineLayout;

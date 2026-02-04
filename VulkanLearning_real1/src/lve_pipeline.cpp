@@ -205,6 +205,32 @@ namespace lve
 		configInfo.attributeDescriptions = LveModel::Vertex::getAttributeDescriptions();
 	}
 
+    void LvePipeline::defaultPipelineShadowInfo(PipelineConfigInfo &configInfo)
+    {
+        configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+        configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
+
+        configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_BACK_BIT; // Ensure proper face culling
+        configInfo.rasterizationInfo.depthBiasEnable = VK_TRUE;        // Enable depth bias
+        configInfo.rasterizationInfo.depthBiasConstantFactor = 1;  // Fine-tune for shadows
+        configInfo.rasterizationInfo.depthBiasSlopeFactor = 1;
+        configInfo.rasterizationInfo.depthBiasClamp = 0.0f;
+
+        configInfo.colorBlendAttachment.colorWriteMask = 0; // Disable color writes
+        configInfo.colorBlendAttachment.blendEnable = VK_FALSE;
+
+        configInfo.depthStencilInfo.depthTestEnable = VK_TRUE;
+        configInfo.depthStencilInfo.depthWriteEnable = VK_TRUE;
+        configInfo.depthStencilInfo.depthCompareOp = VK_COMPARE_OP_LESS;
+        configInfo.depthStencilInfo.depthBoundsTestEnable = VK_FALSE;
+
+        configInfo.subpass = 0;
+
+        configInfo.bindingDescriptions = LveModel::Vertex::getBindingDescriptions();
+        configInfo.attributeDescriptions = LveModel::Vertex::getAttributeDescriptions();
+    }
+
 	void LvePipeline::enableAlphaBlending(PipelineConfigInfo& configInfo)
 	{
 		configInfo.colorBlendAttachment.blendEnable = VK_TRUE;

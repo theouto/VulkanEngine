@@ -9,7 +9,8 @@ layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec3 fragPosWorld;
 layout(location = 2) out vec3 fragNormalWorld;
 layout(location = 3) out vec2 fragUv;
-//layout(location = 4) out mat3 TBN;
+layout(location = 4) out vec4 FragPosLightSpace;
+layout(location = 5) out vec3 lightPos;
 
 /*
 layout(set = 1, binding = 1) uniform sampler2D texSampler;
@@ -39,6 +40,7 @@ layout(push_constant) uniform Push
 {
   mat4 modelMatrix;
   mat4 normalMatrix;
+  mat4 lightSpaceMatrix;
 } push;
 
 /*
@@ -65,9 +67,11 @@ void main()
 {
   vec4 positionWorld = push.modelMatrix * vec4(position, 1.0);
   gl_Position = ubo.projection * ubo.view * positionWorld;
- 
+
   fragNormalWorld = normalize(mat3(push.normalMatrix) * normal);
   fragPosWorld = positionWorld.xyz;
   fragColor = color;
   fragUv = uv;
+  FragPosLightSpace = push.lightSpaceMatrix * vec4(fragPosWorld, 1.f);
+  lightPos = vec3(-1.f, 2.f, -1.f);
 }

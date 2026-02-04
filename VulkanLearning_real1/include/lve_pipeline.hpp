@@ -42,6 +42,7 @@ namespace lve
 		
 		static void enableMSAA(PipelineConfigInfo& configInfo);
 		static void defaultPipelineConfigInfo(PipelineConfigInfo& configInfo);
+        static void defaultPipelineShadowInfo(PipelineConfigInfo &configInfo);
 		static void enableAlphaBlending(PipelineConfigInfo& configInfo);
 
 	private:

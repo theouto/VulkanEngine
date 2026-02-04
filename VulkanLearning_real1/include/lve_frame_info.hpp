@@ -26,7 +26,6 @@ namespace lve
 		int numLights;
 	};
 
-
 	struct FrameInfo
 	{
 		int frameIndex;

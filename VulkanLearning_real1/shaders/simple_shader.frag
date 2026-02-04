@@ -4,8 +4,12 @@ layout (location = 0) in vec3 fragColor;
 layout (location = 1) in vec3 fragPosWorld;
 layout (location = 2) in vec3 fragNormalWorld;
 layout (location = 3) in vec2 fragUv;
+layout (location = 4) in vec4 FragPosLightSpace;
+layout (location = 5) in vec3 lightPos;
 
 layout (location = 0) out vec4 outColor;
+
+layout(set = 0, binding = 1) uniform sampler2D shadowMap;
 
 layout(set = 1, binding = 1) uniform sampler2D texSampler;
 layout(set = 1, binding = 2) uniform sampler2D specular;
@@ -82,7 +86,7 @@ mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
 
 vec2 parallaxOcclusionMapping(vec2 texCoords, vec3 viewDir)
 {	
-    const float height_scale = 0.06f;
+    const float height_scale = 0.03f;
     const float numLayers = 64;
     float layerDepth = 1.0 / numLayers;
     float currentLayerDepth = 0.0;
@@ -181,10 +185,38 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 
 //==============================================================================
 
+float ShadowCalculation(vec3 lightDir, vec3 normal)
+{
+  // perform perspective divide
+    vec3 projCoords = FragPosLightSpace.xyz / FragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // check whether current frag pos is in shadow
+    float bias = 0.005;
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    for(int x = -1; x <= 1; ++x)
+    {
+       for(int y = -1; y <= 1; ++y)
+       {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+           shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
+       }    
+    }
+    shadow /= 9.0;
+
+    return shadow;
+} 
+
+//==============================================================================
+
 vec3 calculateSunLight(DirectionalLight sun, vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
 {
     vec3 directionToLight = sun.direction;
-    //directionToLight.y = -1.f * directionToLight.y;
     directionToLight = normalize(-directionToLight);
 
     vec3 intensity = sun.color.xyz * sun.color.w;
@@ -203,8 +235,9 @@ vec3 calculateSunLight(DirectionalLight sun, vec3 surfaceNormal, vec2 UVs, vec3 
     vec3 kD = metallic(fres, texture(metalness, UVs).r);
 
     float NdotL = max(dot(surfaceNormal, directionToLight), 0.f);
+    float shadow = ShadowCalculation(directionToLight, surfaceNormal);
 
-    return (kD * texture(texSampler, UVs).rgb / M_PI + spec) * intensity * NdotL;
+    return (1.f - shadow) * (kD * texture(texSampler, UVs).rgb / M_PI + spec) * intensity * NdotL;
 }
 
 vec3 calculateLights(vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
@@ -255,10 +288,6 @@ vec3 calculateLights(vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
 
 void main()
 { 
-    DirectionalLight sun;
-    sun.direction = vec3(1.f, 1.f, 0.4f);
-    sun.color = vec4(1.f, 1.f, 0.7f, 2.f);
-
     mat3 TBN = cotangent_frame(fragNormalWorld, fragPosWorld, fragUv);
 	vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
 	vec3 specularLight = vec3(0.0);
@@ -266,10 +295,14 @@ void main()
 	vec3 cameraPosWorld = ubo.invView[3].xyz;
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld); 
 
+    DirectionalLight sun;
+    sun.direction = lightPos;
+    sun.color = vec4(1.f, 1.f, 0.7f, 2.f);
+
     //vec2 boxuv = SampleSphericalMap(normalize(viewDirection));
     //vec3 boxcolor = texture(fakebox, boxuv).rgb;
 
-	vec2 UVs = parallaxOcclusionMapping(fragUv, TBN * viewDirection);
+	vec2 UVs = parallaxOcclusionMapping(fragUv*4, TBN * viewDirection);
     //vec2 UVs = fragUv;
 
 	vec3 tangentNormal = texture(normals, UVs).rgb * 2.0 - 1.0;     
@@ -285,7 +318,7 @@ void main()
     vec3 Lo = vec3(0.f);
 
     Lo += calculateSunLight(sun, surfaceNormal, UVs, viewDirection, F0);
-    Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
+    //Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
 
     vec4 diffuse = texture(texSampler, UVs) * vec4(diffuseLight, 0.0) * texture(AO, UVs).r;
 
@@ -293,7 +326,7 @@ void main()
     /*
     float depth = gl_FragCoord.z;//fragPosWorld.z - cameraPosWorld.z;
     depth = depth * 2.f - 1.f;
-    depth = (2.f * 0.1f * 100.f) / (100.f + 0.1f - depth * (100.f - 0.1f));
+    depth = (2.f * 0.01f * 100.f) / (100.f + 0.1f - depth * (100.f - 0.01f));
     depth /= 100.f;
     outColor = vec4(vec3(depth), 1.f);
     */
@@ -319,4 +352,5 @@ void main()
 
     //FINAL VIEW
     outColor = diffuse + vec4(Lo, 0.f);
-  }
+    //outColor = vec4(vec3(texture(shadowMap, fragUv).r), 1.f);
+}

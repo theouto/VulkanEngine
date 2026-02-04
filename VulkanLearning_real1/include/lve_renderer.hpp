@@ -1,5 +1,6 @@
 #pragma once
 
+#include "lve_textures.hpp"
 #include "lve_window.hpp"
 #include "lve_device.hpp"
 #include "lve_swap_chain.hpp"
@@ -17,7 +18,6 @@ namespace lve
 	public:
 
 		LveRenderer(LveWindow &window, LveDevice& device);
-        LveRenderer(LveDevice& device, std::pair<uint32_t, uint32_t> res, LveWindow& window, bool skip_);
 		~LveRenderer();
 
 		LveRenderer(const LveRenderer&) = delete;
@@ -40,11 +40,13 @@ namespace lve
         VkRenderPass getSwapChainShadowPass() const {return lveSwapChain->getShadowPass();}
         VkDescriptorImageInfo getShadowInfo()
         {
+            VkSampler sampler;
+            LveTextures::createTextureSampler(lveDevice, sampler);
             VkDescriptorImageInfo descriptorInfo{};
 
-			descriptorInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			descriptorInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
 			descriptorInfo.imageView = lveSwapChain->getShadowView();
-			descriptorInfo.sampler = LveTextures::createTextureSampler(lveDevice, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER);
+			descriptorInfo.sampler = sampler;
 
 			return descriptorInfo; 
         }
@@ -52,6 +54,7 @@ namespace lve
 		VkCommandBuffer beginFrame();
 		void endFrame();
 		void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
+        void beginShadowRenderPass(VkCommandBuffer commandBuffer);
 		void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
 
 	private:
