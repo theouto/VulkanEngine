@@ -196,18 +196,18 @@ float ShadowCalculation(vec3 lightDir, vec3 normal)
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
     // check whether current frag pos is in shadow
-    float bias = 0.005;
     float shadow = 0.0;
+    
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-    for(int x = -1; x <= 1; ++x)
+    for(float x = -1; x <= 1; x += 0.5)
     {
-       for(int y = -1; y <= 1; ++y)
+       for(float y = -1; y <= 1; y += 0.5)
        {
             float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
-           shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
+           shadow += currentDepth > pcfDepth ? 1.0 : 0.0;        
        }    
     }
-    shadow /= 9.0;
+    shadow /= 18.0;
 
     return shadow;
 } 
@@ -226,7 +226,7 @@ vec3 calculateSunLight(DirectionalLight sun, vec3 surfaceNormal, vec2 UVs, vec3 
  
     float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(specular, UVs).r);
 
-    float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(specular, UVs).x, 0.001f, 1.f))/4.f;
+    float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(specular, UVs).x, 0.001f, 1.f));
 
     vec3 numerator = specular * diff * fres;
     float denominator = 4.0 * max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0) + 0.0001;

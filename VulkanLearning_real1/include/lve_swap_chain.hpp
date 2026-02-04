@@ -98,7 +98,7 @@ class LveSwapChain {
         VkDeviceMemory shadowMemory;
         VkImage shadowImage;
         VkImageView shadowDepthView;
-        VkExtent2D shadowExtent = {2048, 2048};
+        VkExtent2D shadowExtent = {1024, 1024};
 
         LveDevice &device;
         VkExtent2D windowExtent;
