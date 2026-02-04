@@ -185,6 +185,10 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 
 //==============================================================================
 
+float rand(vec2 co) {
+    return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
 float ShadowCalculation(vec3 lightDir, vec3 normal)
 {
   // perform perspective divide
@@ -197,17 +201,21 @@ float ShadowCalculation(vec3 lightDir, vec3 normal)
     float currentDepth = projCoords.z;
     // check whether current frag pos is in shadow
     float shadow = 0.0;
+    float bias = max(0.00005 * (1.0 - dot(normal, lightDir)), 0.00005); 
     
+    int steps = 3;
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-    for(float x = -1; x <= 1; x += 0.5)
+    for(int x = -steps; x <= steps; ++x)
     {
-       for(float y = -1; y <= 1; y += 0.5)
+       for(int y = -steps; y <= steps; ++y)
        {
-            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
-           shadow += currentDepth > pcfDepth ? 1.0 : 0.0;        
+            vec2 randomOffset = vec2(rand(projCoords.xy + vec2(x, y)), rand(projCoords.xy - vec2(x, y))) * texelSize;
+
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(float(x)/steps, float(y)/steps) * texelSize + randomOffset).r; 
+           shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
        }    
     }
-    shadow /= 18.0;
+    shadow /= (steps * 2) * (steps * 2) + 1;
 
     return shadow;
 } 

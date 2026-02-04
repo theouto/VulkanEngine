@@ -18,8 +18,8 @@ namespace lve
   {
     public:
  
-    static constexpr uint32_t WIDTH = 2048;
-    static constexpr uint32_t HEIGHT = 2048;
+    static constexpr uint32_t WIDTH = 4096;
+    static constexpr uint32_t HEIGHT = 4096;
 
 
     DirectionalLightSystem(LveDevice& device,VkRenderPass renderPass ,VkDescriptorSetLayout globalSetLayout);

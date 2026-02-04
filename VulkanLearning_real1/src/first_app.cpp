@@ -145,6 +145,10 @@ namespace lve
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
 
+                auto rotate = glm::rotate(glm::mat4(1.f), frameInfo.frameTIme, { 0.1f, -0.5f, 0.f });
+                gameObjects.at(3).transform.translation = glm::vec3(rotate * glm::vec4(gameObjects.at(3).transform.translation, 1.f));
+
+
                 //render shadowmap
 		        lveRenderer.beginShadowRenderPass(commandBuffer);
                 shadowSystem.drawDepth(frameInfo);
@@ -268,6 +272,14 @@ namespace lve
         quad.transform.scale = { 6.f, 1.f, 6.f };
         quad.textures = wet_rock;
         gameObjects.emplace(quad.getId(), std::move(quad));
+
+        lveModel = LveModel::createModelFromFile(lveDevice, "models/pleasepot.obj");
+        auto pot = LveGameObject::createGameObject();
+        pot.model = lveModel;
+        pot.transform.translation = {0.f, -0.5f, 2.f};
+        pot.transform.scale = {0.3f, -0.3f, 0.3f};
+        pot.textures = wet_rock;
+        gameObjects.emplace(pot.getId(), std::move(pot));
 
         for (auto &kv : gameObjects)
         {
