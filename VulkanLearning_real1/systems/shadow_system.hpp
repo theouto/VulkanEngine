@@ -25,7 +25,9 @@ namespace lve
     DirectionalLightSystem(LveDevice& device,VkRenderPass renderPass ,VkDescriptorSetLayout globalSetLayout);
     ~DirectionalLightSystem();
 
-    
+    static glm::mat4 lightViewProjection(const glm::vec3 &dirLightPos, 
+                    const glm::vec3 &cameraPosition, float sceneRadius);
+
     void drawDepth(FrameInfo &frameInfo);
 
     private:

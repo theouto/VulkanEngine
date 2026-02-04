@@ -4,6 +4,7 @@ layout(location = 0) in vec3 position;
 layout(push_constant) uniform Push {
     mat4 modelMatrix;   
     mat4 lightSpaceMatrix;
+    vec3 lightPos;
 } push;
 
 void main() 
