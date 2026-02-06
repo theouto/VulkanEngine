@@ -23,7 +23,7 @@ namespace lve
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-		void renderGameObjects(FrameInfo &frameInfo);
+		void renderGameObjects(FrameInfo &frameInfo, glm::mat4 matrix);
 	private:
 		void createPipeLineLayout(std::vector<VkDescriptorSetLayout> &globalSetLayout);
 		void createPipeline(VkRenderPass renderPass);

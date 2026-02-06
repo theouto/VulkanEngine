@@ -118,9 +118,9 @@ namespace lve
 	
 
             float aspect = lveRenderer.getAspectRatio();
-            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.01f, 30.f);
-		
+            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.01f, 30.f);	
 
+            glm::vec3 offset = {-10.f, 10.f, -2.f};
 		if (auto commandBuffer = lveRenderer.beginFrame())
 		{		
 			int frameIndex = lveRenderer.getFrameIndex();
@@ -144,6 +144,8 @@ namespace lve
                 pointLightSystem.update(frameInfo, ubo);
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
+                glm::mat4 projMat = DirectionalLightSystem::lightViewProjection(
+                  {1.f, 2.f, 2.f}, frameInfo.camera.getPosition() + offset, 5.f);
 
                 auto rotate = glm::rotate(glm::mat4(1.f), frameInfo.frameTIme, { 0.1f, -0.5f, 0.f });
                 gameObjects.at(3).transform.translation = glm::vec3(rotate * glm::vec4(gameObjects.at(3).transform.translation, 1.f));
@@ -151,7 +153,7 @@ namespace lve
 
                 //render shadowmap
 		        lveRenderer.beginShadowRenderPass(commandBuffer);
-                shadowSystem.drawDepth(frameInfo);
+                shadowSystem.drawDepth(frameInfo, projMat);
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
 
                 //render 
@@ -160,7 +162,7 @@ namespace lve
                 skybox.render(frameInfo);
 
                 //geometry pass excl. skybox
-                simpleRenderSystem.renderGameObjects(frameInfo);
+                simpleRenderSystem.renderGameObjects(frameInfo, projMat);
 
                 //renders light dots
                 pointLightSystem.render(frameInfo);

@@ -9,7 +9,7 @@ namespace lve
 	{
 		glm::mat4 modelMatrix{ 1.f };
         glm::mat4 lightSpaceMatrix{1.f};
-        glm::vec3 lightPos{-1.f, 2.f, -1.f};
+        glm::vec3 lightPos{1.f, 2.f, 2.f};
 	};
 
   DirectionalLightSystem::DirectionalLightSystem(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) 
@@ -18,8 +18,8 @@ namespace lve
     setLayouts.push_back(globalSetLayout);
 
     float near_plane = 0.01f, far_plane = 100.0f;
-    glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-    glm::mat4 lightView = glm::lookAt(glm::vec3(-1.0f, 2.0f, -1.f), 
+        glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+        glm::mat4 lightView = glm::lookAt(glm::vec3(-1.0f, 2.0f, -1.f), 
                                   glm::vec3( 0.0f, 0.0f,  0.0f), 
                                   glm::vec3( 0.0f, 1.f,  0.0f));
     
@@ -65,7 +65,7 @@ namespace lve
 	lvePipeline = std::make_unique<LvePipeline>(lveDevice, filePaths, pipelineConfig);
   }
 
-  void DirectionalLightSystem::drawDepth(FrameInfo &frameInfo)
+  void DirectionalLightSystem::drawDepth(FrameInfo &frameInfo, glm::mat4 matrix)
   {
     lvePipeline->bind(frameInfo.commandBuffer);
 
@@ -77,7 +77,7 @@ namespace lve
 			auto& obj = kv.second;
 			if (obj.model == nullptr) continue;
 			SimplePushConstantData push{};
-            push.lightSpaceMatrix = lightSpaceMatrix;//lightViewProjection(push.lightPos, 
+            push.lightSpaceMatrix = matrix;//lightViewProjection(push.lightPos, 
                 //frameInfo.camera.getPosition(), 10.f);
 
 			push.modelMatrix = obj.transform.mat4();
@@ -93,14 +93,24 @@ namespace lve
   glm::mat4 DirectionalLightSystem::lightViewProjection(const glm::vec3 &dirLightPos, 
                                                         const glm::vec3 &cameraPosition, float sceneRadius)
   {
-      float zNear = 0.00001f;
-      float zFar = 100.f;
+      
+      float zNear = 0.01f;
+      float zFar = 30.f;
       float lightSize = sceneRadius * 2.f;
       glm::vec3 lightTarget = cameraPosition;
       glm::vec3 lightPosition = lightTarget - dirLightPos * sceneRadius;
 
       glm::mat4 depthProjectionMatrix = glm::ortho(-lightSize, lightSize, -lightSize, lightSize, zNear, zFar);
       glm::mat4 depthViewMatrix = glm::lookAt(lightPosition, lightTarget, glm::vec3(0.f, 1.f, 0.f));
+
       return depthProjectionMatrix * depthViewMatrix;
+      
+      /*
+      float near_plane = 0.01f, far_plane = 100.0f;
+      glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+      glm::mat4 lightView = glm::lookAt(glm::vec3(2.0f, 2.0f, 1.f), 
+                                  glm::vec3( 0.0f, 0.0f,  0.0f) + , 
+                                  glm::vec3( 0.0f, 1.f,  0.0f));
+      */
   }
 }

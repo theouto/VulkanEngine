@@ -222,7 +222,9 @@ float ShadowCalculation(vec3 lightDir, vec3 normal)
        }    
     }
     shadow /= (steps * 2) * (steps * 2);
-    
+   
+    shadow = sin(shadow);
+
     //shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
 
     return clamp(shadow, 0.f, 1.f);
@@ -465,6 +467,6 @@ void main()
     //outColor = vec4(boxcolor, 1.f);
 
     //FINAL VIEW
-    outColor = diffuse + vec4(Lo, 0.f);
-    //outColor = vec4(vec3(texture(shadowMap, fragUv).r), 1.f);
+    //outColor = diffuse + vec4(Lo, 0.f);
+    outColor = vec4(vec3(texture(shadowMap, fragUv).r), 1.f);
 }

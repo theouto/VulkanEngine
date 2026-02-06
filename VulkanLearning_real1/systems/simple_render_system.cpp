@@ -17,7 +17,7 @@ namespace lve
 		glm::mat4 modelMatrix{ 1.f };
 		glm::mat4 normalMatrix{ 1.f };
         glm::mat4 lightSpaceMatrix{1.f};
-        glm::vec3 lightPos{-1.f, 2.f, -1.f};
+        glm::vec3 lightPos{1.f, 2.f, 2.f};
 	};
 
 	SimpleRenderSystem::SimpleRenderSystem(LveDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> globalSetLayout) : lveDevice{device}
@@ -26,9 +26,9 @@ namespace lve
         glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
         glm::mat4 lightView = glm::lookAt(glm::vec3(-1.0f, 2.0f, -1.f), 
                                   glm::vec3( 0.0f, 0.0f,  0.0f), 
-                                  glm::vec3( 0.0f, 1.f,  0.0f));
+                                  glm::vec3( 0.0f, 1.f,  0.0f)); 
 
-    
+
         lightSpaceMatrix = lightProjection * lightView;
 
 		createPipeLineLayout(globalSetLayout);
@@ -83,7 +83,7 @@ namespace lve
 	}
 
 
-	void SimpleRenderSystem::renderGameObjects(FrameInfo &frameInfo)
+	void SimpleRenderSystem::renderGameObjects(FrameInfo &frameInfo, glm::mat4 matrix)
 	{
 		lvePipeline->bind(frameInfo.commandBuffer);
 
@@ -97,7 +97,7 @@ namespace lve
 			SimplePushConstantData push{};
 			push.modelMatrix = obj.transform.mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
-            push.lightSpaceMatrix = lightSpaceMatrix;//DirectionalLightSystem::lightViewProjection(push.lightPos, 
+            push.lightSpaceMatrix = matrix;//DirectionalLightSystem::lightViewProjection(push.lightPos, 
                 //frameInfo.camera.getPosition(), 10.f);
 
 			vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,

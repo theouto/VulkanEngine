@@ -74,7 +74,7 @@ void main()
   fragPosWorld = positionWorld.xyz;
   fragColor = color;
   fragUv = uv;
-  FragPosLightSpace = push.lightSpaceMatrix * vec4(fragPosWorld, 1.f);
+  FragPosLightSpace = push.lightSpaceMatrix * push.modelMatrix * vec4(position, 1.f);
   lightPos = push.lightPos;
   lightSpaceMatrix = push.lightSpaceMatrix;
 }
