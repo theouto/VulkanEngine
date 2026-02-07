@@ -28,7 +28,7 @@ namespace lve
     static glm::mat4 lightViewProjection(const glm::vec3 &dirLightPos, 
                     const glm::vec3 &cameraPosition, float sceneRadius);
 
-    void drawDepth(FrameInfo &frameInfo, glm::mat4 matrix);
+    void drawDepth(FrameInfo &frameInfo, glm::mat4 matrix, glm::vec3 lightPos);
 
     private:
 

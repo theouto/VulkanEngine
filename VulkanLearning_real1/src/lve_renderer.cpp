@@ -169,7 +169,7 @@ void LveRenderer::beginShadowRenderPass(VkCommandBuffer commandBuffer)
   viewport.height = static_cast<float>(lveSwapChain->getShadowExtent().height);
   viewport.minDepth = 0.0f;
   viewport.maxDepth = 1.0f;
-  VkRect2D scissor{{0, 0}, lveSwapChain->getSwapChainExtent()};
+  VkRect2D scissor{{0, 0}, lveSwapChain->getShadowExtent()};
   vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
   vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 }

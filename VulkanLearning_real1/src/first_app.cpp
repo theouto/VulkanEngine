@@ -144,16 +144,20 @@ namespace lve
                 pointLightSystem.update(frameInfo, ubo);
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
+
+                glm::vec3 lightPos = {1.f, 2.f, 2.f};
                 glm::mat4 projMat = DirectionalLightSystem::lightViewProjection(
-                  {1.f, 2.f, 2.f}, frameInfo.camera.getPosition() + offset, 5.f);
+                  lightPos, 
+                  frameInfo.camera.getPosition() + offset, 
+                  10.f);
 
                 auto rotate = glm::rotate(glm::mat4(1.f), frameInfo.frameTIme, { 0.1f, -0.5f, 0.f });
-                gameObjects.at(3).transform.translation = glm::vec3(rotate * glm::vec4(gameObjects.at(3).transform.translation, 1.f));
-
+                gameObjects.at(3).transform.translation = glm::vec3(rotate 
+                              * glm::vec4(gameObjects.at(3).transform.translation, 1.f));
 
                 //render shadowmap
 		        lveRenderer.beginShadowRenderPass(commandBuffer);
-                shadowSystem.drawDepth(frameInfo, projMat);
+                shadowSystem.drawDepth(frameInfo, projMat, lightPos);
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
 
                 //render 
@@ -162,7 +166,7 @@ namespace lve
                 skybox.render(frameInfo);
 
                 //geometry pass excl. skybox
-                simpleRenderSystem.renderGameObjects(frameInfo, projMat);
+                simpleRenderSystem.renderGameObjects(frameInfo, projMat, lightPos);
 
                 //renders light dots
                 pointLightSystem.render(frameInfo);
@@ -203,16 +207,17 @@ namespace lve
         wet_rock.push_back(ambOcc);
         wet_rock.push_back(metal);
 
-       /* 
+        /*
         std::vector<std::shared_ptr<LveTextures>> planks = {std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_Color.png", LveTextures::COLOR ),
-        std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_Roughness.png", LveTextures::SPECULAR ),
+        std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_Roughness.png", LveTextures::SINGLE_UNORM ),
         std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_NormalGL.png", LveTextures::NORMAL ),
-        std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_Displacement.png", LveTextures::DEPTH ),
-        std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_AmbientOcclusion.png", LveTextures::SPECULAR)
+        std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_Displacement.png", LveTextures::SINGLE_UNORM ),
+        std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_AmbientOcclusion.png", LveTextures::SINGLE_UNORM),
+        std::make_unique<LveTextures>(lveDevice, "textures/Planks037A_2K-PNG_Metalness.png", LveTextures::SINGLE_UNORM)
         };
         
         
-
+/*
         std::vector<std::shared_ptr<LveTextures>> granite = {std::make_unique<LveTextures>( lveDevice, "textures/Granite001A_2K-PNG_Color.png", LveTextures::COLOR ),
         std::make_unique<LveTextures>( lveDevice, "textures/Granite001A_2K-PNG_Roughness.png", LveTextures::SPECULAR ),
         std::make_unique<LveTextures>( lveDevice, "textures/Granite001A_2K-PNG_NormalGL.png", LveTextures::NORMAL ),
@@ -282,6 +287,14 @@ namespace lve
         pot.transform.scale = {0.3f, -0.3f, 0.3f};
         pot.textures = wet_rock;
         gameObjects.emplace(pot.getId(), std::move(pot));
+
+        lveModel = LveModel::createModelFromFile(lveDevice, "models/cube.obj");
+        auto quad2 = LveGameObject::createGameObject();
+        quad2.model = lveModel;
+        quad2.transform.translation = {0.f, 0.f, 2.f};
+        quad2.transform.scale = {0.7f, -0.7f, 0.7f};
+        quad2.textures = wet_rock;
+        gameObjects.emplace(quad2.getId(), std::move(quad2));
 
         for (auto &kv : gameObjects)
         {
