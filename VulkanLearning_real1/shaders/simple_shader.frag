@@ -236,7 +236,7 @@ float compute_pcss(float pcf_width){
     float real_depth = uv.z;
     float result = 0;
 
-    float bias = 0.0005;
+    float bias = 0.f;
 
     int step_count = 27 / 2;
     float step_uv = pcf_width / step_count;
@@ -339,7 +339,7 @@ vec3 calculateSunLight(DirectionalLight sun, vec3 surfaceNormal, vec2 UVs, vec3 
     vec3 kD = metallic(fres, texture(metalness, UVs).r);
 
     float NdotL = max(dot(surfaceNormal, directionToLight), 0.f);
-    //float shadow = shadowCalculation(surfaceNormal, directionToLight);
+    //float shadow = compute_pcss_shadow();
     float shadow = ShadowCalculation(directionToLight, surfaceNormal);
 
     return (shadow) * (kD * texture(texSampler, UVs).rgb / M_PI + spec) * intensity * NdotL;
@@ -393,7 +393,7 @@ vec3 calculateLights(vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
 
 vec3 calculateDiffuse(vec3 fragNormal, vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
 {
-    vec3 directionToLight = fragNormal;
+    vec3 directionToLight = vec3(0.f, -1.f, 0.f);
     vec3 intensity = (ubo.ambientLightColor.xyz * vec3(0.8, 0.8f, 1.2f)) * ubo.ambientLightColor.w * 80;
 
     vec3 halfAngle = normalize(directionToLight + viewDirection);
@@ -425,7 +425,7 @@ void main()
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld); 
 
     DirectionalLight sun;
-    sun.direction = vec3(lightPos.x, -lightPos.y, lightPos.x);
+    sun.direction = lightPos;
     sun.color = vec4(1.f, 1.f, 0.7f, 1.5f);
 
     //vec2 boxuv = SampleSphericalMap(normalize(viewDirection));
@@ -450,7 +450,7 @@ void main()
     Lo += calculateSunLight(sun, surfaceNormal, UVs, viewDirection, F0, cameraPosWorld);
     Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
 
-    vec4 diffuse = texture(texSampler, UVs) * vec4(diffuseLight, 0.0) * texture(AO, UVs).r;
+    vec4 diffuse = texture(texSampler, UVs) * (vec4(diffuseLight, 0.0) + vec4(0.01f, 0.01f, 0.02f, 0.f)) * texture(AO, UVs).r;
 
     //Depth
     /*

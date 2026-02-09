@@ -76,6 +76,5 @@ void main()
   fragUv = uv;
   FragPosLightSpace = push.lightSpaceMatrix * push.modelMatrix * vec4(position, 1.f);
   lightPos = push.lightPos;
-  lightPos.y = -lightPos.y;
   lightSpaceMatrix = push.lightSpaceMatrix;
 }
