@@ -168,6 +168,9 @@ namespace lve
                 //geometry pass excl. skybox
                 simpleRenderSystem.renderGameObjects(frameInfo, projMat, lightPos);
 
+                //Ambient Occlusion
+                
+
                 //renders light dots
                 pointLightSystem.render(frameInfo);
                 
@@ -225,7 +228,7 @@ namespace lve
         std::make_unique<LveTextures>( lveDevice, "textures/NA.png", LveTextures::SPECULAR),
         std::make_unique<LveTextures>(lveDevice, "textures/NAM.png", LveTextures::SPECULAR)
         };
-        
+        */
 
        
         std::vector<std::shared_ptr<LveTextures>> wet_sand = {std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_Color.png", LveTextures::COLOR ),
@@ -237,7 +240,7 @@ namespace lve
         };
         
 
-        
+        /*
         std::vector<std::shared_ptr<LveTextures>> sMetal = {std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_Color.png", LveTextures::COLOR ),
             std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_Roughness.png", LveTextures::SINGLE_UNORM ),
             std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_NormalGL.png", LveTextures::NORMAL ),
@@ -245,7 +248,7 @@ namespace lve
             std::make_unique<LveTextures>( lveDevice, "textures/NA.png", LveTextures::SINGLE_UNORM),
             std::make_unique<LveTextures>(lveDevice, "textures/Metal051A_2K-PNG_Metalness.png", LveTextures::SINGLE_UNORM)
         };
-         */
+         
         
         std::vector<std::shared_ptr<LveTextures>> ice = {std::make_unique<LveTextures>( lveDevice, "textures/Ice003_2K-PNG_Color.png", LveTextures::COLOR ),
             std::make_unique<LveTextures>( lveDevice, "textures/Ice003_2K-PNG_Roughness.png", LveTextures::SINGLE_UNORM ),
@@ -254,6 +257,7 @@ namespace lve
             std::make_unique<LveTextures>( lveDevice, "textures/NA.png", LveTextures::SINGLE_UNORM),
             std::make_unique<LveTextures>(lveDevice, "textures/NAM.png", LveTextures::SINGLE_UNORM)
         };
+        */
        
 
         matLayout = LveDescriptorSetLayout::Builder(lveDevice)
@@ -286,7 +290,7 @@ namespace lve
         quad.model = lveModel;
         quad.transform.translation = { 0.f, .5f, 0.f };
         quad.transform.scale = { 6.f, 1.f, 6.f };
-        quad.textures = ice;
+        quad.textures = wet_sand;
         gameObjects.emplace(quad.getId(), std::move(quad));
 
         lveModel = LveModel::createModelFromFile(lveDevice, "models/pleasepot.obj");
@@ -297,13 +301,15 @@ namespace lve
         pot.textures = wet_rock;
         gameObjects.emplace(pot.getId(), std::move(pot));
 
+        /*
         lveModel = LveModel::createModelFromFile(lveDevice, "models/cube.obj");
         auto quad2 = LveGameObject::createGameObject();
         quad2.model = lveModel;
         quad2.transform.translation = {0.f, 0.f, 2.f};
         quad2.transform.scale = {0.7f, -0.7f, 0.7f};
-        quad2.textures = ice;
+        quad2.textures = wet_rock;
         gameObjects.emplace(quad2.getId(), std::move(quad2));
+        */
 
         for (auto &kv : gameObjects)
         {

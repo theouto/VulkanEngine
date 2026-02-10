@@ -1,8 +1,8 @@
 #version 450
 
 #define NEAR 0.01
-#define numBlockerSearchSamples 1
-#define numPCFSamples 1
+#define numBlockerSearchSamples 64
+#define numPCFSamples 64
 
 layout (location = 0) in vec3 fragColor;
 layout (location = 1) in vec3 fragPosWorld;
@@ -194,19 +194,44 @@ float rand(vec2 co) {
     return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
+float rando(float co) {
+    return fract(sin(dot(vec2(co, co), vec2(9.2615, 153.88))) * 48.553);
+}
 
-float ShadowCalculation(vec3 lightDir, vec3 normal)
+//====================================================
+
+
+//everything related to pcss: https://github.com/pboechat/PCSS
+float SearchWidth(float uvLightSize, float receiverDistance, vec3 pos)
 {
-  // perform perspective divide
-    vec3 projCoords = FragPosLightSpace.xyz / FragPosLightSpace.w;
-    vec2 uv = projCoords.xy * 0.5 + 0.5;
-    float currentDepth = projCoords.z ;
-    float depth = texture(shadowMap, uv).x; 
-    float shadow = 0.0;
-    float bias = max(0.00005 * (1.0 - dot(normal, lightDir)), 0.00005); 
+	return uvLightSize * (receiverDistance - 0.01f) / pos.z;
+}
+
+float FindBlockerDistance_DirectionalLight(vec3 shadowCoords, float uvLightSize, vec3 pos)
+{
+	int blockers = 0;
+	float avgBlockerDistance = 0;
+	float searchWidth = SearchWidth(uvLightSize, shadowCoords.z, pos);
+	for (int i = 0; i < numBlockerSearchSamples; i++)
+	{
+		float z = texture(shadowMap, shadowCoords.xy + rando(i / float(numBlockerSearchSamples)) * searchWidth).r;
+		if (z < (shadowCoords.z))
+		{
+			blockers++;
+			avgBlockerDistance += z;
+		}
+	}
+	if (blockers > 0)
+		return avgBlockerDistance / blockers;
+	else
+		return -1;
+}
+
+float calculateRandPCF(float currentDepth, vec2 uv)
+{
+    float shadow = 0.f;
     
-    
-    int steps = 3;
+    int steps = 2;
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
     for(int x = -steps; x <= steps; ++x)
     {
@@ -215,105 +240,54 @@ float ShadowCalculation(vec3 lightDir, vec3 normal)
             vec2 randomOffset = vec2(rand(uv + vec2(x, y)), rand(uv - vec2(x, y))) * texelSize;
 
             float pcfDepth = texture(shadowMap, uv + vec2(float(x)/steps, float(y)/steps) * texelSize + randomOffset).r; 
-           shadow += currentDepth - bias < pcfDepth ? 1.0 : 0.0;        
+           shadow += currentDepth < pcfDepth ? 1.0 : 0.0;        
        }    
     }
     shadow /= (steps * 2) * (steps * 2);
    
-    shadow = sin(shadow);
+    return shadow;
+}
 
-    //shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+float PCF_DirectionalLight(vec3 shadowCoords, float uvRadius)
+{
+	float sum = 0;
+	for (int i = 0; i < numPCFSamples; i++)
+	{
+		float z = texture(shadowMap, shadowCoords.xy + rando(i / float(numPCFSamples)) * uvRadius).r;
+		sum += (z < shadowCoords.z) ? 1 : 0;
+	}
+	return sum / numPCFSamples;
+}
 
-    return clamp(shadow, 0.f, 1.f);
+float PCSS_DirectionalLight(vec3 shadowCoords, float uvLightSize, vec3 pos)
+{
+	// blocker search
+	float blockerDistance = FindBlockerDistance_DirectionalLight(shadowCoords, uvLightSize, pos);
+	if (blockerDistance == -1)
+		return 1;		
+
+	// penumbra estimation
+	float penumbraWidth = (shadowCoords.z - blockerDistance) / blockerDistance;
+
+	// percentage-close filtering
+	float uvRadius = penumbraWidth * uvLightSize * 0.01 / shadowCoords.z;
+	return 1 - PCF_DirectionalLight(shadowCoords, uvRadius);
 }
 
 //====== dividers are not enough to contain the bloat in this fucking shader file ======
 
-float compute_pcss(float pcf_width){
-    vec4 io_lcs_position = lightSpaceMatrix * FragPosLightSpace;
-    vec3 uv = io_lcs_position.xyz / io_lcs_position.w;
-    uv = uv * 0.5 + 0.5;
-    float real_depth = uv.z;
-    float result = 0;
+float ShadowCalculation(vec3 lightDir, vec3 normal, vec3 pos)
+{
+  // perform perspective divide
+    vec3 projCoords = FragPosLightSpace.xyz / FragPosLightSpace.w;
+    vec2 uv = projCoords.xy * 0.5 + 0.5;
+    float currentDepth = projCoords.z ;
+    //projCoords = projCoords * 0.5 + 0.5;
 
-    float bias = 0.f;
+    //float shadow = calculateRandPCF(currentDepth, uv);
+    float shadow = PCSS_DirectionalLight(vec3(uv, projCoords.z), 1.5f, pos);
 
-    int step_count = 27 / 2;
-    float step_uv = pcf_width / step_count;
-    for(float x=-step_count;x<=step_count;x++){
-        for(float y=-step_count;y<=step_count;y++){
-            vec2 offset = vec2(x, y) * step_uv;
-            float depth = texture(shadowMap, uv.xy + offset).r + bias;
-            if(depth > real_depth){
-                result += 1.0;
-            }else{
-                result += 0.5;
-            }
-        }
-    }
-    return result / (27 * 27);
-}
-
-float compute_blocker_distance(float average_blocker_depth){
-    return average_blocker_depth * (100.f - 0.01f) +0.01f;
-}
-
-float compute_penumbra_width(float blocker_distance){
-    float lvs_distance = -FragPosLightSpace.z; //shaded point's distance from the light in light view space
-    return 10.f * (lvs_distance - blocker_distance) / blocker_distance / 512;
-}
-
-float compute_pcf_width(float penumbra_width){
-    vec4 io_lcs_position = lightSpaceMatrix * FragPosLightSpace;
-    vec3 uv = io_lcs_position.xyz / io_lcs_position.w;  //conversion from clip space to NDC
-    uv = uv * 0.5 + 0.5;                                //conversion from the (-1;1) interval to the (0;1)
-    float real_depth = uv.z;
-    return penumbra_width * 0.01f / real_depth;
-}
-
-float compute_average_blocker_depth(float search_region_width){
-    
-    vec4 io_lcs_position = lightSpaceMatrix * FragPosLightSpace;
-    vec3 uv = io_lcs_position.xyz / io_lcs_position.w;  //conversion from clip space to NDC
-    uv = uv * 0.5 + 0.5;                                //conversion from the (-1;1) interval to the (0;1)
-    float real_depth = uv.z;
-    int blocker_count = 0;
-    float blocker_depth_sum = 0;
-
-    int step_count = 27 / 2;
-    float step_uv = search_region_width / step_count;
-    for(float x=-step_count;x<=step_count;x++){
-        for(float y=-step_count;y<=step_count;y++){
-            vec2 offset = vec2(x, y) * step_uv;
-            float depth = texture(shadowMap, uv.xy + offset).r;
-            if(depth < real_depth){
-                blocker_count++;
-                blocker_depth_sum += depth;
-            }
-        }
-    }
-    if(blocker_count == 0){
-        return -1.0;
-    }else{
-        return blocker_depth_sum / blocker_count;
-    }
-}
-
-float compute_search_region_width(){
-    float lvs_distance = -FragPosLightSpace.z;  //shaded point's distance from the light in light view space
-    return 10.f * (lvs_distance - 0.01f) / lvs_distance / 512;
-}
-
-float compute_pcss_shadow(){
-    float search_region_width = compute_search_region_width();
-    float average_blocker_depth = compute_average_blocker_depth(search_region_width);
-    if(average_blocker_depth == -1.0){
-        return 1.0;
-    }
-    float blocker_distance = compute_blocker_distance(average_blocker_depth);
-    float penumbra_width = compute_penumbra_width(blocker_distance);
-    float pcf_width = compute_pcf_width(penumbra_width);
-    return compute_pcss(pcf_width);
+    return clamp(shadow, 0.f, 1.f);
 }
 
 //==============================================================================
@@ -340,7 +314,7 @@ vec3 calculateSunLight(DirectionalLight sun, vec3 surfaceNormal, vec2 UVs, vec3 
 
     float NdotL = max(dot(surfaceNormal, directionToLight), 0.f);
     //float shadow = compute_pcss_shadow();
-    float shadow = ShadowCalculation(directionToLight, surfaceNormal);
+    float shadow = ShadowCalculation(directionToLight, surfaceNormal, cameraPosWorld);
 
     return (shadow) * (kD * texture(texSampler, UVs).rgb / M_PI + spec) * intensity * NdotL;
 }
@@ -448,7 +422,7 @@ void main()
 
     vec3 diffuseLight = calculateDiffuse(normalize(fragNormalWorld), surfaceNormal, UVs, viewDirection, F0);
     Lo += calculateSunLight(sun, surfaceNormal, UVs, viewDirection, F0, cameraPosWorld);
-    Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
+    //Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
 
     vec4 diffuse = texture(texSampler, UVs) * (vec4(diffuseLight, 0.0) + vec4(0.01f, 0.01f, 0.02f, 0.f)) * texture(AO, UVs).r;
 
@@ -463,24 +437,14 @@ void main()
 
     //debug view. Hey, might come in handy, it did in the past!
     //ENV VIEW
-    //outColor = vec4(diffuseLight, 0.0);
- 
-    //DIFF-Cont VIEW
-    //outColor = vec4(diffcont, 1.f);
+    //outColor = vec4(diffuseLight, 0.0); 
 
     //AO VIEW
-    //outColor = vec4(1.f, 1.f, 1.f, 1.f) * texture(AO, UVs).r;
+    //outColor = vec4(1.f) * texture(AO, UVs).r;
  
     //NORMAL VIEW
-    //outColor = texture(normals, UVs);
-
-    //LIGHT-IMPACT VIEW
-    //outColor = texture(texSampler, UVs) * vec4(specularLight, 0.0f);
-
-    //SKYBOX VIEW
-    //outColor = vec4(boxcolor, 1.f);
+    //outColor = vec4(surfaceNormal, 1.f);
 
     //FINAL VIEW
     outColor = diffuse + vec4(Lo, 0.f);
-    //outColor = vec4(vec3(texture(shadowMap, fragUv).r), 1.f);
 }
