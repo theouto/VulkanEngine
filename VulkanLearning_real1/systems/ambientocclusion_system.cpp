@@ -31,7 +31,7 @@ namespace lve
 
     LveDescriptorWriter(*AOLayout, *globalPool)
                 .writeImage(1, &depthInfo)
-                .writeImage(2, &normalInfo)
+                //.writeImage(2, &normalInfo)
                 .build(skyDesc);
 
     AODescriptor = {AOLayout->getDescriptorSetLayout()};
@@ -42,7 +42,7 @@ namespace lve
     vkDestroyPipelineLayout(lveDevice.device(), pipelineLayout, nullptr);
   }
 
-  void SkyboxSystem::createPipeLineLayout(std::vector<VkDescriptorSetLayout> globalSetLayout)
+  void AOSystem::createPipeLineLayout(std::vector<VkDescriptorSetLayout> globalSetLayout)
   {
     VkPushConstantRange pushConstantRange{};
 	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -62,7 +62,7 @@ namespace lve
 	}
   }
 
-  void SkyboxSystem::createPipeline(VkRenderPass renderPass)
+  void AOSystem::createPipeline(VkRenderPass renderPass)
   {
     assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 
@@ -73,13 +73,13 @@ namespace lve
 		pipelineConfig.renderPass = renderPass;
 		pipelineConfig.pipelineLayout = pipelineLayout;
         pipelineConfig.depthStencilInfo.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
-		std::vector<std::string> filePaths = { "shaders/AO.vert.spv",
-			"shaders/AO.frag.spv" };
+		std::vector<std::string> filePaths = { "shaders/compiled/AO.vert.spv",
+			"shaders/compiled/AO.frag.spv" };
 		lvePipeline = std::make_unique<LvePipeline>(lveDevice, 
 			filePaths, pipelineConfig);
   }
 
-  void SkyboxSystem::render(FrameInfo& frameInfo)
+  void AOSystem::render(FrameInfo& frameInfo)
   {
     lvePipeline->bind(frameInfo.commandBuffer);
     vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,

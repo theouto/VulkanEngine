@@ -4,9 +4,6 @@ layout (location = 0) in vec3 fragColor;
 layout (location = 1) in vec3 fragPosWorld;
 layout (location = 2) in vec3 fragNormalWorld;
 layout (location = 3) in vec2 fragUv;
-layout (location = 4) in vec4 FragPosLightSpace;
-layout (location = 5) in vec3 lightPos;
-layout (location = 6) in mat4 lightSpaceMatrix;
 
 layout (set = 1, location = 0) in sampler2D normals;
 

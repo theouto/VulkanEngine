@@ -9,9 +9,6 @@ layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec3 fragPosWorld;
 layout(location = 2) out vec3 fragNormalWorld;
 layout(location = 3) out vec2 fragUv;
-layout(location = 4) out vec4 FragPosLightSpace;
-layout(location = 5) out vec3 lightPos;
-layout(location = 6) out mat4 lightSpaceMatrix;
 
 /*
 layout(set = 1, binding = 1) uniform sampler2D texSampler;
@@ -41,8 +38,6 @@ layout(push_constant) uniform Push
 {
   mat4 modelMatrix;
   mat4 normalMatrix;
-  mat4 lightSpaceMatrix;
-  vec3 lightPos;
 } push;
 
 /*
@@ -74,7 +69,4 @@ void main()
   fragPosWorld = positionWorld.xyz;
   fragColor = color;
   fragUv = uv;
-  FragPosLightSpace = push.lightSpaceMatrix * push.modelMatrix * vec4(position, 1.f);
-  lightPos = push.lightPos;
-  lightSpaceMatrix = push.lightSpaceMatrix;
 }

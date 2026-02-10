@@ -78,8 +78,8 @@ namespace lve
 		pipelineConfig.renderPass = renderPass;
 		pipelineConfig.pipelineLayout = pipelineLayout;
         pipelineConfig.depthStencilInfo.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
-		std::vector<std::string> filePaths = { "shaders/skybox.vert.spv",
-			"shaders/skybox.frag.spv" };
+		std::vector<std::string> filePaths = { "shaders/compiled/skybox.vert.spv",
+			"shaders/compiled/skybox.frag.spv" };
 		lvePipeline = std::make_unique<LvePipeline>(lveDevice, 
 			filePaths, pipelineConfig);
   }

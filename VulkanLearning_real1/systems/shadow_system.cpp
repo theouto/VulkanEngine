@@ -60,8 +60,8 @@ namespace lve
 
     pipelineConfig.renderPass = renderPass;
 	pipelineConfig.pipelineLayout = pipelineLayout;
-	std::vector<std::string> filePaths = { "shaders/shadowmap.vert.spv",
-		"shaders/shadowmap.frag.spv" };
+	std::vector<std::string> filePaths = { "shaders/compiled/shadowmap.vert.spv",
+		"shaders/compiled/shadowmap.frag.spv" };
 	lvePipeline = std::make_unique<LvePipeline>(lveDevice, filePaths, pipelineConfig);
   }
 

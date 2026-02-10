@@ -69,8 +69,8 @@ namespace lve
 		pipelineConfig.bindingDescriptions.clear();
 		pipelineConfig.renderPass = renderPass;
 		pipelineConfig.pipelineLayout = pipelineLayout;
-		std::vector<std::string> filePaths = { "shaders/point_light.vert.spv",
-			"shaders/point_light.frag.spv" };
+		std::vector<std::string> filePaths = { "shaders/compiled/point_light.vert.spv",
+			"shaders/compiled/point_light.frag.spv" };
 		lvePipeline = std::make_unique<LvePipeline>(lveDevice, 
 			filePaths, pipelineConfig);
 	}

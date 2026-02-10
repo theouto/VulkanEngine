@@ -1,5 +1,4 @@
-#include "simple_render_system.hpp"
-#include "shadow_system.hpp"
+#include "normal_buff.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -16,11 +15,9 @@ namespace lve
 	{
 		glm::mat4 modelMatrix{ 1.f };
 		glm::mat4 normalMatrix{ 1.f };
-        glm::mat4 lightSpaceMatrix{1.f};
-        glm::vec3 lightPos{-1.f, 2.f, -1.f};
 	};
 
-	SimpleRenderSystem::SimpleRenderSystem(LveDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> globalSetLayout) : lveDevice{device}
+	NormalBuffer::NormalBuffer(LveDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> globalSetLayout) : lveDevice{device}
 	{
         float near_plane = 0.01f, far_plane = 100.0f;
         glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
@@ -35,13 +32,13 @@ namespace lve
 		createPipeline(renderPass);
 	}
 
-	SimpleRenderSystem::~SimpleRenderSystem()
+	NormalBuffer::~NormalBuffer()
 	{
 		vkDestroyPipelineLayout(lveDevice.device(), pipelineLayout, nullptr);
 
 	}
 
-	void SimpleRenderSystem::createPipeLineLayout(std::vector<VkDescriptorSetLayout> &globalSetLayout)
+	void NormalBuffer::createPipeLineLayout(std::vector<VkDescriptorSetLayout> &globalSetLayout)
 	{
 		VkPushConstantRange pushConstantRange{};
 		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -65,7 +62,7 @@ namespace lve
 	}
 
 	//SHADERS HERE
-	void SimpleRenderSystem::createPipeline(VkRenderPass renderPass)
+	void NormalBuffer::createPipeline(VkRenderPass renderPass)
 	{
 		assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 
@@ -76,14 +73,14 @@ namespace lve
 		
 		pipelineConfig.renderPass = renderPass;
 		pipelineConfig.pipelineLayout = pipelineLayout;
-		std::vector<std::string> filePaths = { "shaders/compiled/simple_shader.vert.spv",
-			"shaders/compiled/simple_shader.frag.spv" };
+		std::vector<std::string> filePaths = { "shaders/compiled/normalpipe.vert.spv",
+			"shaders/compiled/normalpipe.frag.spv" };
 		lvePipeline = std::make_unique<LvePipeline>(lveDevice, filePaths, pipelineConfig);
 
 	}
 
 
-	void SimpleRenderSystem::renderGameObjects(FrameInfo &frameInfo, glm::mat4 matrix, glm::vec3 lightPos)
+	void NormalBuffer::renderGameObjects(FrameInfo &frameInfo, glm::mat4 matrix, glm::vec3 lightPos)
 	{
 		lvePipeline->bind(frameInfo.commandBuffer);
 
@@ -97,8 +94,6 @@ namespace lve
 			SimplePushConstantData push{};
 			push.modelMatrix = obj.transform.mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
-            push.lightSpaceMatrix = matrix;
-            push.lightPos = lightPos;
 
 			vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 				0, sizeof(SimplePushConstantData), &push);
