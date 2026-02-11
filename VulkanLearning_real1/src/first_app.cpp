@@ -108,7 +108,7 @@ namespace lve
 	
 	auto currentTime = std::chrono::high_resolution_clock::now();
 
-    std::cout << "All loaded, rendering:\n\n";
+    std::cout << "\n\n\nAll loaded, rendering:\n\n";
     float radius = 5.f;
 	while (!lveWindow.shouldClose())
 	{
@@ -168,13 +168,11 @@ namespace lve
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
 
                 //depth Pre-Pass
-                
                 lveRenderer.beginDepthRenderPass(commandBuffer);
                 depthPass.drawDepth(frameInfo);
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
                 
                 //normal buffer
-                
 
                 //render 
                 lveRenderer.beginSwapChainRenderPass(commandBuffer);

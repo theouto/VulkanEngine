@@ -54,9 +54,7 @@ namespace lve
 
 		PipelineConfigInfo pipelineConfig{};
 		LvePipeline::defaultPipelineConfigInfo(pipelineConfig);
-        LvePipeline::defaultPipelineShadowInfo(pipelineConfig);
-        pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_BACK_BIT;
-		
+
 		pipelineConfig.renderPass = renderPass;
 		pipelineConfig.pipelineLayout = pipelineLayout;
 		std::vector<std::string> filePaths = { "shaders/compiled/depth_pass.vert.spv",

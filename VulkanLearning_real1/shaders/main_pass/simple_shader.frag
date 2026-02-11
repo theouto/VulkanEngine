@@ -400,20 +400,20 @@ float LinearizeDepth(float depth)
 void main()
 { 
     //https://stackoverflow.com/questions/26965787/how-to-get-accurate-fragment-screen-position-like-gl-fragcood-in-vertex-shader
-    /*
+    
     vec3 ndc = gl_FragCoord.xyz / gl_FragCoord.w;
     vec2 viewportCoord = ndc.xy * 0.5 + 0.5;
     vec2 viewportPixelCoord = viewportCoord * (1920*1080);
 
-    float prePassDepth = LinearizeDepth(texelFetch(depthMap, ivec2(viewportPixelCoord), 0).r);
+    float prePassDepth = LinearizeDepth(texelFetch(depthMap, ivec2(viewportPixelCoord), 0).w);
     float currDepth = LinearizeDepth(gl_FragCoord.z) / FAR;
     if (prePassDepth < currDepth) 
     {
-      outColor = vec4(vec3(currDepth), 1.f);
+      outColor = texture(depthMap, fragUv);
       return;
       //discard;
     }
-    */
+    
     mat3 TBN = cotangent_frame(fragNormalWorld, fragPosWorld, fragUv);
 	//vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
 	vec3 specularLight = vec3(0.0);
@@ -470,5 +470,5 @@ void main()
 
     //FINAL VIEW
     outColor = diffuse + vec4(Lo, 0.f);
-    //outColor = vec4(vec3(texture(depthMap, fragUv).r), 1.f);
+    //outColor = vec4(vec3(texture(depthMap, fragUv).w), 1.f);
 }
