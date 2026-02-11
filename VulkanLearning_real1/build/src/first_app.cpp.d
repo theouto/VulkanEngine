@@ -10,7 +10,8 @@ build/./src/first_app.cpp.o: src/first_app.cpp \
  src/../systems/../include/lve_pipeline.hpp \
  src/../systems/simple_render_system.hpp \
  src/../systems/./shadow_system.hpp src/../systems/skybox_system.hpp \
- src/../systems/depth_prepass.hpp
+ src/../systems/depth_prepass.hpp \
+ src/../systems/ambientocclusion_system.hpp
 src/../include/first_app.hpp:
 src/../include/lve_window.hpp:
 src/../include/lve_device.hpp:
@@ -30,3 +31,4 @@ src/../systems/simple_render_system.hpp:
 src/../systems/./shadow_system.hpp:
 src/../systems/skybox_system.hpp:
 src/../systems/depth_prepass.hpp:
+src/../systems/ambientocclusion_system.hpp:

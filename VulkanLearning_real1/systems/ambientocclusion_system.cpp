@@ -12,25 +12,22 @@
 
 namespace lve
 {  
-  AOSystem::AOSystem(LveDevice& device, VkRenderPass renderPass, LveDescriptorPool &pool) : 
+  AOSystem::AOSystem(LveDevice& device, VkRenderPass renderPass, LveDescriptorPool &pool, VkDescriptorSetLayout image) : 
                 globalPool{&pool}, lveDevice{device}
   {
-    createDescriptorSets();
-    createPipeLineLayout(AODescriptor);
+    //createDescriptorSets(image);
+    createPipeLineLayout(image);
     createPipeline(renderPass);
   }
 
-  void AOSystem::createDescriptorSets()
+  void AOSystem::createDescriptorSets(VkDescriptorImageInfo image)
   {
     AOLayout = LveDescriptorSetLayout::Builder(lveDevice)
                 .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-                .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
                 .build();
 
-
     LveDescriptorWriter(*AOLayout, *globalPool)
-                //.writeImage(1, &depthInfo)
-                //.writeImage(2, &normalInfo)
+                .writeImage(1, &image)
                 .build(AODesc);
 
     AODescriptor = {AOLayout->getDescriptorSetLayout()};
@@ -41,18 +38,18 @@ namespace lve
     vkDestroyPipelineLayout(lveDevice.device(), pipelineLayout, nullptr);
   }
 
-  void AOSystem::createPipeLineLayout(std::vector<VkDescriptorSetLayout> globalSetLayout)
+  void AOSystem::createPipeLineLayout(VkDescriptorSetLayout globalSetLayout)
   {
     VkPushConstantRange pushConstantRange{};
 	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 	pushConstantRange.offset = 0;
 	pushConstantRange.size = 0;
-	//std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout };
+	std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout };
 
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(globalSetLayout.size());
-	pipelineLayoutInfo.pSetLayouts = globalSetLayout.data();
+	pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+	pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
 	pipelineLayoutInfo.pushConstantRangeCount = 1;
 	pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 	if (vkCreatePipelineLayout(lveDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
@@ -83,7 +80,7 @@ namespace lve
   {
     lvePipeline->bind(frameInfo.commandBuffer);
     vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                1, 1, &AODesc, 0, nullptr);
+                1, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
 
     vkCmdDraw(frameInfo.commandBuffer, 3, 1, 0, 0);
   }

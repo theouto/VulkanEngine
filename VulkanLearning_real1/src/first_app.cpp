@@ -9,6 +9,7 @@
 #include "../systems/skybox_system.hpp"
 #include "../systems/shadow_system.hpp"
 #include "../systems/depth_prepass.hpp"
+#include "../systems/ambientocclusion_system.hpp"
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <glm/ext/vector_float3.hpp>
@@ -62,6 +63,11 @@ namespace lve
             .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
             .build();   
 
+        auto AOSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .build();
+
         std::vector<VkDescriptorSet> globalDescriptorSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < globalDescriptorSets.size(); i++)
         {
@@ -86,6 +92,8 @@ namespace lve
 
         DirectionalLightSystem shadowSystem{lveDevice, lveRenderer.getSwapChainShadowPass(),globalSetLayout->getDescriptorSetLayout()};
         DepthPrePass depthPass{lveDevice, lveRenderer.getSwapChainDepthPass(), globalSetLayout->getDescriptorSetLayout(), normalLayout->getDescriptorSetLayout()};
+
+        AOSystem AOSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), *globalPool, globalSetLayout->getDescriptorSetLayout()};
 
         LveCamera camera{};
  
@@ -171,9 +179,7 @@ namespace lve
                 lveRenderer.beginDepthRenderPass(commandBuffer);
                 depthPass.drawDepth(frameInfo);
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
-                
-                //normal buffer
-
+ 
                 //render 
                 lveRenderer.beginSwapChainRenderPass(commandBuffer);
                 
@@ -184,7 +190,7 @@ namespace lve
                 simpleRenderSystem.renderGameObjects(frameInfo, projMat, lightPos);
 
                 //Ambient Occlusion
-                
+                AOSystem.render(frameInfo);
 
                 //renders light dots
                 pointLightSystem.render(frameInfo);
@@ -320,7 +326,7 @@ namespace lve
         pot.textures = wet_rock;
         gameObjects.emplace(pot.getId(), std::move(pot));
 
-        /*
+        
         lveModel = LveModel::createModelFromFile(lveDevice, "models/cube.obj");
         auto quad2 = LveGameObject::createGameObject();
         quad2.model = lveModel;
@@ -328,7 +334,7 @@ namespace lve
         quad2.transform.scale = {0.7f, -0.7f, 0.7f};
         quad2.textures = wet_rock;
         gameObjects.emplace(quad2.getId(), std::move(quad2));
-        */
+        
 
         for (auto &kv : gameObjects)
         {

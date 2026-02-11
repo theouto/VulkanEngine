@@ -1,6 +1,6 @@
 #version 450
 
-#define NEAR 0.01
+#define NEAR 0.1
 #define FAR 30.f
 #define numBlockerSearchSamples 64
 #define numPCFSamples 64
@@ -405,14 +405,16 @@ void main()
     vec2 viewportCoord = ndc.xy * 0.5 + 0.5;
     vec2 viewportPixelCoord = viewportCoord * (1920*1080);
 
-    float prePassDepth = LinearizeDepth(texelFetch(depthMap, ivec2(viewportPixelCoord), 0).w);
+    float prePassDepth = texelFetch(depthMap, ivec2(viewportPixelCoord), 0).w;
     float currDepth = LinearizeDepth(gl_FragCoord.z) / FAR;
+    /*
     if (prePassDepth < currDepth) 
     {
       outColor = texture(depthMap, fragUv);
       return;
       //discard;
     }
+    */
     
     mat3 TBN = cotangent_frame(fragNormalWorld, fragPosWorld, fragUv);
 	//vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;

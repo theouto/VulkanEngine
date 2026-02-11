@@ -201,8 +201,8 @@ namespace lve {
         vkGetSwapchainImagesKHR(device.device(), swapChain, &imageCount, nullptr);
         swapChainImages.resize(imageCount);
         vkGetSwapchainImagesKHR(device.device(), swapChain, &imageCount, swapChainImages.data());
-
-        swapChainImageFormat = surfaceFormat.format;
+ 
+        swapChainImageFormat= surfaceFormat.format;
         swapChainExtent = extent;
     }
 
@@ -498,7 +498,7 @@ namespace lve {
     {
         VkAttachmentDescription depthAttachment{};
         depthAttachment.format = findDepthFormat();
-        depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT; //changed
+        depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
         depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -512,7 +512,7 @@ namespace lve {
 
         VkAttachmentDescription colorAttachment = {};
         colorAttachment.format = getSwapChainImageFormat();
-        colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT; //changed
+        colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
         colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -566,8 +566,8 @@ namespace lve {
       imageInfo.arrayLayers = 1;
       imageInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
       imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-      imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; // Ensure initial layout is set.
-      imageInfo.usage = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+      imageInfo.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // Ensure initial layout is set.
+      imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
       imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
       imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // Explicitly set sharing mode.
 
@@ -613,25 +613,25 @@ namespace lve {
       assert(depthPass != VK_NULL_HANDLE && "depthPass is invalid!");
       assert(depthView != VK_NULL_HANDLE && "depthView is invalid!");
 
-      std::array<VkImageView, 1> attachments = { depthView, };
+      std::array<VkImageView, 2> attachments = { depthView, depthImageViews[0] };
 
-            VkExtent2D swapChainExtent = getSwapChainExtent();
-            VkFramebufferCreateInfo framebufferInfo = {};
-            framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferInfo.renderPass = depthPass;
-            framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-            framebufferInfo.pAttachments = attachments.data();
-            framebufferInfo.width = swapChainExtent.width;
-            framebufferInfo.height = swapChainExtent.height;
-            framebufferInfo.layers = 1;
+      VkExtent2D swapChainExtent = getSwapChainExtent();
+      VkFramebufferCreateInfo framebufferInfo = {};
+      framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+      framebufferInfo.renderPass = depthPass;
+      framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+      framebufferInfo.pAttachments = attachments.data();
+      framebufferInfo.width = swapChainExtent.width;
+      framebufferInfo.height = swapChainExtent.height;
+      framebufferInfo.layers = 1;
 
-            if (vkCreateFramebuffer(
-                device.device(),
-                &framebufferInfo,
-                nullptr,
-                &depthBuffer) != VK_SUCCESS) {
-                throw std::runtime_error("failed to create framebuffer!");
-                }
+      if (vkCreateFramebuffer(
+          device.device(),
+          &framebufferInfo,
+          nullptr,
+          &depthBuffer) != VK_SUCCESS) {
+          throw std::runtime_error("failed to create framebuffer!");
+          }
     }
 
     void LveSwapChain::createSyncObjects() {

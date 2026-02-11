@@ -39,7 +39,7 @@ mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
 void main()
 {    
     mat3 TBN = cotangent_frame(fragNormalWorld, fragPosWorld, fragUv);
-    vec3 tangentNormal = texture(normals, fragUv).rgb * 2.0 - 1.0;     
+    vec3 tangentNormal = texture(normals, fragUv*4).rgb * 2.0 - 1.0;     
 	vec3 surfaceNormal = normalize(normalize(TBN * tangentNormal));
 
     float depth = LinearizeDepth(gl_FragCoord.z);

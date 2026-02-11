@@ -20,7 +20,7 @@ namespace lve
   {
     public:
     
-    AOSystem(LveDevice& device, VkRenderPass renderPass, LveDescriptorPool &pool);
+    AOSystem(LveDevice& device, VkRenderPass renderPass, LveDescriptorPool &pool, VkDescriptorSetLayout image);
     ~AOSystem();
     
 	void render(FrameInfo &frameInfo);
@@ -29,9 +29,9 @@ namespace lve
 	
     LveDevice& lveDevice;
 
-    void createPipeLineLayout(std::vector<VkDescriptorSetLayout> globalSetLayout);
+    void createPipeLineLayout(VkDescriptorSetLayout globalSetLayout);
 	void createPipeline(VkRenderPass renderPass);
-    void createDescriptorSets();
+    void createDescriptorSets(VkDescriptorImageInfo image);
 
     std::unique_ptr<LveDescriptorPool> globalPool{};
     std::unique_ptr<LveDescriptorSetLayout> AOLayout;
