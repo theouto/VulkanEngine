@@ -28,8 +28,6 @@ namespace lve
     private:
 	
     LveDevice& lveDevice;
-    std::shared_ptr<LveTextures> fakebox = std::make_shared<LveTextures>(lveDevice,
-                                 "textures/MorningSkyHDRI011A_1K_TONEMAPPED.jpg", LveTextures::COLOR);
 
     void createPipeLineLayout(std::vector<VkDescriptorSetLayout> globalSetLayout);
 	void createPipeline(VkRenderPass renderPass);
@@ -38,7 +36,7 @@ namespace lve
     std::unique_ptr<LveDescriptorPool> globalPool{};
     std::unique_ptr<LveDescriptorSetLayout> AOLayout;
     std::vector<VkDescriptorSetLayout> AODescriptor;
-    VkDescriptorSet skyDesc;
+    VkDescriptorSet AODesc;
 
     std::array<VkSampler, 2> samplers;
 	

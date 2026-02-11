@@ -28,8 +28,10 @@ class LveSwapChain {
         VkFramebuffer getShadowBuffer() {return shadowBuffer;}
         VkRenderPass getRenderPass() { return renderPass; }
         VkRenderPass getShadowPass() {return shadowPass;}
+        VkRenderPass getDepthPass() {return depthPass;}
         VkImageView getImageView(int index) { return swapChainImageViews[index]; }
         VkImageView getShadowView() {return shadowDepthView;}
+        VkImageView getDepthView() {return depthView;}
         size_t imageCount() { return swapChainImages.size(); }
         VkFormat getSwapChainImageFormat() { return swapChainImageFormat; }
         VkExtent2D getSwapChainExtent() { return swapChainExtent; }
@@ -64,7 +66,11 @@ class LveSwapChain {
 
         void createShadowRenderPass();
         void createShadowDepthImages();
-        void createShadowFrameBuffers();        
+        void createShadowFrameBuffers();
+
+        void createDepthPrepass();
+        void createDepthImages();
+        void createDepthBuffers();
         
         // Helper functions
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(
@@ -102,7 +108,15 @@ class LveSwapChain {
 
         LveDevice &device;
         VkExtent2D windowExtent;
-        
+ 
+        //depth prepass
+        VkFramebuffer depthBuffer;
+        VkRenderPass depthPass;
+        VkDeviceMemory depthMemory;
+        VkImage depthImage;
+        VkImageView depthView;
+
+
         VkSwapchainKHR swapChain;
         std::shared_ptr<LveSwapChain> oldSwapChain;
         

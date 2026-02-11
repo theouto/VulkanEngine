@@ -32,7 +32,7 @@ namespace lve
     LveDescriptorWriter(*AOLayout, *globalPool)
                 .writeImage(1, &depthInfo)
                 //.writeImage(2, &normalInfo)
-                .build(skyDesc);
+                .build(AODesc);
 
     AODescriptor = {AOLayout->getDescriptorSetLayout()};
   }
@@ -68,6 +68,7 @@ namespace lve
 
 		PipelineConfigInfo pipelineConfig{};
 		LvePipeline::defaultPipelineConfigInfo(pipelineConfig);
+        LvePipeline::enableAlphaBlending(pipelineConfig);
 		pipelineConfig.attributeDescriptions.clear();
 		pipelineConfig.bindingDescriptions.clear();
 		pipelineConfig.renderPass = renderPass;
@@ -83,7 +84,7 @@ namespace lve
   {
     lvePipeline->bind(frameInfo.commandBuffer);
     vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                1, 1, &skyDesc, 0, nullptr);
+                1, 1, &AODesc, 0, nullptr);
 
     vkCmdDraw(frameInfo.commandBuffer, 3, 1, 0, 0);
   }
