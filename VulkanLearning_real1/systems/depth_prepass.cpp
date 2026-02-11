@@ -8,10 +8,11 @@ namespace lve
 	struct SimplePushConstantData
 	{
 		glm::mat4 modelMatrix{ 1.f };
+        glm::mat4 normalMatrix{1.f};
 	};
 
-	DepthPrePass::DepthPrePass(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) 
-        : lveDevice{device}
+	DepthPrePass::DepthPrePass(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout, VkDescriptorSetLayout normalLayout) 
+        : lveDevice{device}, layout{normalLayout}
 	{
         createPipeLineLayout(globalSetLayout);
 		createPipeline(renderPass);
@@ -30,7 +31,7 @@ namespace lve
 		pushConstantRange.offset = 0;
 		pushConstantRange.size = sizeof(SimplePushConstantData);
 
-		std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout };
+		std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout, layout };
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -78,7 +79,16 @@ namespace lve
 			if (obj.model == nullptr) continue;
 			SimplePushConstantData push{};
 			push.modelMatrix = obj.transform.mat4();
+            push.normalMatrix = obj.transform.normalMatrix();
 
+            vkCmdBindDescriptorSets(frameInfo.commandBuffer,
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                pipelineLayout,
+                1,
+                1,
+                &obj.normalSet,
+                0,
+                nullptr);
 			vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 				0, sizeof(SimplePushConstantData), &push);
 			obj.model->bind(frameInfo.commandBuffer);

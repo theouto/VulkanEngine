@@ -36,6 +36,7 @@ namespace lve
 		LveDevice lveDevice{ lveWindow };
 		LveRenderer lveRenderer{ lveWindow, lveDevice };
         std::unique_ptr<LveDescriptorSetLayout> matLayout;
+        std::unique_ptr<LveDescriptorSetLayout> normalLayout;
 
 		std::unique_ptr<LveDescriptorPool> globalPool{};
 		LveGameObject::Map gameObjects;

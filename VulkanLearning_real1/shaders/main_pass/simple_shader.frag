@@ -94,7 +94,7 @@ mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
 vec2 parallaxOcclusionMapping(vec2 texCoords, vec3 viewDir)
 {	
     const float height_scale = 0.03f;
-    const float numLayers = 64;
+    const float numLayers = 16;
     float layerDepth = 1.0 / numLayers;
     float currentLayerDepth = 0.0;
     vec2 P = vec2(-1.0f * viewDir.y, viewDir.z) * height_scale; 
@@ -400,6 +400,7 @@ float LinearizeDepth(float depth)
 void main()
 { 
     //https://stackoverflow.com/questions/26965787/how-to-get-accurate-fragment-screen-position-like-gl-fragcood-in-vertex-shader
+    /*
     vec3 ndc = gl_FragCoord.xyz / gl_FragCoord.w;
     vec2 viewportCoord = ndc.xy * 0.5 + 0.5;
     vec2 viewportPixelCoord = viewportCoord * (1920*1080);
@@ -412,6 +413,7 @@ void main()
       return;
       //discard;
     }
+    */
     mat3 TBN = cotangent_frame(fragNormalWorld, fragPosWorld, fragUv);
 	//vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
 	vec3 specularLight = vec3(0.0);

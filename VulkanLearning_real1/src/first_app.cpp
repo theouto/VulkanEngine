@@ -85,7 +85,7 @@ namespace lve
         SkyboxSystem skybox{lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(), *globalPool};
 
         DirectionalLightSystem shadowSystem{lveDevice, lveRenderer.getSwapChainShadowPass(),globalSetLayout->getDescriptorSetLayout()};
-        DepthPrePass depthPass{lveDevice, lveRenderer.getSwapChainDepthPass(), globalSetLayout->getDescriptorSetLayout()};
+        DepthPrePass depthPass{lveDevice, lveRenderer.getSwapChainDepthPass(), globalSetLayout->getDescriptorSetLayout(), normalLayout->getDescriptorSetLayout()};
 
         LveCamera camera{};
  
@@ -168,10 +168,11 @@ namespace lve
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
 
                 //depth Pre-Pass
+                
                 lveRenderer.beginDepthRenderPass(commandBuffer);
                 depthPass.drawDepth(frameInfo);
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
-
+                
                 //normal buffer
                 
 
@@ -284,6 +285,10 @@ namespace lve
             .addBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //AO
             .addBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //metalness
             .build();
+
+        normalLayout = LveDescriptorSetLayout::Builder(lveDevice)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+            .build();
         
         std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/smooth_vase.obj");
         auto sVase = LveGameObject::createGameObject();
@@ -346,6 +351,10 @@ namespace lve
                 .writeImage(5, &ambInfo)
                 .writeImage(6, &metalInfo)
                 .build(kv.second.descriptorSet);
+
+          LveDescriptorWriter(*normalLayout, *globalPool)
+                .writeImage(0, &normInfo)
+                .build(kv.second.normalSet);
         }
 
         std::vector<glm::vec3> lightColors{

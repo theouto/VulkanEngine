@@ -22,7 +22,7 @@ namespace lve
     static constexpr uint32_t HEIGHT = 4096;
 
 
-    DepthPrePass(LveDevice& device,VkRenderPass renderPass ,VkDescriptorSetLayout globalSetLayout);
+    DepthPrePass(LveDevice& device,VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout, VkDescriptorSetLayout normalLayout);
     ~DepthPrePass();
 
     void drawDepth(FrameInfo &frameInfo);
@@ -32,6 +32,7 @@ namespace lve
       void createPipeline(VkRenderPass renderPass);
       void createPipeLineLayout(VkDescriptorSetLayout globalSetLayout);
 
+      VkDescriptorSetLayout layout;
       glm::mat4 lightSpaceMatrix{1.f};
       std::vector<VkDescriptorSetLayout> setLayouts = {};
       VkPipelineLayout pipelineLayout;

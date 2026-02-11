@@ -37,9 +37,11 @@ namespace lve {
         createShadowDepthImages();
         createShadowFrameBuffers();
 
+        /*
         createDepthPrepass();
         createDepthImages();
         createDepthBuffers();
+        */
 
         createSyncObjects();
     }
@@ -554,7 +556,7 @@ namespace lve {
       imageInfo.extent = {windowExtent.width, windowExtent.height, 1};
       imageInfo.mipLevels = 1;
       imageInfo.arrayLayers = 1;
-      imageInfo.format = VK_FORMAT_D32_SFLOAT;
+      imageInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
       imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
       imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; // Ensure initial layout is set.
       imageInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -563,8 +565,9 @@ namespace lve {
 
       if (vkCreateImage(device.device(), &imageInfo, nullptr, &depthImage) != VK_SUCCESS)
       {
-        throw std::runtime_error("failed to create shadow image!");
+        throw std::runtime_error("failed to create buffer image!");
       }
+
       VkMemoryRequirements memRequirements;
       vkGetImageMemoryRequirements(device.device(), depthImage, &memRequirements);
 
@@ -579,21 +582,20 @@ namespace lve {
       }
 
       vkBindImageMemory(device.device(), depthImage, depthMemory, 0);
-      VkImageViewCreateInfo depthStencilView{};
-      depthStencilView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-      depthStencilView.viewType = VK_IMAGE_VIEW_TYPE_2D;
-      depthStencilView.format = VK_FORMAT_D32_SFLOAT;
-      depthStencilView.subresourceRange = {};
-      depthStencilView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-      depthStencilView.subresourceRange.baseMipLevel = 0;
-      depthStencilView.subresourceRange.levelCount = 1;
-      depthStencilView.subresourceRange.baseArrayLayer = 0;
-      depthStencilView.subresourceRange.layerCount = 1;
-      depthStencilView.image = depthImage;
+      VkImageViewCreateInfo viewInfo{};
+      viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+      viewInfo.image = depthImage;
+      viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+      viewInfo.format = swapChainImageFormat;
+      viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+      viewInfo.subresourceRange.baseMipLevel = 0;
+      viewInfo.subresourceRange.levelCount = 1;
+      viewInfo.subresourceRange.baseArrayLayer = 0;
+      viewInfo.subresourceRange.layerCount = 1;
 
-      if (vkCreateImageView(device.device(), &depthStencilView, nullptr, &depthView) != VK_SUCCESS)
-      {
-        throw std::runtime_error("failed to create shadow depth image view!");
+      if (vkCreateImageView(device.device(), &viewInfo, nullptr, &depthView) !=
+          VK_SUCCESS) {
+          throw std::runtime_error("failed to create texture image view!");
       }
 
     }
