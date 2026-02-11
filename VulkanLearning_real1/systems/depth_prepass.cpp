@@ -13,7 +13,7 @@ namespace lve
 	DepthPrePass::DepthPrePass(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) 
         : lveDevice{device}
 	{
-        createPipeLineLayout();
+        createPipeLineLayout(globalSetLayout);
 		createPipeline(renderPass);
 	}
 
@@ -23,19 +23,19 @@ namespace lve
 
 	}
 
-	void DepthPrePass::createPipeLineLayout()
+	void DepthPrePass::createPipeLineLayout(VkDescriptorSetLayout globalSetLayout)
 	{
 		VkPushConstantRange pushConstantRange{};
 		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 		pushConstantRange.offset = 0;
 		pushConstantRange.size = sizeof(SimplePushConstantData);
 
-		//std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout };
+		std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout };
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(globalSetLayout.size());
-		pipelineLayoutInfo.pSetLayouts = globalSetLayout.data();
+		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+		pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
 		pipelineLayoutInfo.pushConstantRangeCount = 1;
 		pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
@@ -58,14 +58,14 @@ namespace lve
 		
 		pipelineConfig.renderPass = renderPass;
 		pipelineConfig.pipelineLayout = pipelineLayout;
-		std::vector<std::string> filePaths = { "shaders/compiled/simple_shader.vert.spv",
-			"shaders/compiled/simple_shader.frag.spv" };
+		std::vector<std::string> filePaths = { "shaders/compiled/depth_pass.vert.spv",
+			"shaders/compiled/depth_pass.frag.spv" };
 		lvePipeline = std::make_unique<LvePipeline>(lveDevice, filePaths, pipelineConfig);
 
 	}
 
 
-	void DepthPrePass::renderGameObjects(FrameInfo &frameInfo, glm::mat4 matrix, glm::vec3 lightPos)
+	void DepthPrePass::drawDepth(FrameInfo &frameInfo)
 	{
 		lvePipeline->bind(frameInfo.commandBuffer);
 
@@ -81,15 +81,6 @@ namespace lve
 
 			vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 				0, sizeof(SimplePushConstantData), &push);
-            vkCmdBindDescriptorSets(
-                frameInfo.commandBuffer,
-                VK_PIPELINE_BIND_POINT_GRAPHICS,
-                pipelineLayout,
-                1,
-                1,
-                &obj.descriptorSet,
-                0,
-                nullptr);
 			obj.model->bind(frameInfo.commandBuffer);
 			obj.model->draw(frameInfo.commandBuffer);
 		}

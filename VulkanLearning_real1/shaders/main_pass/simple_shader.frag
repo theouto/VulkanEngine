@@ -1,6 +1,7 @@
 #version 450
 
 #define NEAR 0.01
+#define FAR 30.f
 #define numBlockerSearchSamples 64
 #define numPCFSamples 64
 
@@ -15,6 +16,7 @@ layout (location = 6) in mat4 lightSpaceMatrix;
 layout (location = 0) out vec4 outColor;
 
 layout(set = 0, binding = 1) uniform sampler2D shadowMap;
+layout(set = 0, binding = 2) uniform sampler2D depthMap;
 
 layout(set = 1, binding = 1) uniform sampler2D texSampler;
 layout(set = 1, binding = 2) uniform sampler2D specular;
@@ -284,8 +286,8 @@ float ShadowCalculation(vec3 lightDir, vec3 normal, vec3 pos)
     float currentDepth = projCoords.z ;
     //projCoords = projCoords * 0.5 + 0.5;
 
-    //float shadow = calculateRandPCF(currentDepth, uv);
-    float shadow = PCSS_DirectionalLight(vec3(uv, projCoords.z), 1.5f, pos);
+    float shadow = calculateRandPCF(currentDepth, uv);
+    //float shadow = PCSS_DirectionalLight(vec3(uv, projCoords.z), 1.5f, pos);
 
     return clamp(shadow, 0.f, 1.f);
 }
@@ -389,8 +391,27 @@ vec3 calculateDiffuse(vec3 fragNormal, vec3 surfaceNormal, vec2 UVs, vec3 viewDi
     return (kD * texture(texSampler, UVs).rgb / M_PI + spec) * intensity * NdotL;
 }
 
+float LinearizeDepth(float depth) 
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return (2.0 * NEAR * FAR) / (FAR + NEAR - z * (FAR - NEAR));	
+}
+
 void main()
 { 
+    //https://stackoverflow.com/questions/26965787/how-to-get-accurate-fragment-screen-position-like-gl-fragcood-in-vertex-shader
+    vec3 ndc = gl_FragCoord.xyz / gl_FragCoord.w;
+    vec2 viewportCoord = ndc.xy * 0.5 + 0.5;
+    vec2 viewportPixelCoord = viewportCoord * (1920*1080);
+
+    float prePassDepth = LinearizeDepth(texelFetch(depthMap, ivec2(viewportPixelCoord), 0).r);
+    float currDepth = LinearizeDepth(gl_FragCoord.z) / FAR;
+    if (prePassDepth < currDepth) 
+    {
+      outColor = vec4(vec3(currDepth), 1.f);
+      return;
+      //discard;
+    }
     mat3 TBN = cotangent_frame(fragNormalWorld, fragPosWorld, fragUv);
 	//vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
 	vec3 specularLight = vec3(0.0);
@@ -447,4 +468,5 @@ void main()
 
     //FINAL VIEW
     outColor = diffuse + vec4(Lo, 0.f);
+    //outColor = vec4(vec3(texture(depthMap, fragUv).r), 1.f);
 }

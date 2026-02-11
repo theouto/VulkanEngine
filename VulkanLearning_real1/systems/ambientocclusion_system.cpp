@@ -27,10 +27,9 @@ namespace lve
                 .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
                 .build();
 
-    auto depthInfo = fakebox->getDescriptorInfo();
 
     LveDescriptorWriter(*AOLayout, *globalPool)
-                .writeImage(1, &depthInfo)
+                //.writeImage(1, &depthInfo)
                 //.writeImage(2, &normalInfo)
                 .build(AODesc);
 

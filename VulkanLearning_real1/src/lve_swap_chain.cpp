@@ -542,7 +542,7 @@ namespace lve {
 
       if (vkCreateRenderPass(device.device(), &renderPassInfo, nullptr, &depthPass) != VK_SUCCESS)
       {
-        throw std::runtime_error("failed to create shadow render pass");
+        throw std::runtime_error("failed to create depth prepass");
       }
     }
 
@@ -578,7 +578,7 @@ namespace lve {
         throw std::runtime_error("failed to allocate memory for shadow image!");
       }
 
-      vkBindImageMemory(device.device(), shadowImage, depthMemory, 0);
+      vkBindImageMemory(device.device(), depthImage, depthMemory, 0);
       VkImageViewCreateInfo depthStencilView{};
       depthStencilView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
       depthStencilView.viewType = VK_IMAGE_VIEW_TYPE_2D;
@@ -589,7 +589,7 @@ namespace lve {
       depthStencilView.subresourceRange.levelCount = 1;
       depthStencilView.subresourceRange.baseArrayLayer = 0;
       depthStencilView.subresourceRange.layerCount = 1;
-      depthStencilView.image = shadowImage;
+      depthStencilView.image = depthImage;
 
       if (vkCreateImageView(device.device(), &depthStencilView, nullptr, &depthView) != VK_SUCCESS)
       {
@@ -600,16 +600,16 @@ namespace lve {
 
     void LveSwapChain::createDepthBuffers()
     {
-      assert(shadowPass != VK_NULL_HANDLE && "shadowRenderPass is invalid!");
-      assert(shadowDepthView != VK_NULL_HANDLE && "shadowDepthImageView is invalid!");
+      assert(depthPass != VK_NULL_HANDLE && "depthPass is invalid!");
+      assert(depthView != VK_NULL_HANDLE && "depthView is invalid!");
 
       VkFramebufferCreateInfo framebufferInfo = {};
       framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-      framebufferInfo.renderPass = shadowPass;
+      framebufferInfo.renderPass = depthPass;
       framebufferInfo.attachmentCount = 1;
-      framebufferInfo.pAttachments = &shadowDepthView;
-      framebufferInfo.width = shadowExtent.width;
-      framebufferInfo.height = shadowExtent.height;
+      framebufferInfo.pAttachments = &depthView;
+      framebufferInfo.width = windowExtent.width;
+      framebufferInfo.height = windowExtent.height;
       framebufferInfo.layers = 1;
 
       if (vkCreateFramebuffer(device.device(), &framebufferInfo, nullptr, &depthBuffer) != VK_SUCCESS)

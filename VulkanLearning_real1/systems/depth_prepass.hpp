@@ -25,15 +25,12 @@ namespace lve
     DepthPrePass(LveDevice& device,VkRenderPass renderPass ,VkDescriptorSetLayout globalSetLayout);
     ~DepthPrePass();
 
-    static glm::mat4 lightViewProjection(const glm::vec3 &dirLightPos, 
-                    const glm::vec3 &cameraPosition, float sceneRadius);
-
-    void drawDepth(FrameInfo &frameInfo, glm::mat4 matrix, glm::vec3 lightPos);
+    void drawDepth(FrameInfo &frameInfo);
 
     private:
 
       void createPipeline(VkRenderPass renderPass);
-      void createPipeLineLayout();
+      void createPipeLineLayout(VkDescriptorSetLayout globalSetLayout);
 
       glm::mat4 lightSpaceMatrix{1.f};
       std::vector<VkDescriptorSetLayout> setLayouts = {};

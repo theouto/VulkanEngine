@@ -8,6 +8,7 @@
 #include "../systems/simple_render_system.hpp"
 #include "../systems/skybox_system.hpp"
 #include "../systems/shadow_system.hpp"
+#include "../systems/depth_prepass.hpp"
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <glm/ext/vector_float3.hpp>
@@ -58,6 +59,7 @@ namespace lve
         auto globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)            
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
             .build();   
 
         std::vector<VkDescriptorSet> globalDescriptorSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -65,10 +67,12 @@ namespace lve
         {
             auto bufferInfo = uboBuffers[i]->descriptorInfo();
             auto shadowInfo = lveRenderer.getShadowInfo();
+            auto depthInfo = lveRenderer.getDepthInfo();
 
             LveDescriptorWriter(*globalSetLayout, *globalPool)
                 .writeBuffer(0, &bufferInfo) 
                 .writeImage(1, &shadowInfo)
+                .writeImage(2, &depthInfo)
                 .build(globalDescriptorSets[i]);
         }
 
@@ -79,7 +83,10 @@ namespace lve
 		SimpleRenderSystem simpleRenderSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), setLayouts};
         PointLightSystem pointLightSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
         SkyboxSystem skybox{lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(), *globalPool};
+
         DirectionalLightSystem shadowSystem{lveDevice, lveRenderer.getSwapChainShadowPass(),globalSetLayout->getDescriptorSetLayout()};
+        DepthPrePass depthPass{lveDevice, lveRenderer.getSwapChainDepthPass(), globalSetLayout->getDescriptorSetLayout()};
+
         LveCamera camera{};
  
         auto viewerObject = LveGameObject::createGameObject();
@@ -160,8 +167,17 @@ namespace lve
                 shadowSystem.drawDepth(frameInfo, projMat, lightPos);
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
 
+                //depth Pre-Pass
+                lveRenderer.beginDepthRenderPass(commandBuffer);
+                depthPass.drawDepth(frameInfo);
+                lveRenderer.endSwapChainRenderPass(commandBuffer);
+
+                //normal buffer
+                
+
                 //render 
                 lveRenderer.beginSwapChainRenderPass(commandBuffer);
+                
                 //skybox
                 skybox.render(frameInfo);
 
@@ -228,7 +244,7 @@ namespace lve
         std::make_unique<LveTextures>( lveDevice, "textures/NA.png", LveTextures::SPECULAR),
         std::make_unique<LveTextures>(lveDevice, "textures/NAM.png", LveTextures::SPECULAR)
         };
-        */
+        
 
        
         std::vector<std::shared_ptr<LveTextures>> wet_sand = {std::make_unique<LveTextures>( lveDevice, "textures/Ground094C_4K-PNG_Color.png", LveTextures::COLOR ),
@@ -240,7 +256,7 @@ namespace lve
         };
         
 
-        /*
+        
         std::vector<std::shared_ptr<LveTextures>> sMetal = {std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_Color.png", LveTextures::COLOR ),
             std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_Roughness.png", LveTextures::SINGLE_UNORM ),
             std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_NormalGL.png", LveTextures::NORMAL ),
@@ -290,7 +306,7 @@ namespace lve
         quad.model = lveModel;
         quad.transform.translation = { 0.f, .5f, 0.f };
         quad.transform.scale = { 6.f, 1.f, 6.f };
-        quad.textures = wet_sand;
+        quad.textures = wet_rock;
         gameObjects.emplace(quad.getId(), std::move(quad));
 
         lveModel = LveModel::createModelFromFile(lveDevice, "models/pleasepot.obj");

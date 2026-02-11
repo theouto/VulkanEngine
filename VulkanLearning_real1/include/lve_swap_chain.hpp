@@ -26,6 +26,7 @@ class LveSwapChain {
         
         VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
         VkFramebuffer getShadowBuffer() {return shadowBuffer;}
+        VkFramebuffer getDepthBuffer() {return depthBuffer;}
         VkRenderPass getRenderPass() { return renderPass; }
         VkRenderPass getShadowPass() {return shadowPass;}
         VkRenderPass getDepthPass() {return depthPass;}

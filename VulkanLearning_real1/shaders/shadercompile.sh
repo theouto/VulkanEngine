@@ -8,3 +8,5 @@ glslc main_pass/simple_shader.frag -o compiled/simple_shader.frag.spv
 glslc main_pass/simple_shader.vert -o compiled/simple_shader.vert.spv
 glslc lighting/shadowmap.frag -o compiled/shadowmap.frag.spv
 glslc lighting/shadowmap.vert -o compiled/shadowmap.vert.spv
+glslc buffers/depth_pass.vert -o compiled/depth_pass.vert.spv
+glslc buffers/depth_pass.frag -o compiled/depth_pass.frag.spv
