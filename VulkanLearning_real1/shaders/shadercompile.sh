@@ -10,5 +10,7 @@ glslc lighting/shadowmap.frag -o compiled/shadowmap.frag.spv
 glslc lighting/shadowmap.vert -o compiled/shadowmap.vert.spv
 glslc buffers/normal_spec.vert -o compiled/normal_spec.vert.spv
 glslc buffers/normal_spec.frag -o compiled/normal_spec.frag.spv
+glslc buffers/depth.vert -o compiled/depth.vert.spv
+glslc buffers/depth.frag -o compiled/depth.frag.spv
 glslc post_effects/AO.vert -o compiled/AO.vert.spv
 glslc post_effects/AO.frag -o compiled/AO.frag.spv

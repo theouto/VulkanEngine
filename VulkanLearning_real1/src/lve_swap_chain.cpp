@@ -36,12 +36,12 @@ namespace lve {
         createFramebuffers();
 
         createShadowRenderPass();
-        createShadowdepthImages();
+        createShadowDepthImages();
         createShadowFrameBuffers();
 
-        createDepthPrepass();
-        createdepthImages();
-        createnormalBuffers();
+        createNormalPrepass();
+        createNormalImages();
+        createNormalBuffers();
 
         createSyncObjects();
     }
@@ -423,7 +423,7 @@ namespace lve {
     }
     }
 
-    void LveSwapChain::createShadowdepthImages()
+    void LveSwapChain::createShadowDepthImages()
     {
       VkImageCreateInfo imageInfo{};
       imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -477,7 +477,7 @@ namespace lve {
     void LveSwapChain::createShadowFrameBuffers()
     {
       assert(shadowPass != VK_NULL_HANDLE && "shadowRenderPass is invalid!");
-      assert(shadowDepthView != VK_NULL_HANDLE && "shadownormalImageView is invalid!");
+      assert(shadowDepthView != VK_NULL_HANDLE && "shadowDepthImageView is invalid!");
 
       VkFramebufferCreateInfo framebufferInfo = {};
       framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -494,7 +494,7 @@ namespace lve {
       }
     }
 
-    void LveSwapChain::createDepthPrepass()
+    void LveSwapChain::createNormalPrepass()
     {
         VkAttachmentDescription depthAttachment{};
         depthAttachment.format = findDepthFormat();
@@ -556,7 +556,7 @@ namespace lve {
         }
     }
 
-    void LveSwapChain::createdepthImages()
+    void LveSwapChain::createNormalImages()
     {
       VkImageCreateInfo imageInfo{};
       imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -608,10 +608,10 @@ namespace lve {
 
     }
 
-    void LveSwapChain::createnormalBuffers()
+    void LveSwapChain::createNormalBuffers()
     {
-      assert(normalPass != VK_NULL_HANDLE && "normalPass is invalid!");
-      assert(normalView != VK_NULL_HANDLE && "normalView is invalid!");
+      assert(normalPass != VK_NULL_HANDLE && "depthPass is invalid!");
+      assert(normalView != VK_NULL_HANDLE && "depthView is invalid!");
 
       std::array<VkImageView, 2> attachments = { normalView, depthImageViews[0] };
 

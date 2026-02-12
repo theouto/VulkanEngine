@@ -139,15 +139,15 @@ namespace lve
 		if (auto commandBuffer = lveRenderer.beginFrame())
 		{		
 			int frameIndex = lveRenderer.getFrameIndex();
-                	FrameInfo frameInfo
-                	{
-                 		frameIndex,
-                		frameTime,
-                    		commandBuffer,
-                    		camera,
-                    		globalDescriptorSets[frameIndex],
-                    		gameObjects
-                	};
+                FrameInfo frameInfo
+                {
+                  frameIndex,
+                  frameTime,
+                  commandBuffer,
+                  camera,
+                  globalDescriptorSets[frameIndex],
+                  gameObjects
+                };
 
 		
                 //update               
@@ -176,7 +176,7 @@ namespace lve
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
 
                 //depth Pre-Pass
-                lveRenderer.beginDepthRenderPass(commandBuffer);
+                lveRenderer.beginNormalRenderPass(commandBuffer);
                 normalSpecPass.drawDepth(frameInfo);
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
  

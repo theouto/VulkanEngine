@@ -1,4 +1,5 @@
 #include "depth_buffer.hpp"
+#include <vulkan/vulkan_core.h>
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -68,6 +69,7 @@ namespace lve
 
 		PipelineConfigInfo pipelineConfig{};
 		LvePipeline::defaultPipelineConfigInfo(pipelineConfig);
+        pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_BACK_BIT;
 		
 		//LvePipeline::enableMSAA(pipelineConfig);
 		

@@ -183,7 +183,7 @@ void LveRenderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer) {
   vkCmdEndRenderPass(commandBuffer);
 }
 
-void LveRenderer::beginDepthRenderPass(VkCommandBuffer commandBuffer)
+void LveRenderer::beginNormalRenderPass(VkCommandBuffer commandBuffer)
   {
   VkRenderPassBeginInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

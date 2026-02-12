@@ -67,10 +67,26 @@ namespace lve
 		  return descriptorInfo;
         }
 
+        VkRenderPass getSwapChainDepthPass() const {return lveSwapChain->getDepthPass();}
+        VkDescriptorImageInfo getDepthInfo()
+        {
+          VkSampler sampler;
+          LveTextures::createTextureSampler(lveDevice, sampler);
+
+          VkDescriptorImageInfo descriptorInfo{};
+
+		  descriptorInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+		  descriptorInfo.imageView = lveSwapChain->getDepthView();
+		  descriptorInfo.sampler = sampler;
+
+		  return descriptorInfo;
+        }
+
 		VkCommandBuffer beginFrame();
 		void endFrame();
 		void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
         void beginShadowRenderPass(VkCommandBuffer commandBuffer);
+        void beginNormalRenderPass(VkCommandBuffer commandBuffer);
         void beginDepthRenderPass(VkCommandBuffer commandBuffer);
 		void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
 

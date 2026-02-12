@@ -27,12 +27,18 @@ class LveSwapChain {
         VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
         VkFramebuffer getShadowBuffer() {return shadowBuffer;}
         VkFramebuffer getNormalBuffer() {return normalBuffer;}
+        VkFramebuffer getDepthBuffer() {return depthBuffer;}
+
         VkRenderPass getRenderPass() { return renderPass; }
         VkRenderPass getShadowPass() {return shadowPass;}
         VkRenderPass getNormalPass() {return normalPass;}
+        VkRenderPass getDepthPass() {return depthPass;}
+ 
         VkImageView getImageView(int index) { return swapChainImageViews[index]; }
         VkImageView getShadowView() {return shadowDepthView;}
         VkImageView getNormalView() {return normalView;}
+        VkImageView getDepthView() {return depthView;}
+
         size_t imageCount() { return swapChainImages.size(); }
         VkFormat getSwapChainImageFormat() { return swapChainImageFormat; }
         VkExtent2D getSwapChainExtent() { return swapChainExtent; }
@@ -66,13 +72,18 @@ class LveSwapChain {
         void createColorResources();
 
         void createShadowRenderPass();
-        void createShadowdepthImages();
+        void createShadowDepthImages();
         void createShadowFrameBuffers();
 
+        void createNormalPrepass();
+        void createNormalImages();
+        void createNormalBuffers();
+
+        //The hallmarks of bad programming are not reusing code, so of course I'm not doing it
         void createDepthPrepass();
-        void createdepthImages();
-        void createnormalBuffers();
-        
+        void createDepthImages();
+        void createDepthBuffer();
+
         // Helper functions
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(
             const std::vector<VkSurfaceFormatKHR> &availableFormats);
@@ -110,13 +121,19 @@ class LveSwapChain {
         LveDevice &device;
         VkExtent2D windowExtent;
  
-        //depth prepass
+        //Normal_specular pass
         VkFramebuffer normalBuffer;
         VkRenderPass normalPass;
         VkDeviceMemory normalMemory;
         VkImage normalImage;
         VkImageView normalView;
 
+        //Depth prepass
+        VkFramebuffer depthBuffer;
+        VkRenderPass depthPass;
+        VkDeviceMemory depthMemory;
+        VkImage depthImage;
+        VkImageView depthView;
 
         VkSwapchainKHR swapChain;
         std::shared_ptr<LveSwapChain> oldSwapChain;

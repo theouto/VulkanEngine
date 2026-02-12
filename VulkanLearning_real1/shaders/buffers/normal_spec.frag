@@ -44,6 +44,7 @@ void main()
     vec3 tangentNormal = texture(normals, UVs).rgb * 2.0 - 1.0;     
 	vec3 surfaceNormal = normalize(normalize(TBN * tangentNormal));
 
-    //float depth = LinearizeDepth(gl_FragCoord.z)/near;
-    outColor = vec4(surfaceNormal, texture(specular, UVs).r);
+    float depth = LinearizeDepth(gl_FragCoord.z)/near;
+    float spec = texture(specular, UVs).r;
+    outColor = vec4(surfaceNormal, spec);
 }

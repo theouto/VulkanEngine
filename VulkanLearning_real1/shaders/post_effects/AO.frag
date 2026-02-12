@@ -26,8 +26,8 @@ float IntegrateArc(float h1, float h2, float n)
 
 void main()
 {   
-    discard;
-    outColor = vec4(vec3(texture(normalSpec, texCoords).a), 1.f);
+    //discard;
+    outColor = vec4(texture(normalSpec, texCoords).r);
 }
 
 
