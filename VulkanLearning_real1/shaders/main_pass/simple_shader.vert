@@ -11,7 +11,7 @@ layout(location = 2) out vec3 fragNormalWorld;
 layout(location = 3) out vec2 fragUv;
 layout(location = 4) out vec4 FragPosLightSpace;
 layout(location = 5) out vec3 lightPos;
-layout(location = 6) out mat4 lightSpaceMatrix;
+layout(location = 6) out vec2 texUv;
 
 /*
 layout(set = 1, binding = 1) uniform sampler2D texSampler;
@@ -76,5 +76,8 @@ void main()
   fragUv = uv;
   FragPosLightSpace = push.lightSpaceMatrix * push.modelMatrix * vec4(position, 1.f);
   lightPos = push.lightPos;
-  lightSpaceMatrix = push.lightSpaceMatrix;
+
+  vec2 vertices[3]=vec2[3](vec2(-1,-1), vec2(3,-1), vec2(-1, 3));
+  vec4 zabloing = vec4(vertices[gl_VertexIndex],0,1);
+  texUv = 0.5 * zabloing.xy + vec2(0.5);
 }

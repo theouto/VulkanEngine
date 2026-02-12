@@ -120,14 +120,14 @@ namespace lve
 	auto currentTime = std::chrono::high_resolution_clock::now();
 
     std::cout << "\n\n\nAll loaded, rendering:\n\n";
-    float radius = 5.f;
+    float radius = 10.f;
 	while (!lveWindow.shouldClose())
 	{
 	    glfwPollEvents();
 
             auto newTime = std::chrono::high_resolution_clock::now();
             float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
-            //std::cout << "Framerate: " << 1 / frameTime << '\n';
+            std::cout << "Framerate: " << 1 / frameTime << '\n';
             currentTime = newTime;
             
             cameraController.moveInPlaneXZ(lveWindow.getGLFWwindow(), frameTime, viewerObject, mouseX, mouseY);

@@ -11,7 +11,7 @@ layout (location = 2) in vec3 fragNormalWorld;
 layout (location = 3) in vec2 fragUv;
 layout (location = 4) in vec4 FragPosLightSpace;
 layout (location = 5) in vec3 lightPos;
-layout (location = 6) in mat4 lightSpaceMatrix;
+layout (location = 6) in vec2 texUv;
 
 layout (location = 0) out vec4 outColor;
 
@@ -315,7 +315,6 @@ vec3 calculateSunLight(DirectionalLight sun, vec3 surfaceNormal, vec2 UVs, vec3 
     vec3 kD = metallic(fres, texture(metalness, UVs).r);
 
     float NdotL = max(dot(surfaceNormal, directionToLight), 0.f);
-    //float shadow = compute_pcss_shadow();
     float shadow = ShadowCalculation(directionToLight, surfaceNormal, cameraPosWorld);
 
     return (shadow) * (kD * texture(texSampler, UVs).rgb / M_PI + spec) * intensity * NdotL;
@@ -393,30 +392,40 @@ vec3 calculateDiffuse(vec3 fragNormal, vec3 surfaceNormal, vec2 UVs, vec3 viewDi
 
 float LinearizeDepth(float depth) 
 {
-    float z = depth * 2.0 - 1.0; // back to NDC 
-    return (2.0 * NEAR * FAR) / (FAR + NEAR - z * (FAR - NEAR));	
+  return NEAR * FAR / (FAR + depth * (NEAR - FAR));	
+}
+
+vec3 WorldPosFromDepth(float depth) {
+    
+    float z = LinearizeDepth(depth);
+    z = z * 2.0 - 1.0;
+
+    vec4 clipSpacePosition = vec4(texUv * 2.0 - 1.0, z, 1.0);
+    vec4 viewSpacePosition = ubo.invView * clipSpacePosition;
+
+    // Perspective division
+    viewSpacePosition /= viewSpacePosition.w;
+
+    vec4 worldSpacePosition = ubo.invView * viewSpacePosition;
+
+    return worldSpacePosition.xyz;
 }
 
 void main()
 { 
-    //https://stackoverflow.com/questions/26965787/how-to-get-accurate-fragment-screen-position-like-gl-fragcood-in-vertex-shader
-    /*
-    vec3 ndc = gl_FragCoord.xyz / gl_FragCoord.w;
-    vec2 viewportCoord = ndc.xy * 0.5 + 0.5;
-    vec2 viewportPixelCoord = viewportCoord * (1920*1080);
+    float prePassDepth = texture(depthMap, texUv).r;
+    prePassDepth = WorldPosFromDepth(prePassDepth).z;
 
-    float prePassDepth = texelFetch(depthMap, ivec2(viewportPixelCoord), 0).w;
-    float currDepth = LinearizeDepth(gl_FragCoord.z) / FAR;
-    
-    if (prePassDepth < currDepth) 
+    float currDepth = LinearizeDepth(gl_FragCoord.z);
+    /*
+    if (prePassDepth > currDepth) 
     {
+      discard;
       outColor = texture(depthMap, fragUv);
       return;
       //discard;
     }
     */
-    
-    
 	
 	vec3 cameraPosWorld = ubo.invView[3].xyz;
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld); 
