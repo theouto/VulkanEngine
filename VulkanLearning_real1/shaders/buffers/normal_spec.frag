@@ -12,6 +12,23 @@ layout(set = 1, binding = 1) uniform sampler2D specular;
 
 layout (location = 0) out vec4 outColor;
 
+struct PointLight
+{
+	vec4 position;
+	vec4 color;
+};
+
+layout(set = 0, binding = 0) uniform GlobalUbo 
+{
+  mat4 projection;
+  mat4 view;
+  mat4 invView;
+  mat4 viewStat;
+  vec4 ambientLightColor; // w is intensity
+  PointLight pointLights[10];
+  int numLights;
+} ubo;
+
 float LinearizeDepth(float depth) 
 {
     float z = depth * 2.0 - 1.0; // back to NDC 
@@ -37,13 +54,27 @@ mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
     return mat3( T * invmax, B * invmax, N );
 }
 
-void main()
-{    
-    vec2 UVs = fragUv*4;
-    mat3 TBN = cotangent_frame(fragNormalWorld, fragPosWorld, fragUv);
-    vec3 tangentNormal = texture(normals, UVs).rgb * 2.0 - 1.0;     
-	vec3 surfaceNormal = normalize(normalize(TBN * tangentNormal));
+vec3 perturb_normal( vec3 N, vec3 V, vec2 texcoord ) 
+{ 
+  // assume N, the interpolated vertex normal and // V, the view vector (vertex to eye) 
+  vec3 map = texture( normals, texcoord ).xyz; 
+  map = map * 255./127. - 128./127.; 
+  map.y = -map.y; 
+  mat3 TBN = cotangent_frame( N, V, texcoord ); 
+  return normalize( TBN * map ); 
+}
 
+void main()
+{
+    vec2 UVs = fragUv*4;
+
+    vec3 surfaceNormal = normalize(fragNormalWorld);
+
+    vec3 cameraPosWorld = ubo.invView[3].xyz;
+	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld);
+
+    surfaceNormal = perturb_normal(surfaceNormal, viewDirection, UVs);
+    
     float depth = LinearizeDepth(gl_FragCoord.z)/near;
     float spec = texture(specular, UVs).r;
     outColor = vec4(surfaceNormal, spec);

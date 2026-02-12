@@ -11,7 +11,8 @@ build/./src/first_app.cpp.o: src/first_app.cpp \
  src/../systems/simple_render_system.hpp \
  src/../systems/./shadow_system.hpp src/../systems/skybox_system.hpp \
  src/../systems/normal_spec.hpp \
- src/../systems/ambientocclusion_system.hpp
+ src/../systems/ambientocclusion_system.hpp \
+ src/../systems/depth_buffer.hpp
 src/../include/first_app.hpp:
 src/../include/lve_window.hpp:
 src/../include/lve_device.hpp:
@@ -32,3 +33,4 @@ src/../systems/./shadow_system.hpp:
 src/../systems/skybox_system.hpp:
 src/../systems/normal_spec.hpp:
 src/../systems/ambientocclusion_system.hpp:
+src/../systems/depth_buffer.hpp:

@@ -400,14 +400,14 @@ float LinearizeDepth(float depth)
 void main()
 { 
     //https://stackoverflow.com/questions/26965787/how-to-get-accurate-fragment-screen-position-like-gl-fragcood-in-vertex-shader
-    
+    /*
     vec3 ndc = gl_FragCoord.xyz / gl_FragCoord.w;
     vec2 viewportCoord = ndc.xy * 0.5 + 0.5;
     vec2 viewportPixelCoord = viewportCoord * (1920*1080);
 
     float prePassDepth = texelFetch(depthMap, ivec2(viewportPixelCoord), 0).w;
     float currDepth = LinearizeDepth(gl_FragCoord.z) / FAR;
-    /*
+    
     if (prePassDepth < currDepth) 
     {
       outColor = texture(depthMap, fragUv);
@@ -416,12 +416,15 @@ void main()
     }
     */
     
-    mat3 TBN = cotangent_frame(fragNormalWorld, fragPosWorld, fragUv);
-	//vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
-	vec3 specularLight = vec3(0.0);
+    
 	
 	vec3 cameraPosWorld = ubo.invView[3].xyz;
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld); 
+
+    vec2 UVs = fragUv*4;
+    mat3 TBN = cotangent_frame(normalize(fragNormalWorld), viewDirection, UVs);
+	//vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
+	vec3 specularLight = vec3(0.0);
 
     DirectionalLight sun;
     sun.direction = lightPos;
@@ -430,11 +433,12 @@ void main()
     //vec2 boxuv = SampleSphericalMap(normalize(viewDirection));
     //vec3 boxcolor = texture(fakebox, boxuv).rgb;
 
-	vec2 UVs = parallaxOcclusionMapping(fragUv*4, TBN * viewDirection);
+	UVs = parallaxOcclusionMapping(UVs, TBN * viewDirection);
     //vec2 UVs = fragUv;
-
-	vec3 tangentNormal = texture(normals, UVs).rgb * 2.0 - 1.0;     
-	vec3 surfaceNormal = normalize(normalize(TBN * tangentNormal));
+    
+	vec3 tangentNormal = texture(normals, UVs).xyz * 255.f/127.f - 128.f/127.f;
+    tangentNormal.y = -tangentNormal.y;
+	vec3 surfaceNormal = normalize(TBN * tangentNormal);
 
     vec3 diffcont = vec3(0.f);
     //float diffcont = 0.f;
@@ -447,7 +451,7 @@ void main()
 
     vec3 diffuseLight = calculateDiffuse(normalize(fragNormalWorld), surfaceNormal, UVs, viewDirection, F0);
     Lo += calculateSunLight(sun, surfaceNormal, UVs, viewDirection, F0, cameraPosWorld);
-    //Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
+    Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
 
     vec4 diffuse = texture(texSampler, UVs) * (vec4(diffuseLight, 0.0) + vec4(0.01f, 0.01f, 0.02f, 0.f)) * texture(AO, UVs).r;
 
@@ -472,5 +476,5 @@ void main()
 
     //FINAL VIEW
     outColor = diffuse + vec4(Lo, 0.f);
-    //outColor = vec4(vec3(texture(depthMap, fragUv).w), 1.f);
+    //outColor = vec4(vec3(texture(shadowMap, fragUv).r), 1.f);
 }

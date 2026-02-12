@@ -4,12 +4,17 @@
 #include "../include/lve_camera.hpp"
 #include "../include/lve_buffer.hpp"
 #include "../include/lve_frame_info.hpp"
+
+
 #include "../systems/point_light_system.hpp"
 #include "../systems/simple_render_system.hpp"
 #include "../systems/skybox_system.hpp"
 #include "../systems/shadow_system.hpp"
 #include "../systems/normal_spec.hpp"
 #include "../systems/ambientocclusion_system.hpp"
+#include "../systems/depth_buffer.hpp"
+
+
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <glm/ext/vector_float3.hpp>
@@ -61,11 +66,7 @@ namespace lve
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)            
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
             .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
-            .build();   
-
-        auto AOSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
-            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
             .build();
 
         std::vector<VkDescriptorSet> globalDescriptorSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -73,7 +74,8 @@ namespace lve
         {
             auto bufferInfo = uboBuffers[i]->descriptorInfo();
             auto shadowInfo = lveRenderer.getShadowInfo();
-            auto depthInfo = lveRenderer.getNormalInfo();
+            auto depthInfo = lveRenderer.getDepthInfo();
+            auto normalSpecInfo = lveRenderer.getNormalInfo();
 
             LveDescriptorWriter(*globalSetLayout, *globalPool)
                 .writeBuffer(0, &bufferInfo) 
@@ -92,6 +94,7 @@ namespace lve
 
         DirectionalLightSystem shadowSystem{lveDevice, lveRenderer.getSwapChainShadowPass(),globalSetLayout->getDescriptorSetLayout()};
         NormalSpecPass normalSpecPass{lveDevice, lveRenderer.getSwapChainNormalPass(), globalSetLayout->getDescriptorSetLayout(), normalLayout->getDescriptorSetLayout()};
+        DepthBuffer depthBuffer{lveDevice, lveRenderer.getSwapChainDepthPass(), globalSetLayout->getDescriptorSetLayout()};
 
         AOSystem AOSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), *globalPool, globalSetLayout->getDescriptorSetLayout()};
 
@@ -175,7 +178,12 @@ namespace lve
                 shadowSystem.drawDepth(frameInfo, projMat, lightPos);
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
 
-                //depth Pre-Pass
+                //Depth Prepass
+                lveRenderer.beginDepthRenderPass(commandBuffer);
+                depthBuffer.renderGameObjects(frameInfo);
+                lveRenderer.endSwapChainRenderPass(commandBuffer);
+
+                //Normal and specular pass
                 lveRenderer.beginNormalRenderPass(commandBuffer);
                 normalSpecPass.drawDepth(frameInfo);
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
@@ -332,7 +340,7 @@ namespace lve
         auto quad2 = LveGameObject::createGameObject();
         quad2.model = lveModel;
         quad2.transform.translation = {0.f, 0.f, 2.f};
-        quad2.transform.scale = {0.7f, -0.7f, 0.7f};
+        quad2.transform.scale = {0.7f, 0.7f, 0.7f};
         quad2.textures = wet_rock;
         gameObjects.emplace(quad2.getId(), std::move(quad2));
         

@@ -80,6 +80,8 @@ class LveSwapChain {
         void createNormalBuffers();
 
         //The hallmarks of bad programming are not reusing code, so of course I'm not doing it
+        //Though I do eventually plan on making a generic setup process for framebuffers that configures
+        //everything based on enums, but that's a worry for later
         void createDepthPrepass();
         void createDepthImages();
         void createDepthBuffer();
@@ -134,6 +136,10 @@ class LveSwapChain {
         VkDeviceMemory depthMemory;
         VkImage depthImage;
         VkImageView depthView;
+
+        //AO pass
+        //Yes, I am seriously doing this. I need one buffer per effect! I think.
+        //Learning is lovely, isn't it. Eventually I'll come back to look at what I am doing here and groan
 
         VkSwapchainKHR swapChain;
         std::shared_ptr<LveSwapChain> oldSwapChain;

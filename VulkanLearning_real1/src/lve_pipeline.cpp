@@ -212,10 +212,10 @@ namespace lve
         configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
 
         configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_FRONT_BIT;
-        configInfo.rasterizationInfo.depthBiasEnable = VK_TRUE;
-        configInfo.rasterizationInfo.depthBiasConstantFactor = 1.25f;
-        configInfo.rasterizationInfo.depthBiasSlopeFactor = 1.75f;
-        configInfo.rasterizationInfo.depthBiasClamp = 0.0f;
+        configInfo.rasterizationInfo.depthBiasEnable = VK_FALSE;
+        //configInfo.rasterizationInfo.depthBiasConstantFactor = 1.25f;
+        //configInfo.rasterizationInfo.depthBiasSlopeFactor = 1.75f;
+        //configInfo.rasterizationInfo.depthBiasClamp = 0.0f;
 
         configInfo.colorBlendAttachment.colorWriteMask = 0; // Disable color writes
         configInfo.colorBlendAttachment.blendEnable = VK_FALSE;

@@ -13,19 +13,19 @@
 
 namespace lve
 {
-	class NormalBuffer
+	class DepthBuffer
 	{
 	public:
 
-		NormalBuffer(LveDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> globalSetLayout);
-		~NormalBuffer();
+		DepthBuffer(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
+		~DepthBuffer();
 
-		NormalBuffer(const NormalBuffer&) = delete;
-		NormalBuffer& operator=(const NormalBuffer&) = delete;
+		DepthBuffer(const DepthBuffer&) = delete;
+		DepthBuffer& operator=(const DepthBuffer&) = delete;
 
-		void renderGameObjects(FrameInfo &frameInfo, glm::mat4 matrix, glm::vec3 lightPos);
+		void renderGameObjects(FrameInfo &frameInfo);
 	private:
-		void createPipeLineLayout(std::vector<VkDescriptorSetLayout> &globalSetLayout);
+		void createPipeLineLayout(VkDescriptorSetLayout globalSetLayout);
 		void createPipeline(VkRenderPass renderPass);
 
         glm::mat4 lightSpaceMatrix{1.f};

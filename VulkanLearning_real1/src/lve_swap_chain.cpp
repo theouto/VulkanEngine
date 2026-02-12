@@ -43,6 +43,10 @@ namespace lve {
         createNormalImages();
         createNormalBuffers();
 
+        createDepthPrepass();
+        createDepthImages();
+        createDepthBuffer();
+
         createSyncObjects();
     }
 
@@ -634,6 +638,134 @@ namespace lve {
           }
     }
 
+    void LveSwapChain::createDepthPrepass()
+    {
+      VkAttachmentDescription attachmentDescription{};
+      attachmentDescription.format = VK_FORMAT_D32_SFLOAT;
+      attachmentDescription.samples = VK_SAMPLE_COUNT_1_BIT;
+      attachmentDescription.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+      attachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+      attachmentDescription.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+      attachmentDescription.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+      attachmentDescription.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+      attachmentDescription.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+
+      VkAttachmentReference depthReference = {};
+      depthReference.attachment = 0;
+      depthReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+      VkSubpassDescription subpass = {};
+      subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+      subpass.colorAttachmentCount = 0;
+      subpass.pDepthStencilAttachment = &depthReference;
+
+      std::array<VkSubpassDependency, 2> dependencies;
+
+      dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+      dependencies[0].dstSubpass = 0;
+      dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+      dependencies[0].dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+      dependencies[0].srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+      dependencies[0].dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+      dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+      dependencies[1].srcSubpass = 0;
+      dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+      dependencies[1].srcStageMask = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+      dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+      dependencies[1].srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+      dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+      dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+      VkRenderPassCreateInfo renderPassInfo{};
+      renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+      renderPassInfo.attachmentCount = 1;
+      renderPassInfo.pAttachments = &attachmentDescription;
+      renderPassInfo.subpassCount = 1;
+      renderPassInfo.pSubpasses = &subpass;
+      renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+      renderPassInfo.pDependencies = dependencies.data();
+
+      if (vkCreateRenderPass(device.device(), &renderPassInfo, nullptr, &depthPass) != VK_SUCCESS)
+      {
+        throw std::runtime_error("failed to create depth render pass");
+      }
+
+    }
+    
+    void LveSwapChain::createDepthImages()
+    {
+      VkImageCreateInfo imageInfo{};
+      imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+      imageInfo.imageType = VK_IMAGE_TYPE_2D;
+      imageInfo.extent = {swapChainExtent.width, swapChainExtent.height, 1};
+      imageInfo.mipLevels = 1;
+      imageInfo.arrayLayers = 1;
+      imageInfo.format = VK_FORMAT_D32_SFLOAT;
+      imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+      imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; // Ensure initial layout is set.
+      imageInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+      imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+      imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // Explicitly set sharing mode.
+
+      if (vkCreateImage(device.device(), &imageInfo, nullptr, &depthImage) != VK_SUCCESS)
+      {
+        throw std::runtime_error("failed to create depth image!");
+      }
+      VkMemoryRequirements memRequirements;
+      vkGetImageMemoryRequirements(device.device(), depthImage, &memRequirements);
+
+      VkMemoryAllocateInfo allocInfo{};
+      allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+      allocInfo.allocationSize = memRequirements.size;
+      allocInfo.memoryTypeIndex = device.findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+      if (vkAllocateMemory(device.device(), &allocInfo, nullptr, &depthMemory) != VK_SUCCESS)
+      {
+        throw std::runtime_error("failed to allocate memory for depth image!");
+      }
+
+      vkBindImageMemory(device.device(), depthImage, depthMemory, 0);
+      VkImageViewCreateInfo depthStencilView{};
+      depthStencilView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+      depthStencilView.viewType = VK_IMAGE_VIEW_TYPE_2D;
+      depthStencilView.format = VK_FORMAT_D32_SFLOAT;
+      depthStencilView.subresourceRange = {};
+      depthStencilView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+      depthStencilView.subresourceRange.baseMipLevel = 0;
+      depthStencilView.subresourceRange.levelCount = 1;
+      depthStencilView.subresourceRange.baseArrayLayer = 0;
+      depthStencilView.subresourceRange.layerCount = 1;
+      depthStencilView.image = depthImage;
+
+      if (vkCreateImageView(device.device(), &depthStencilView, nullptr, &depthView) != VK_SUCCESS)
+      {
+        throw std::runtime_error("failed to create depth image view!");
+      }
+
+    }
+    
+    void LveSwapChain::createDepthBuffer()
+    {
+      assert(depthPass != VK_NULL_HANDLE && "shadowRenderPass is invalid!");
+      assert(depthView != VK_NULL_HANDLE && "shadowDepthImageView is invalid!");
+
+      VkFramebufferCreateInfo framebufferInfo = {};
+      framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+      framebufferInfo.renderPass = depthPass;
+      framebufferInfo.attachmentCount = 1;
+      framebufferInfo.pAttachments = &depthView;
+      framebufferInfo.width = swapChainExtent.width;
+      framebufferInfo.height = swapChainExtent.height;
+      framebufferInfo.layers = 1;
+
+      if (vkCreateFramebuffer(device.device(), &framebufferInfo, nullptr, &depthBuffer) != VK_SUCCESS)
+      {
+        throw std::runtime_error("failed to create depth map framebuffer!");
+      }
+
+    }
+    
     void LveSwapChain::createSyncObjects() {
         imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
         renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);

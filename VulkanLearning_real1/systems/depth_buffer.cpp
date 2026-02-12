@@ -18,40 +18,31 @@ namespace lve
 		glm::mat4 normalMatrix{ 1.f };
 	};
 
-	NormalBuffer::NormalBuffer(LveDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> globalSetLayout) : lveDevice{device}
+	DepthBuffer::DepthBuffer(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : lveDevice{device}
 	{
-        float near_plane = 0.01f, far_plane = 100.0f;
-        glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-        glm::mat4 lightView = glm::lookAt(glm::vec3(-1.0f, 2.0f, -1.f), 
-                                  glm::vec3( 0.0f, 0.0f,  0.0f), 
-                                  glm::vec3( 0.0f, 1.f,  0.0f)); 
-
-
-        lightSpaceMatrix = lightProjection * lightView;
-
-		createPipeLineLayout(globalSetLayout);
+        createPipeLineLayout(globalSetLayout);
 		createPipeline(renderPass);
 	}
 
-	NormalBuffer::~NormalBuffer()
+	DepthBuffer::~DepthBuffer()
 	{
 		vkDestroyPipelineLayout(lveDevice.device(), pipelineLayout, nullptr);
 
 	}
 
-	void NormalBuffer::createPipeLineLayout(std::vector<VkDescriptorSetLayout> &globalSetLayout)
+	void DepthBuffer::createPipeLineLayout(VkDescriptorSetLayout globalSetLayout)
 	{
 		VkPushConstantRange pushConstantRange{};
 		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 		pushConstantRange.offset = 0;
 		pushConstantRange.size = sizeof(SimplePushConstantData);
 
-		//std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout };
+		std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout };
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(globalSetLayout.size());
-		pipelineLayoutInfo.pSetLayouts = globalSetLayout.data();
+		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+		pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
 		pipelineLayoutInfo.pushConstantRangeCount = 1;
 		pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
@@ -63,26 +54,27 @@ namespace lve
 	}
 
 	//SHADERS HERE
-	void NormalBuffer::createPipeline(VkRenderPass renderPass)
+	void DepthBuffer::createPipeline(VkRenderPass renderPass)
 	{
 		assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 
 		PipelineConfigInfo pipelineConfig{};
 		LvePipeline::defaultPipelineConfigInfo(pipelineConfig);
-        pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_BACK_BIT;
+        LvePipeline::defaultPipelineShadowInfo(pipelineConfig);
+        pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_FRONT_BIT;
 		
 		//LvePipeline::enableMSAA(pipelineConfig);
 		
 		pipelineConfig.renderPass = renderPass;
 		pipelineConfig.pipelineLayout = pipelineLayout;
-		std::vector<std::string> filePaths = { "shaders/compiled/normalpipe.vert.spv",
-			"shaders/compiled/normalpipe.frag.spv" };
+		std::vector<std::string> filePaths = { "shaders/compiled/depth.vert.spv",
+			"shaders/compiled/depth.frag.spv" };
 		lvePipeline = std::make_unique<LvePipeline>(lveDevice, filePaths, pipelineConfig);
 
 	}
 
 
-	void NormalBuffer::renderGameObjects(FrameInfo &frameInfo, glm::mat4 matrix, glm::vec3 lightPos)
+	void DepthBuffer::renderGameObjects(FrameInfo &frameInfo)
 	{
 		lvePipeline->bind(frameInfo.commandBuffer);
 
