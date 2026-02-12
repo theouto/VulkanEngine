@@ -52,8 +52,8 @@ namespace lve
 			return descriptorInfo; 
         }
 
-        VkRenderPass getSwapChainDepthPass() const {return lveSwapChain->getDepthPass();}
-        VkDescriptorImageInfo getDepthInfo()
+        VkRenderPass getSwapChainNormalPass() const {return lveSwapChain->getNormalPass();}
+        VkDescriptorImageInfo getNormalInfo()
         {
           VkSampler sampler;
           LveTextures::createTextureSampler(lveDevice, sampler);
@@ -61,7 +61,7 @@ namespace lve
           VkDescriptorImageInfo descriptorInfo{};
 
 		  descriptorInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-		  descriptorInfo.imageView = lveSwapChain->getDepthView();
+		  descriptorInfo.imageView = lveSwapChain->getNormalView();
 		  descriptorInfo.sampler = sampler;
 
 		  return descriptorInfo;

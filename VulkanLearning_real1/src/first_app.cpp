@@ -8,7 +8,7 @@
 #include "../systems/simple_render_system.hpp"
 #include "../systems/skybox_system.hpp"
 #include "../systems/shadow_system.hpp"
-#include "../systems/depth_prepass.hpp"
+#include "../systems/normal_spec.hpp"
 #include "../systems/ambientocclusion_system.hpp"
 #include <GLFW/glfw3.h>
 #include <algorithm>
@@ -73,7 +73,7 @@ namespace lve
         {
             auto bufferInfo = uboBuffers[i]->descriptorInfo();
             auto shadowInfo = lveRenderer.getShadowInfo();
-            auto depthInfo = lveRenderer.getDepthInfo();
+            auto depthInfo = lveRenderer.getNormalInfo();
 
             LveDescriptorWriter(*globalSetLayout, *globalPool)
                 .writeBuffer(0, &bufferInfo) 
@@ -91,7 +91,7 @@ namespace lve
         SkyboxSystem skybox{lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(), *globalPool};
 
         DirectionalLightSystem shadowSystem{lveDevice, lveRenderer.getSwapChainShadowPass(),globalSetLayout->getDescriptorSetLayout()};
-        DepthPrePass depthPass{lveDevice, lveRenderer.getSwapChainDepthPass(), globalSetLayout->getDescriptorSetLayout(), normalLayout->getDescriptorSetLayout()};
+        NormalSpecPass normalSpecPass{lveDevice, lveRenderer.getSwapChainNormalPass(), globalSetLayout->getDescriptorSetLayout(), normalLayout->getDescriptorSetLayout()};
 
         AOSystem AOSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), *globalPool, globalSetLayout->getDescriptorSetLayout()};
 
@@ -177,7 +177,7 @@ namespace lve
 
                 //depth Pre-Pass
                 lveRenderer.beginDepthRenderPass(commandBuffer);
-                depthPass.drawDepth(frameInfo);
+                normalSpecPass.drawDepth(frameInfo);
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
  
                 //render 
@@ -292,6 +292,7 @@ namespace lve
 
         normalLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
             .build();
         
         std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/smooth_vase.obj");
@@ -358,6 +359,7 @@ namespace lve
 
           LveDescriptorWriter(*normalLayout, *globalPool)
                 .writeImage(0, &normInfo)
+                .writeImage(1, &specInfo)
                 .build(kv.second.normalSet);
         }
 

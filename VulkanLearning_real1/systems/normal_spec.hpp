@@ -14,7 +14,7 @@
 namespace lve
 {
 
-  class DepthPrePass
+  class NormalSpecPass
   {
     public:
  
@@ -22,8 +22,8 @@ namespace lve
     static constexpr uint32_t HEIGHT = 4096;
 
 
-    DepthPrePass(LveDevice& device,VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout, VkDescriptorSetLayout normalLayout);
-    ~DepthPrePass();
+    NormalSpecPass(LveDevice& device,VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout, VkDescriptorSetLayout normalLayout);
+    ~NormalSpecPass();
 
     void drawDepth(FrameInfo &frameInfo);
 

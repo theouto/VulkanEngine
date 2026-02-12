@@ -1,4 +1,4 @@
-#include "depth_prepass.hpp"
+#include "normal_spec.hpp"
 #include <memory>
 #include <vulkan/vulkan_core.h>
 
@@ -11,20 +11,20 @@ namespace lve
         glm::mat4 normalMatrix{1.f};
 	};
 
-	DepthPrePass::DepthPrePass(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout, VkDescriptorSetLayout normalLayout) 
+	NormalSpecPass::NormalSpecPass(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout, VkDescriptorSetLayout normalLayout) 
         : lveDevice{device}, layout{normalLayout}
 	{
         createPipeLineLayout(globalSetLayout);
 		createPipeline(renderPass);
 	}
 
-	DepthPrePass::~DepthPrePass()
+	NormalSpecPass::~NormalSpecPass()
 	{
 		vkDestroyPipelineLayout(lveDevice.device(), pipelineLayout, nullptr);
 
 	}
 
-	void DepthPrePass::createPipeLineLayout(VkDescriptorSetLayout globalSetLayout)
+	void NormalSpecPass::createPipeLineLayout(VkDescriptorSetLayout globalSetLayout)
 	{
 		VkPushConstantRange pushConstantRange{};
 		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -48,7 +48,7 @@ namespace lve
 	}
 
 	//SHADERS HERE
-	void DepthPrePass::createPipeline(VkRenderPass renderPass)
+	void NormalSpecPass::createPipeline(VkRenderPass renderPass)
 	{
 		assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 
@@ -58,14 +58,14 @@ namespace lve
 
 		pipelineConfig.renderPass = renderPass;
 		pipelineConfig.pipelineLayout = pipelineLayout;
-		std::vector<std::string> filePaths = { "shaders/compiled/depth_pass.vert.spv",
-			"shaders/compiled/depth_pass.frag.spv" };
+		std::vector<std::string> filePaths = { "shaders/compiled/normal_spec.vert.spv",
+			"shaders/compiled/normal_spec.frag.spv" };
 		lvePipeline = std::make_unique<LvePipeline>(lveDevice, filePaths, pipelineConfig);
 
 	}
 
 
-	void DepthPrePass::drawDepth(FrameInfo &frameInfo)
+	void NormalSpecPass::drawDepth(FrameInfo &frameInfo)
 	{
 		lvePipeline->bind(frameInfo.commandBuffer);
 

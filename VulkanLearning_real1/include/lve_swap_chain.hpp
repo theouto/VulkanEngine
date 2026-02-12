@@ -26,13 +26,13 @@ class LveSwapChain {
         
         VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
         VkFramebuffer getShadowBuffer() {return shadowBuffer;}
-        VkFramebuffer getDepthBuffer() {return depthBuffer;}
+        VkFramebuffer getNormalBuffer() {return normalBuffer;}
         VkRenderPass getRenderPass() { return renderPass; }
         VkRenderPass getShadowPass() {return shadowPass;}
-        VkRenderPass getDepthPass() {return depthPass;}
+        VkRenderPass getNormalPass() {return normalPass;}
         VkImageView getImageView(int index) { return swapChainImageViews[index]; }
         VkImageView getShadowView() {return shadowDepthView;}
-        VkImageView getDepthView() {return depthView;}
+        VkImageView getNormalView() {return normalView;}
         size_t imageCount() { return swapChainImages.size(); }
         VkFormat getSwapChainImageFormat() { return swapChainImageFormat; }
         VkExtent2D getSwapChainExtent() { return swapChainExtent; }
@@ -66,12 +66,12 @@ class LveSwapChain {
         void createColorResources();
 
         void createShadowRenderPass();
-        void createShadowDepthImages();
+        void createShadowdepthImages();
         void createShadowFrameBuffers();
 
         void createDepthPrepass();
-        void createDepthImages();
-        void createDepthBuffers();
+        void createdepthImages();
+        void createnormalBuffers();
         
         // Helper functions
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(
@@ -111,11 +111,11 @@ class LveSwapChain {
         VkExtent2D windowExtent;
  
         //depth prepass
-        VkFramebuffer depthBuffer;
-        VkRenderPass depthPass;
-        VkDeviceMemory depthMemory;
-        VkImage depthImage;
-        VkImageView depthView;
+        VkFramebuffer normalBuffer;
+        VkRenderPass normalPass;
+        VkDeviceMemory normalMemory;
+        VkImage normalImage;
+        VkImageView normalView;
 
 
         VkSwapchainKHR swapChain;

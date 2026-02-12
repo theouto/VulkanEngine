@@ -187,8 +187,8 @@ void LveRenderer::beginDepthRenderPass(VkCommandBuffer commandBuffer)
   {
   VkRenderPassBeginInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-  renderPassInfo.renderPass = lveSwapChain->getDepthPass();
-  renderPassInfo.framebuffer = lveSwapChain->getDepthBuffer();
+  renderPassInfo.renderPass = lveSwapChain->getNormalPass();
+  renderPassInfo.framebuffer = lveSwapChain->getNormalBuffer();
 
   renderPassInfo.renderArea.offset = {0, 0};
   renderPassInfo.renderArea.extent = lveSwapChain->getSwapChainExtent();

@@ -8,6 +8,7 @@ layout(location = 2) in vec3 fragNormalWorld;
 layout(location = 3) in vec2 fragUv;
 
 layout(set = 1, binding = 0) uniform sampler2D normals;
+layout(set = 1, binding = 1) uniform sampler2D specular;
 
 layout (location = 0) out vec4 outColor;
 
@@ -38,10 +39,11 @@ mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
 
 void main()
 {    
+    vec2 UVs = fragUv*4;
     mat3 TBN = cotangent_frame(fragNormalWorld, fragPosWorld, fragUv);
-    vec3 tangentNormal = texture(normals, fragUv*4).rgb * 2.0 - 1.0;     
+    vec3 tangentNormal = texture(normals, UVs).rgb * 2.0 - 1.0;     
 	vec3 surfaceNormal = normalize(normalize(TBN * tangentNormal));
 
-    float depth = LinearizeDepth(gl_FragCoord.z);
-    outColor = vec4(surfaceNormal, depth);
+    //float depth = LinearizeDepth(gl_FragCoord.z)/near;
+    outColor = vec4(surfaceNormal, texture(specular, UVs).r);
 }

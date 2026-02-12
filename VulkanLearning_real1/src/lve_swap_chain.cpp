@@ -36,12 +36,12 @@ namespace lve {
         createFramebuffers();
 
         createShadowRenderPass();
-        createShadowDepthImages();
+        createShadowdepthImages();
         createShadowFrameBuffers();
 
         createDepthPrepass();
-        createDepthImages();
-        createDepthBuffers();
+        createdepthImages();
+        createnormalBuffers();
 
         createSyncObjects();
     }
@@ -423,7 +423,7 @@ namespace lve {
     }
     }
 
-    void LveSwapChain::createShadowDepthImages()
+    void LveSwapChain::createShadowdepthImages()
     {
       VkImageCreateInfo imageInfo{};
       imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -477,7 +477,7 @@ namespace lve {
     void LveSwapChain::createShadowFrameBuffers()
     {
       assert(shadowPass != VK_NULL_HANDLE && "shadowRenderPass is invalid!");
-      assert(shadowDepthView != VK_NULL_HANDLE && "shadowDepthImageView is invalid!");
+      assert(shadowDepthView != VK_NULL_HANDLE && "shadownormalImageView is invalid!");
 
       VkFramebufferCreateInfo framebufferInfo = {};
       framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -551,12 +551,12 @@ namespace lve {
         renderPassInfo.dependencyCount = 1;
         renderPassInfo.pDependencies = &dependency;
 
-        if (vkCreateRenderPass(device.device(), &renderPassInfo, nullptr, &depthPass) != VK_SUCCESS) {
+        if (vkCreateRenderPass(device.device(), &renderPassInfo, nullptr, &normalPass) != VK_SUCCESS) {
             throw std::runtime_error("failed to create render pass!");
         }
     }
 
-    void LveSwapChain::createDepthImages()
+    void LveSwapChain::createdepthImages()
     {
       VkImageCreateInfo imageInfo{};
       imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -571,28 +571,28 @@ namespace lve {
       imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
       imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // Explicitly set sharing mode.
 
-      if (vkCreateImage(device.device(), &imageInfo, nullptr, &depthImage) != VK_SUCCESS)
+      if (vkCreateImage(device.device(), &imageInfo, nullptr, &normalImage) != VK_SUCCESS)
       {
         throw std::runtime_error("failed to create buffer image!");
       }
 
       VkMemoryRequirements memRequirements;
-      vkGetImageMemoryRequirements(device.device(), depthImage, &memRequirements);
+      vkGetImageMemoryRequirements(device.device(), normalImage, &memRequirements);
 
       VkMemoryAllocateInfo allocInfo{};
       allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
       allocInfo.allocationSize = memRequirements.size;
       allocInfo.memoryTypeIndex = device.findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-      if (vkAllocateMemory(device.device(), &allocInfo, nullptr, &depthMemory) != VK_SUCCESS)
+      if (vkAllocateMemory(device.device(), &allocInfo, nullptr, &normalMemory) != VK_SUCCESS)
       {
         throw std::runtime_error("failed to allocate memory for shadow image!");
       }
 
-      vkBindImageMemory(device.device(), depthImage, depthMemory, 0);
+      vkBindImageMemory(device.device(), normalImage, normalMemory, 0);
       VkImageViewCreateInfo viewInfo{};
       viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-      viewInfo.image = depthImage;
+      viewInfo.image = normalImage;
       viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
       viewInfo.format = swapChainImageFormat;
       viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -601,24 +601,24 @@ namespace lve {
       viewInfo.subresourceRange.baseArrayLayer = 0;
       viewInfo.subresourceRange.layerCount = 1;
 
-      if (vkCreateImageView(device.device(), &viewInfo, nullptr, &depthView) !=
+      if (vkCreateImageView(device.device(), &viewInfo, nullptr, &normalView) !=
           VK_SUCCESS) {
           throw std::runtime_error("failed to create texture image view!");
       }
 
     }
 
-    void LveSwapChain::createDepthBuffers()
+    void LveSwapChain::createnormalBuffers()
     {
-      assert(depthPass != VK_NULL_HANDLE && "depthPass is invalid!");
-      assert(depthView != VK_NULL_HANDLE && "depthView is invalid!");
+      assert(normalPass != VK_NULL_HANDLE && "normalPass is invalid!");
+      assert(normalView != VK_NULL_HANDLE && "normalView is invalid!");
 
-      std::array<VkImageView, 2> attachments = { depthView, depthImageViews[0] };
+      std::array<VkImageView, 2> attachments = { normalView, depthImageViews[0] };
 
       VkExtent2D swapChainExtent = getSwapChainExtent();
       VkFramebufferCreateInfo framebufferInfo = {};
       framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-      framebufferInfo.renderPass = depthPass;
+      framebufferInfo.renderPass = normalPass;
       framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
       framebufferInfo.pAttachments = attachments.data();
       framebufferInfo.width = swapChainExtent.width;
@@ -629,7 +629,7 @@ namespace lve {
           device.device(),
           &framebufferInfo,
           nullptr,
-          &depthBuffer) != VK_SUCCESS) {
+          &normalBuffer) != VK_SUCCESS) {
           throw std::runtime_error("failed to create framebuffer!");
           }
     }
