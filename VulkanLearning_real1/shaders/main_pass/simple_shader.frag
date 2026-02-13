@@ -11,12 +11,12 @@ layout (location = 2) in vec3 fragNormalWorld;
 layout (location = 3) in vec2 fragUv;
 layout (location = 4) in vec4 FragPosLightSpace;
 layout (location = 5) in vec3 lightPos;
-layout (location = 6) in vec2 texUv;
 
 layout (location = 0) out vec4 outColor;
 
 layout(set = 0, binding = 1) uniform sampler2D shadowMap;
 layout(set = 0, binding = 2) uniform sampler2D depthMap;
+layout(set = 0, binding = 3) uniform sampler2D normalSpec;
 
 layout(set = 1, binding = 1) uniform sampler2D texSampler;
 layout(set = 1, binding = 2) uniform sampler2D specular;
@@ -397,10 +397,10 @@ float LinearizeDepth(float depth)
 
 vec3 WorldPosFromDepth(float depth) {
     
-    float z = LinearizeDepth(depth);
-    z = z * 2.0 - 1.0;
+    float z = depth;
+    //z = z * 2.0 - 1.0;
 
-    vec4 clipSpacePosition = vec4(texUv * 2.0 - 1.0, z, 1.0);
+    vec4 clipSpacePosition = vec4(fragUv, z, 1.0);
     vec4 viewSpacePosition = ubo.invView * clipSpacePosition;
 
     // Perspective division
@@ -413,19 +413,20 @@ vec3 WorldPosFromDepth(float depth) {
 
 void main()
 { 
-    float prePassDepth = texture(depthMap, texUv).r;
-    prePassDepth = WorldPosFromDepth(prePassDepth).z;
+    vec2 projCoords = vec2(gl_FragCoord.x/1920, gl_FragCoord.y/1080);
+    vec2 uv = projCoords;
 
+    float prePassDepth = LinearizeDepth(texture(depthMap, projCoords).r);
     float currDepth = LinearizeDepth(gl_FragCoord.z);
-    /*
-    if (prePassDepth > currDepth) 
+
+    outColor = vec4(vec3(prePassDepth), 1.f);
+    return;
+
+    if (prePassDepth < currDepth) 
     {
       discard;
-      outColor = texture(depthMap, fragUv);
-      return;
-      //discard;
     }
-    */
+    
 	
 	vec3 cameraPosWorld = ubo.invView[3].xyz;
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld); 
@@ -443,7 +444,6 @@ void main()
     //vec3 boxcolor = texture(fakebox, boxuv).rgb;
 
 	UVs = parallaxOcclusionMapping(UVs, TBN * viewDirection);
-    //vec2 UVs = fragUv;
     
 	vec3 tangentNormal = texture(normals, UVs).xyz * 255.f/127.f - 128.f/127.f;
     tangentNormal.y = -tangentNormal.y;
