@@ -10,6 +10,7 @@ layout(location = 0) in vec2 texCoords;
 layout(location = 0) out vec4 outColor;
 
 layout(set = 0, binding = 2) uniform sampler2D depthBuffer;
+layout(set = 0, binding = 3) uniform sampler2D normalSpec;
 
 layout(set = 0, binding = 0) uniform GlobalUbo 
 {

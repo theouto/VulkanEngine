@@ -61,7 +61,7 @@ namespace lve
 		PipelineConfigInfo pipelineConfig{};
 		LvePipeline::defaultPipelineConfigInfo(pipelineConfig);
         LvePipeline::defaultPipelineShadowInfo(pipelineConfig);
-        pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_FRONT_BIT;
+        pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_BACK_BIT;
 		
 		//LvePipeline::enableMSAA(pipelineConfig);
 		

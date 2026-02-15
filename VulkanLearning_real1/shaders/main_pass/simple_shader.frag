@@ -413,14 +413,11 @@ vec3 WorldPosFromDepth(float depth) {
 
 void main()
 { 
+    //TODO: Pass resolution values via the frameInfo
     vec2 projCoords = vec2(gl_FragCoord.x/1920, gl_FragCoord.y/1080);
-    vec2 uv = projCoords;
 
     float prePassDepth = LinearizeDepth(texture(depthMap, projCoords).r);
     float currDepth = LinearizeDepth(gl_FragCoord.z);
-
-    outColor = vec4(vec3(prePassDepth), 1.f);
-    return;
 
     if (prePassDepth < currDepth) 
     {
@@ -432,8 +429,9 @@ void main()
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld); 
 
     vec2 UVs = fragUv*4;
-    mat3 TBN = cotangent_frame(normalize(fragNormalWorld), viewDirection, UVs);
-	//vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
+    mat3 TBN = cotangent_frame(normalize(fragNormalWorld), fragPosWorld, UVs);
+	
+    //vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
 	vec3 specularLight = vec3(0.0);
 
     DirectionalLight sun;
@@ -446,7 +444,7 @@ void main()
 	UVs = parallaxOcclusionMapping(UVs, TBN * viewDirection);
     
 	vec3 tangentNormal = texture(normals, UVs).xyz * 255.f/127.f - 128.f/127.f;
-    tangentNormal.y = -tangentNormal.y;
+    tangentNormal.x = -tangentNormal.x;
 	vec3 surfaceNormal = normalize(TBN * tangentNormal);
 
     vec3 diffcont = vec3(0.f);
@@ -462,16 +460,9 @@ void main()
     Lo += calculateSunLight(sun, surfaceNormal, UVs, viewDirection, F0, cameraPosWorld);
     Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
 
-    vec4 diffuse = texture(texSampler, UVs) * (vec4(diffuseLight, 0.0) + vec4(0.01f, 0.01f, 0.02f, 0.f)) * texture(AO, UVs).r;
-
+    vec4 diffuse = texture(texSampler, UVs) * (vec4(diffuseLight, 0.0) * texture(AO, UVs).r + vec4(0.01f, 0.01f, 0.02f, 0.f)); 
     //Depth
-    /*
-    float depth = gl_FragCoord.z;//fragPosWorld.z - cameraPosWorld.z;
-    depth = depth * 2.f - 1.f;
-    depth = (2.f * 0.01f * 100.f) / (100.f + 0.1f - depth * (100.f - 0.01f));
-    depth /= 100.f;
-    outColor = vec4(vec3(depth), 1.f);
-    */
+    //outColor = vec4(vec3(LinearizeDepth(texture(depthMap, uv).r))/FAR, 1.f);
 
     //debug view. Hey, might come in handy, it did in the past!
     //ENV VIEW
@@ -484,6 +475,5 @@ void main()
     //outColor = vec4(surfaceNormal, 1.f);
 
     //FINAL VIEW
-    outColor = diffuse + vec4(Lo, 0.f);
-    //outColor = vec4(vec3(texture(shadowMap, fragUv).r), 1.f);
+    outColor = diffuse + vec4(Lo, 0.f); 
 }
