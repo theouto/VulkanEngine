@@ -75,7 +75,6 @@ void main()
 
     surfaceNormal = perturb_normal(surfaceNormal, viewDirection, UVs);
     
-    float depth = LinearizeDepth(gl_FragCoord.z)/near;
     float spec = texture(specular, UVs).r;
     outColor = vec4(surfaceNormal, spec);
 }

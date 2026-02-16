@@ -123,6 +123,7 @@ vec2 parallaxOcclusionMapping(vec2 texCoords, vec3 viewDir)
 
 //==============================================================================
 
+//To this day I don't know if I did this right or not. I think I did, but I'm still not too sure
 vec3 BurleyDiffuse(float lightAng, float viewAng, float halfAng, vec2 UVs)
 {
   float f90 = 0.5f + 2.f * ( texture(specular, UVs).r) * halfAng * halfAng;
