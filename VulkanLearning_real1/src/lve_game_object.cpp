@@ -83,24 +83,29 @@ namespace lve
 		return gameObj;
 	}
 
-    void LveGameObject::write_material(LveDevice device, LveDescriptorSetLayout descLayout, LveDescriptorPool& descPool, LveBuffer &lveBuffer)
+    void LveGameObject::write_material(LveDescriptorSetLayout& descLayout,
+                                       LveDescriptorSetLayout& normalLayout,
+                                       LveDescriptorPool& descPool)
     {
-      auto writer = LveDescriptorWriter(descLayout, descPool); 
-
       auto colorInfo = textures[0]->getDescriptorInfo();
       auto specInfo = textures[1]->getDescriptorInfo();
       auto normInfo = textures[2]->getDescriptorInfo();
       auto dispInfo = textures[3]->getDescriptorInfo();
-      auto buffInfo = lveBuffer.descriptorInfo();
+      auto AOInfo = textures[4]->getDescriptorInfo();
+      auto metalInfo = textures[5]->getDescriptorInfo();
 
-      //writer.clear();
-	  writer.writeBuffer(0, &buffInfo);
-	  writer.writeImage(1, &colorInfo);
-	  writer.writeImage(2, &specInfo);
-      writer.writeImage(3, &normInfo);
-	  writer.writeImage(4, &dispInfo);
+      LveDescriptorWriter(descLayout, descPool)
+                .writeImage(1, &colorInfo) // colour
+                .writeImage(2, &specInfo) //spec 
+                .writeImage(3, &normInfo) //normal
+                .writeImage(4, &dispInfo) //displacement
+                .writeImage(5, &AOInfo)
+                .writeImage(6, &metalInfo)
+                .build(descriptorSet);
 
-
-	  writer.build(descriptorSet);
+      LveDescriptorWriter(normalLayout, descPool)
+                .writeImage(0, &normInfo)
+                .writeImage(1, &specInfo)
+                .build(normalSet);
     }
 }

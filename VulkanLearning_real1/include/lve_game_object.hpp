@@ -61,7 +61,9 @@ namespace lve {
         VkDescriptorSet normalSet{};
         std::vector<std::shared_ptr<LveTextures>> textures;
 
-        void write_material(LveDevice device, LveDescriptorSetLayout descLayout, LveDescriptorPool& descriptorAllocator, LveBuffer &lveBuffer);
+        void write_material(LveDescriptorSetLayout& descLayout, 
+                            LveDescriptorSetLayout& normalLayout,
+                            LveDescriptorPool& descPool);
 
         std::unique_ptr<PointLightComponent> pointLight = nullptr;
 

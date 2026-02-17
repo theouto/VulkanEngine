@@ -349,28 +349,7 @@ namespace lve
 
         for (auto &kv : gameObjects)
         {
-          auto tex = kv.second.textures;
-
-          auto colorInfo = tex[0]->getDescriptorInfo();
-          auto specInfo = tex[1]->getDescriptorInfo();
-          auto normInfo = tex[2]->getDescriptorInfo();
-          auto dispInfo = tex[3]->getDescriptorInfo();
-          auto ambInfo = tex[4]->getDescriptorInfo();
-          auto metalInfo = tex[5]->getDescriptorInfo();
-
-          LveDescriptorWriter(*matLayout, *globalPool)
-                .writeImage(1, &colorInfo) // colour
-                .writeImage(2, &specInfo) //spec 
-                .writeImage(3, &normInfo) //normal
-                .writeImage(4, &dispInfo) //displacement
-                .writeImage(5, &ambInfo)
-                .writeImage(6, &metalInfo)
-                .build(kv.second.descriptorSet);
-
-          LveDescriptorWriter(*normalLayout, *globalPool)
-                .writeImage(0, &normInfo)
-                .writeImage(1, &specInfo)
-                .build(kv.second.normalSet);
+          kv.second.write_material(*matLayout, *normalLayout, *globalPool);
         }
 
         std::vector<glm::vec3> lightColors{

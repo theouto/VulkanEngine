@@ -1,11 +1,17 @@
 Object file
-Material
+
+Material (as file)
+
 translate
+
 scale
+
 rotation
 
-"-" <- will mark end of object parametres and will emplace game object 
+\- (divider)
+
+Light loading
 
 Todo: 
 
-optimisation
+Light loading, optimisation, error handling
