@@ -278,7 +278,7 @@ namespace lve
             std::make_unique<LveTextures>( lveDevice, "textures/NA.png", LveTextures::SINGLE_UNORM),
             std::make_unique<LveTextures>(lveDevice, "textures/Metal051A_2K-PNG_Metalness.png", LveTextures::SINGLE_UNORM)
         };
-        */
+        
         
         std::vector<std::shared_ptr<LveTextures>> ice = {std::make_unique<LveTextures>( lveDevice, "textures/Ice003_2K-PNG_Color.png", LveTextures::COLOR ),
             std::make_unique<LveTextures>( lveDevice, "textures/Ice003_2K-PNG_Roughness.png", LveTextures::SINGLE_UNORM ),
@@ -287,7 +287,7 @@ namespace lve
             std::make_unique<LveTextures>( lveDevice, "textures/NA.png", LveTextures::SINGLE_UNORM),
             std::make_unique<LveTextures>(lveDevice, "textures/NAM.png", LveTextures::SINGLE_UNORM)
         };
-        
+        */
        
 
         matLayout = LveDescriptorSetLayout::Builder(lveDevice)
@@ -337,13 +337,13 @@ namespace lve
         gameObjects.emplace(pot.getId(), std::move(pot));
 
         
-        lveModel = LveModel::createModelFromFile(lveDevice, "models/AOI.obj");
+        lveModel = LveModel::createModelFromFile(lveDevice, "models/cube.obj");
         auto quad2 = LveGameObject::createGameObject();
         quad2.model = lveModel;
         quad2.transform.translation = {0.f, 0.5f, 2.f};
         quad2.transform.scale = {1.f, -1.f, 1.f};
         quad2.transform.rotation = {0.f, 2.5f, 0.f};
-        quad2.textures = ice;
+        quad2.textures = wet_rock;
         gameObjects.emplace(quad2.getId(), std::move(quad2));
         
 
