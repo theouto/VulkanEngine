@@ -1,6 +1,5 @@
 #include "../include/the_scene.hpp"
 
-#include <cstddef>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -11,15 +10,15 @@
 namespace lve
 {
 
-  LveScene::LveScene(const char *file, LveGameObject::Map &objects, LveDevice &device, 
-                     std::vector<std::unique_ptr<LveDescriptorSetLayout>> layouts, LveDescriptorPool &pool)
-                    : lveDevice{device}, filepath{file}, gameObjects{objects}
+  LveScene::LveScene(std::string file, LveGameObject::Map &objects, LveDevice *device, 
+                     LveDescriptorSetLayout& sceneLayouts, LveDescriptorSetLayout& normalLayout, LveDescriptorPool& pool)
+                    : lveDevice{device}, filepath{file.c_str()}, gameObjects{objects}
   {
-    materialHandler = std::make_unique<LveMaterials>(lveDevice);
-    load(layouts, pool);
+    materialHandler = std::make_unique<LveMaterials>(*lveDevice);
+    load(sceneLayouts, normalLayout, pool);
   }
 
-  void LveScene::load(std::vector<std::unique_ptr<LveDescriptorSetLayout>> sceneLayouts, LveDescriptorPool &pool)
+  void LveScene::load(LveDescriptorSetLayout& sceneLayout, LveDescriptorSetLayout& normalLayout,LveDescriptorPool &pool)
   {
     std::ifstream scene(filepath);
     if (!scene.is_open()) {throw std::runtime_error("Failed to open scene file!");}
@@ -30,28 +29,30 @@ namespace lve
     getline(scene, line);
 
     int i = 0;
-    while (line[0] != EOF)
-    {
+
       model = line;
       getline(scene, line);
       material = line;
+
       scene >> rotation.x >> rotation.y >> rotation.z;
       scene >> scale.x >> scale.y >> scale.x;
       scene >> translation.x >> translation.y >> translation.z;
 
-      lveModel = LveModel::createModelFromFile(lveDevice, model);
+      lveModel = LveModel::createModelFromFile(*lveDevice, model);
+      auto object = LveGameObject::createGameObject();
 
-      objArr.push_back(LveGameObject::createGameObject());
-      objArr[i].textures = materialHandler->retrieveMaterial(material);
-      objArr[i].transform.translation = translation;
-      objArr[i].transform.rotation = rotation;
-      objArr[i].transform.scale = scale;
+      object.textures = materialHandler->retrieveMaterial(material);
+      object.transform.translation = translation;
+      object.transform.rotation = rotation;
+      object.transform.scale = scale;
 
-      objArr[i].write_material(*sceneLayouts[1], *sceneLayouts[2],pool);
-      gameObjects.emplace(objArr[i].getId(), std::move(objArr[i]));
+      object.write_material(sceneLayout, normalLayout, pool);
+
+      gameObjects.emplace(object.getId(), std::move(object));
       i++;
       getline(scene, line);
-    }
+
+      std::cout << "times " << i << '\n';
 
     scene.close();
   }

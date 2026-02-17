@@ -13,7 +13,7 @@
 
 namespace lve
 {
-	LveTextures::LveTextures(LveDevice& device, const char *path, texType teType) 
+	LveTextures::LveTextures(LveDevice& device, std::string path, texType teType) 
 		: lveDevice{device}, filePath{path}, tType{teType}
 	{
 		createTextureImage();
@@ -53,8 +53,7 @@ namespace lve
         }
 		
         //else if (textureFormat == VK_FORMAT_R8G8B8_UNORM) { format = 3; } //todo
-
-		stbi_uc* pixels = stbi_load(filePath, &texWidth, &texHeight, &texChannels, format);
+		stbi_uc* pixels = stbi_load(filePath.c_str(), &texWidth, &texHeight, &texChannels, format);
 		VkDeviceSize imageSize = texWidth * texHeight * format;
 
 		if (!pixels) 

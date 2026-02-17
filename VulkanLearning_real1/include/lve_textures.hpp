@@ -20,7 +20,7 @@ namespace lve
           SINGLE_UNORM
         };
  
-		LveTextures(LveDevice& device, const char *path, texType tType);
+		LveTextures(LveDevice& device, const std::string path, texType tType);
         ~LveTextures();
 
 		void createTextureImage();
@@ -57,7 +57,7 @@ namespace lve
 		uint32_t mipLevels;
 		VkFormat textureFormat;
 		texType tType;
-        const char *filePath;
+        std::string filePath;
         std::pair<int, int> resolution;
 
 		LveDevice& lveDevice;

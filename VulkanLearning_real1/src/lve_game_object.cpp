@@ -2,6 +2,8 @@
 #include "../include/lve_swap_chain.hpp"
 
 #include <vector>
+#include <iostream>
+
 namespace lve
 {
 	glm::mat4 TransformComponent::mat4() 
