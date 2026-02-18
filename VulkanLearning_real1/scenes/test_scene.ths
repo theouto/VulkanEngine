@@ -1,4 +1,4 @@
-2
+4
 models/cube.obj
 materials/wet_rock.thmat
 0 -0.5 0
@@ -8,4 +8,14 @@ models/quad.obj
 materials/wet_rock.thmat
 0 0.5 0
 6 1 6
+0 0 0
+models/cube.obj
+materials/wet_rock.thmat
+0.8 -0.5 1.4
+1 1 1
+0 0 0
+models/smooth_vase.obj
+materials/wet_sand.thmat
+-1 -1 0
+2 2 2
 0 0 0
