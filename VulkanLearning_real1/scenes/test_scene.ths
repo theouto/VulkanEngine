@@ -1,10 +1,11 @@
+2
 models/cube.obj
-materials/test_material.thmat
+materials/wet_rock.thmat
 0 -0.5 0
 1 1 1
 0 0 0
 models/quad.obj
-materials/test_material.thmat
-0 0 0
+materials/wet_rock.thmat
+0 0.5 0
 6 1 6
 0 0 0

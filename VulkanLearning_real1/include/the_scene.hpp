@@ -13,18 +13,16 @@ namespace lve
   {
     public:
 
-      LveScene(std::string file, LveGameObject::Map &objects, LveDevice *device, 
-               LveDescriptorSetLayout& sceneLayouts, LveDescriptorSetLayout& normalLayout,
-               LveDescriptorPool &pool);
+      LveScene(LveDevice &device);
+
+      //Dodgy workaround until I work it out
+      void load(std::string file, LveDescriptorSetLayout& sceneLayout, LveDescriptorSetLayout& normalLayout, 
+                LveDescriptorPool& pool, LveGameObject::Map &objects);
 
     private:
 
-      void load(LveDescriptorSetLayout& sceneLayout, LveDescriptorSetLayout& normalLayout,LveDescriptorPool& pool);
-
       std::unique_ptr<LveMaterials> materialHandler;
       std::vector<LveGameObject> objArr;
-      LveDevice *lveDevice;
-      const char* filepath;
-      LveGameObject::Map &gameObjects;
+      LveDevice& lveDevice;
   };
 }

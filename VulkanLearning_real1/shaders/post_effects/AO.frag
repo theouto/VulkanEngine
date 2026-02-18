@@ -158,6 +158,8 @@ float random(vec2 st)
     //https://forum.derivative.ca/t/implementing-different-ao-algo-gtao-with-glsl/207841/3
     void main()
     {   
+        //outColor = vec4(texture(normalSpec, texCoords).rgb, 1.f);
+        //return;
         discard;
         vec2 tc_original = texCoords;
         vec2 viewsizediv = vec2(1.0 / 1920, 1.0 / 1080);

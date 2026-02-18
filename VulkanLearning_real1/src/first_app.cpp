@@ -216,43 +216,6 @@ namespace lve
 	void FirstApp::loadGameObjects()
 	{
       /*
-       std::shared_ptr<LveTextures> texSampler = std::make_shared<LveTextures>( lveDevice, 
-            "textures/PavingStones115C_2K-PNG_Color.png", LveTextures::COLOR);
-
-        std::shared_ptr<LveTextures> specular = std::make_shared<LveTextures>( lveDevice, 
-            "textures/PavingStones115C_2K-PNG_Roughness.png", LveTextures::SINGLE_UNORM );
-        
-        std::shared_ptr<LveTextures> normals = std::make_shared<LveTextures>( lveDevice,
-            "textures/PavingStones115C_2K-PNG_NormalGL.png", LveTextures::NORMAL);
-        
-        std::shared_ptr<LveTextures> displacement = std::make_shared<LveTextures>( lveDevice,
-            "textures/PavingStones115C_2K-PNG_Displacement.png", LveTextures::SINGLE_UNORM);
-        
-        std::shared_ptr<LveTextures> ambOcc = std::make_shared<LveTextures>( lveDevice, 
-            "textures/PavingStones115C_2K-PNG_AmbientOcclusion.png", LveTextures::SINGLE_UNORM);
-
-        std::shared_ptr<LveTextures> metal = std::make_shared<LveTextures> (lveDevice, 
-            "textures/NAM.png", LveTextures::SINGLE_UNORM);
-         
-        std::vector<std::shared_ptr<LveTextures>> wet_rock;
-        wet_rock.push_back(texSampler);
-        wet_rock.push_back(specular);
-        wet_rock.push_back(normals);
-        wet_rock.push_back(displacement);
-        wet_rock.push_back(ambOcc);
-        wet_rock.push_back(metal);
-
-        
-        std::vector<std::shared_ptr<LveTextures>> planks = {std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_Color.png", LveTextures::COLOR ),
-        std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_Roughness.png", LveTextures::SINGLE_UNORM ),
-        std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_NormalGL.png", LveTextures::NORMAL ),
-        std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_Displacement.png", LveTextures::SINGLE_UNORM ),
-        std::make_unique<LveTextures>( lveDevice, "textures/Planks037A_2K-PNG_AmbientOcclusion.png", LveTextures::SINGLE_UNORM),
-        std::make_unique<LveTextures>(lveDevice, "textures/Planks037A_2K-PNG_Metalness.png", LveTextures::SINGLE_UNORM)
-        };
-        
-
-        
         std::vector<std::shared_ptr<LveTextures>> granite = {std::make_unique<LveTextures>( lveDevice, "textures/Granite001A_2K-PNG_Color.png", LveTextures::COLOR ),
         std::make_unique<LveTextures>( lveDevice, "textures/Granite001A_2K-PNG_Roughness.png", LveTextures::SPECULAR ),
         std::make_unique<LveTextures>( lveDevice, "textures/Granite001A_2K-PNG_NormalGL.png", LveTextures::NORMAL ),
@@ -306,14 +269,14 @@ namespace lve
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
             .build();
         
-        
+        /*
         LveMaterials retriever{lveDevice};
         std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/smooth_vase.obj");
         auto sVase = LveGameObject::createGameObject();
         sVase.model = lveModel;
         sVase.transform.translation = { -.5f, .2f, 0.f };
         sVase.transform.scale = { 2.f, 2.f, 2.f };
-        sVase.textures = retriever.retrieveMaterial("materials/planks.thmat");
+        sVase.textures = retriever.retrieveMaterial("materials/wet_rock.thmat");
         gameObjects.emplace(sVase.getId(), std::move(sVase));
 
         lveModel = LveModel::createModelFromFile(lveDevice, "models/flat_vase.obj");
@@ -347,7 +310,7 @@ namespace lve
         quad2.transform.translation = {0.f, 0.5f, 2.f};
         quad2.transform.scale = {1.f, -1.f, 1.f};
         quad2.transform.rotation = {0.f, 2.5f, 0.f};
-        quad2.textures = retriever.retrieveMaterial("materials/planks.thmat");
+        quad2.textures = retriever.retrieveMaterial("materials/wet_rock.thmat");
         gameObjects.emplace(quad2.getId(), std::move(quad2));
         
 
@@ -357,10 +320,13 @@ namespace lve
         }
         
 
-        /* 
-        LveScene sceneManager{"scenes/test_scene.ths", gameObjects, 
-                    &lveDevice, *matLayout, *normalLayout, *globalPool};
         */
+
+        LveScene sceneManager{ lveDevice};
+
+        sceneManager.load("scenes/test_scene.ths", *matLayout, 
+                          *normalLayout, *globalPool, gameObjects);
+        
         std::vector<glm::vec3> lightColors{
             {1.f, .1f, .1f},
             {.1f, .1f, 1.f},
@@ -374,6 +340,7 @@ namespace lve
         auto pointLight = LveGameObject::makePointLight(0.9f);
         pointLight.color = {1.f, 1.f, 1.f};
         pointLight.transform.translation = glm::vec3(0.7f, -0.2f, 0.7f);
+        std::cout << pointLight.getId() << "\n\n\n\n";
         gameObjects.emplace(pointLight.getId(), std::move(pointLight));
 
         for (int i = 0; i < lightColors.size(); i++) 
