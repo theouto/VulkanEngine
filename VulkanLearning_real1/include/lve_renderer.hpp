@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lve_descriptors.hpp"
+#include "lve_game_object.hpp"
 #include "lve_textures.hpp"
 #include "lve_window.hpp"
 #include "lve_device.hpp"
@@ -68,6 +69,18 @@ namespace lve
 		  return descriptorInfo;
         }
 
+        void loadUboInfo(std::vector<std::shared_ptr<LveBuffer>> ubos)
+        {
+            uboInfo.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
+            for (int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+            {
+                uboInfo[i] = ubos[i]->descriptorInfo();
+            }
+        }
+
+        VkDescriptorBufferInfo getUboInfo(uint32_t index) {return uboInfo[index];}
+        VkExtent2D getSwapChainExtent() {return lveSwapChain->getSwapChainExtent();}
+
         VkRenderPass getSwapChainDepthPass() const {return lveSwapChain->getDepthPass();}
         VkDescriptorImageInfo getDepthInfo()
         {
@@ -91,6 +104,50 @@ namespace lve
         void beginDepthRenderPass(VkCommandBuffer commandBuffer);
 		void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
 
+
+         private:
+		LveDevice& lveDevice;
+        //what the fuck am I doing
+        public: 
+
+        std::unique_ptr<LveDescriptorPool> globalPool = LveDescriptorPool::Builder(lveDevice)
+            .setMaxSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS * 2)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS * 2)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS * 4)
+            .build();
+
+        //Risky until I find a better way
+        //Why do I get the feeling that I'll be staring at this comment 6 months from now?
+        std::unique_ptr<LveDescriptorSetLayout> globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)            
+            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .build();
+
+        VkDescriptorSetLayout getGlobalLayout() {return globalSetLayout->getDescriptorSetLayout();}
+        VkDescriptorSet getLayout(uint32_t index) {return globalSetLayouts[index];}
+        
+        void generateDescriptors()
+        {
+            globalSetLayouts.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
+            
+            for(int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+            {
+                auto bufferInfo = getUboInfo(i);
+                auto shadowInfo = getShadowInfo();
+                auto depthInfo = getDepthInfo();
+                auto normalSpecInfo = getNormalInfo();
+
+                LveDescriptorWriter(*globalSetLayout, *globalPool)
+                    .writeBuffer(0, &bufferInfo) 
+                    .writeImage(1, &shadowInfo)
+                    .writeImage(2, &depthInfo)
+                    .writeImage(3, &normalSpecInfo)
+                    .build(globalSetLayouts[i]);
+            }
+        }
+
 	private:
 
 		void createCommandBuffers();
@@ -99,11 +156,11 @@ namespace lve
 
         bool skip = false;
 		LveWindow& lveWindow;
-		LveDevice& lveDevice;
 
-        LveDescriptorSetLayout& globalSetLayout;
-		std::vector<VkDescriptorSet> globalSetLayouts;
-        
+        std::vector<VkDescriptorBufferInfo> uboInfo;
+
+        std::vector<VkDescriptorSet> globalSetLayouts;
+
         std::unique_ptr<LveSwapChain> lveSwapChain;
 		std::vector<VkCommandBuffer> commandBuffers;
 

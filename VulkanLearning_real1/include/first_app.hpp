@@ -38,7 +38,6 @@ namespace lve
         std::unique_ptr<LveDescriptorSetLayout> matLayout;
         std::unique_ptr<LveDescriptorSetLayout> normalLayout;
 
-		std::unique_ptr<LveDescriptorPool> globalPool{};
 		LveGameObject::Map gameObjects;
 	};
 }

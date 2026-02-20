@@ -36,11 +36,6 @@ namespace lve
 {
 	FirstApp::FirstApp()
     {
-        globalPool = LveDescriptorPool::Builder(lveDevice)
-            .setMaxSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS * 2)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS * 2)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS * 4)
-            .build();
         loadGameObjects();
     }
 
@@ -49,8 +44,7 @@ namespace lve
 
 	void FirstApp::run()
 	{
-        std::vector<std::unique_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
-        std::vector<std::unique_ptr<LveBuffer>> shadowBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
+        std::vector<std::shared_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
         {
             uboBuffers[i] = std::make_unique<LveBuffer>(
@@ -63,42 +57,25 @@ namespace lve
             uboBuffers[i]->map();
         }
 
-        auto globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)            
-            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
-            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
-            .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
-            .build();
+        lveRenderer.loadUboInfo(uboBuffers);
 
-        std::vector<VkDescriptorSet> globalDescriptorSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
-        for (int i = 0; i < globalDescriptorSets.size(); i++)
-        {
-            auto bufferInfo = uboBuffers[i]->descriptorInfo();
-            auto shadowInfo = lveRenderer.getShadowInfo();
-            auto depthInfo = lveRenderer.getDepthInfo();
-            auto normalSpecInfo = lveRenderer.getNormalInfo();
+        std::cout << "\n\n\nhello\n\n\n";
 
-            LveDescriptorWriter(*globalSetLayout, *globalPool)
-                .writeBuffer(0, &bufferInfo) 
-                .writeImage(1, &shadowInfo)
-                .writeImage(2, &depthInfo)
-                .writeImage(3, &normalSpecInfo)
-                .build(globalDescriptorSets[i]);
-        }
+        lveRenderer.generateDescriptors();
 
         std::vector<VkDescriptorSetLayout> setLayouts = {
-            globalSetLayout->getDescriptorSetLayout(),
+            lveRenderer.getGlobalLayout(),
             matLayout->getDescriptorSetLayout()};
 
-		SimpleRenderSystem simpleRenderSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), setLayouts};
-        PointLightSystem pointLightSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
-        SkyboxSystem skybox{lveDevice, lveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout(), *globalPool};
+        SimpleRenderSystem simpleRenderSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), setLayouts};
+        PointLightSystem pointLightSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), lveRenderer.getGlobalLayout() };
+        SkyboxSystem skybox{lveDevice, lveRenderer.getSwapChainRenderPass(), lveRenderer.getGlobalLayout(), *lveRenderer.globalPool};
 
-        DirectionalLightSystem shadowSystem{lveDevice, lveRenderer.getSwapChainShadowPass(),globalSetLayout->getDescriptorSetLayout()};
-        NormalSpecPass normalSpecPass{lveDevice, lveRenderer.getSwapChainNormalPass(), globalSetLayout->getDescriptorSetLayout(), normalLayout->getDescriptorSetLayout()};
-        DepthBuffer depthBuffer{lveDevice, lveRenderer.getSwapChainDepthPass(), globalSetLayout->getDescriptorSetLayout()};
+        DirectionalLightSystem shadowSystem{lveDevice, lveRenderer.getSwapChainShadowPass(),lveRenderer.getGlobalLayout()};
+        NormalSpecPass normalSpecPass{lveDevice, lveRenderer.getSwapChainNormalPass(), lveRenderer.getGlobalLayout(), normalLayout->getDescriptorSetLayout()};
+        DepthBuffer depthBuffer{lveDevice, lveRenderer.getSwapChainDepthPass(), lveRenderer.getGlobalLayout()};
 
-        AOSystem AOSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), *globalPool, globalSetLayout->getDescriptorSetLayout()};
+        AOSystem AOSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), *lveRenderer.globalPool, lveRenderer.getGlobalLayout()};
 
         LveCamera camera{};
  
@@ -150,10 +127,10 @@ namespace lve
                   frameTime,
                   commandBuffer,
                   camera,
-                  globalDescriptorSets[frameIndex],
+                  nullptr,
                   gameObjects
                 };
-
+                frameInfo.globalDescriptorSet = lveRenderer.getLayout(frameIndex);
 		
                 //update               
                 GlobalUbo ubo{};
@@ -161,6 +138,8 @@ namespace lve
                 ubo.view = camera.getView();
                 ubo.viewStat = camera.getviewStat();
                 ubo.inverseView = camera.getInverseView();
+                ubo.width = lveRenderer.getSwapChainExtent().width;
+                ubo.height = lveRenderer.getSwapChainExtent().height;
                 pointLightSystem.update(frameInfo, ubo);
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
@@ -320,7 +299,7 @@ namespace lve
         LveScene sceneManager{ lveDevice};
 
         sceneManager.load("scenes/test_scene.ths", *matLayout, 
-                          *normalLayout, *globalPool, gameObjects);
+                          *normalLayout, *lveRenderer.globalPool, gameObjects);
         
         std::vector<glm::vec3> lightColors{
             {1.f, .1f, .1f},

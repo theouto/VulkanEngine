@@ -46,6 +46,8 @@ layout(set = 0, binding = 0) uniform GlobalUbo
   vec4 ambientLightColor; // w is intensity
   PointLight pointLights[10];
   int numLights;
+  int width;
+  int height;
 } ubo;
 
 layout(push_constant) uniform Push
@@ -415,7 +417,7 @@ vec3 WorldPosFromDepth(float depth) {
 void main()
 { 
     //TODO: Pass resolution values via the frameInfo
-    vec2 projCoords = vec2(gl_FragCoord.x/1920, gl_FragCoord.y/1080);
+    vec2 projCoords = vec2(gl_FragCoord.x/ubo.width, gl_FragCoord.y/ubo.height);
 
     float prePassDepth = LinearizeDepth(texture(depthMap, projCoords).r);
     float currDepth = LinearizeDepth(gl_FragCoord.z);
