@@ -148,6 +148,25 @@ namespace lve
             }
         }
 
+      void updateDescriptors()
+      {
+            for(int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+            {
+                auto bufferInfo = getUboInfo(i);
+                auto shadowInfo = getShadowInfo();
+                auto depthInfo = getDepthInfo();
+                auto normalSpecInfo = getNormalInfo();
+
+                LveDescriptorWriter(*globalSetLayout, *globalPool)
+                    .writeBuffer(0, &bufferInfo) 
+                    .writeImage(1, &shadowInfo)
+                    .writeImage(2, &depthInfo)
+                    .writeImage(3, &normalSpecInfo)
+                    .overwrite(globalSetLayouts[i]);
+            }
+
+      }
+
 	private:
 
 		void createCommandBuffers();

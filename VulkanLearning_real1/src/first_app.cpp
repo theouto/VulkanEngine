@@ -138,8 +138,8 @@ namespace lve
                 ubo.view = camera.getView();
                 ubo.viewStat = camera.getviewStat();
                 ubo.inverseView = camera.getInverseView();
-                ubo.width = lveRenderer.getSwapChainExtent().width;
-                ubo.height = lveRenderer.getSwapChainExtent().height;
+                ubo.width = lveWindow.getExtent().width;
+                ubo.height = lveWindow.getExtent().height;
                 pointLightSystem.update(frameInfo, ubo);
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();

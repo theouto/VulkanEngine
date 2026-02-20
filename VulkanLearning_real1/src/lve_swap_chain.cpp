@@ -73,6 +73,31 @@ namespace lve {
 
         vkDestroyRenderPass(device.device(), renderPass, nullptr);
 
+
+        //oh my fucking god. Before I do ANYTHING else I need to come back and pack everything into an array of abstractions
+        //and reuse code
+
+        //shadow
+        vkDestroyImage(device.device(), shadowImage, nullptr);
+        vkDestroyImageView(device.device(), shadowDepthView, nullptr);
+        vkFreeMemory(device.device(), shadowMemory, nullptr);
+        vkDestroyFramebuffer(device.device(), shadowBuffer, nullptr);
+        vkDestroyRenderPass(device.device(), shadowPass, nullptr);
+
+        //depth
+        vkDestroyImage(device.device(), depthImage, nullptr);
+        vkDestroyImageView(device.device(), depthView, nullptr);
+        vkFreeMemory(device.device(), depthMemory, nullptr);
+        vkDestroyFramebuffer(device.device(), depthBuffer, nullptr);
+        vkDestroyRenderPass(device.device(), depthPass, nullptr);
+
+        //normalSpec
+        vkDestroyImage(device.device(), normalImage, nullptr);
+        vkDestroyImageView(device.device(), normalView, nullptr);
+        vkFreeMemory(device.device(), normalMemory, nullptr);
+        vkDestroyFramebuffer(device.device(), normalBuffer, nullptr);
+        vkDestroyRenderPass(device.device(), normalPass, nullptr);
+
         // cleanup synchronization objects
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             vkDestroySemaphore(device.device(), renderFinishedSemaphores[i], nullptr);

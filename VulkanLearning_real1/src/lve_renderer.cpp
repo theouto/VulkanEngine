@@ -34,7 +34,7 @@ void LveRenderer::recreateSwapChain() {
   } else {
     std::shared_ptr<LveSwapChain> oldSwapChain = std::move(lveSwapChain);
     lveSwapChain = std::make_unique<LveSwapChain>(lveDevice, extent, oldSwapChain);
-    generateDescriptors();
+    updateDescriptors();
 
     if (!oldSwapChain->compareSwapFormats(*lveSwapChain.get())) {
       throw std::runtime_error("Swap chain image(or depth) format has changed!");
