@@ -1,5 +1,6 @@
 #pragma once
 
+#include "lve_descriptors.hpp"
 #include "lve_textures.hpp"
 #include "lve_window.hpp"
 #include "lve_device.hpp"
@@ -99,7 +100,11 @@ namespace lve
         bool skip = false;
 		LveWindow& lveWindow;
 		LveDevice& lveDevice;
-		std::unique_ptr<LveSwapChain> lveSwapChain;
+
+        LveDescriptorSetLayout& globalSetLayout;
+		std::vector<VkDescriptorSet> globalSetLayouts;
+        
+        std::unique_ptr<LveSwapChain> lveSwapChain;
 		std::vector<VkCommandBuffer> commandBuffers;
 
         VkExtent2D extent = {0, 0};
