@@ -3,9 +3,11 @@
 #include "lve_textures.hpp"
 #include "lve_device.hpp"
 
+#include <memory>
 #include <vector>
 #include <map>
 #include <string>
+#include <vulkan/vulkan_core.h>
 
 namespace lve
 {
@@ -16,11 +18,16 @@ namespace lve
     LveMaterials(LveDevice &device);
     ~LveMaterials(){}
 
-    std::vector<std::shared_ptr<LveTextures>> retrieveMaterial(const std::string path);
+    std::vector<VkDescriptorSet> retrieveMaterial(const std::string path,
+                                            LveDescriptorSetLayout& descLayout,
+                                            LveDescriptorSetLayout& normalLayout,
+                                            LveDescriptorPool& descPool);
 
     private:
     
     LveDevice &lveDevice;
-    std::unordered_map<std::string, std::vector<std::shared_ptr<LveTextures>>> loadedMaterials;
+    std::vector<std::shared_ptr<LveTextures>> textures;
+    std::unordered_map<std::string, std::pair<std::vector<VkDescriptorSet>, //I swear, this is for the greater good
+                                    std::vector<std::shared_ptr<LveTextures>>>> loadedMaterials;
   };
 }

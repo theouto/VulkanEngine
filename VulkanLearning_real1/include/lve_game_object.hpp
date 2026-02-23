@@ -61,7 +61,8 @@ namespace lve {
         VkDescriptorSet normalSet{};
         std::vector<std::shared_ptr<LveTextures>> textures;
 
-        void write_material(LveDescriptorSetLayout& descLayout, 
+        static std::vector<VkDescriptorSet> write_material(LveDescriptorSetLayout& descLayout,
+                            std::vector<std::shared_ptr<LveTextures>> textures,
                             LveDescriptorSetLayout& normalLayout,
                             LveDescriptorPool& descPool);
 

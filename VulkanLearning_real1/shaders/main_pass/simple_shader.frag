@@ -11,6 +11,7 @@ layout (location = 2) in vec3 fragNormalWorld;
 layout (location = 3) in vec2 fragUv;
 layout (location = 4) in vec4 FragPosLightSpace;
 layout (location = 5) in vec3 lightPos;
+layout (location = 6) in mat3 TBN;
 
 layout (location = 0) out vec4 outColor;
 
@@ -99,7 +100,7 @@ vec2 parallaxOcclusionMapping(vec2 texCoords, vec3 viewDir)
     const float numLayers = 16;
     float layerDepth = 1.0 / numLayers;
     float currentLayerDepth = 0.0;
-    vec2 P = vec2(-1.0f * viewDir.y, viewDir.z) * height_scale; 
+    vec2 P = vec2(-viewDir.y, viewDir.z) * height_scale; 
     vec2 deltaTexCoords = P / numLayers;
 
     vec2  currentTexCoords     = texCoords;
@@ -238,6 +239,7 @@ float calculateRandPCF(float currentDepth, vec2 uv)
     
     int steps = 2;
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    float bias = 0.0005f;
     for(int x = -steps; x <= steps; ++x)
     {
        for(int y = -steps; y <= steps; ++y)
@@ -245,7 +247,7 @@ float calculateRandPCF(float currentDepth, vec2 uv)
             vec2 randomOffset = vec2(rand(uv + vec2(x, y)), rand(uv - vec2(x, y))) * texelSize;
 
             float pcfDepth = texture(shadowMap, uv + vec2(float(x)/steps, float(y)/steps) * texelSize + randomOffset).r; 
-           shadow += currentDepth < pcfDepth ? 1.0 : 0.0;        
+           shadow += currentDepth - bias < pcfDepth ? 1.0 : 0.0;        
        }    
     }
     shadow /= (steps * 2) * (steps * 2);
@@ -350,8 +352,8 @@ vec3 calculateLights(vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
               dot(halfAngle, directionToLight), 
               UVs);
         
-        diffcont += diff;
-        */ 
+        //diffcont += diff;
+        */
 
         float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(specular, UVs).x, 0.001f, 1.f));
         
@@ -416,22 +418,20 @@ vec3 WorldPosFromDepth(float depth) {
 
 void main()
 { 
-    //TODO: Pass resolution values via the frameInfo
     vec2 projCoords = vec2(gl_FragCoord.x/ubo.width, gl_FragCoord.y/ubo.height);
-
-    float prePassDepth = LinearizeDepth(texture(depthMap, projCoords).r);
     float currDepth = LinearizeDepth(gl_FragCoord.z);
 
-    if (prePassDepth < currDepth) 
-    {
-      discard;
-    }
+    //if (1.f + rand(fragUv) > currDepth) discard;
+
+    float prePassDepth = LinearizeDepth(texture(depthMap, projCoords).r);
     
-	
+    if (prePassDepth < currDepth) discard;
+
+    
 	vec3 cameraPosWorld = ubo.invView[3].xyz;
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld); 
 
-    vec2 UVs = fragUv*4;
+    vec2 UVs = fragUv;
     mat3 TBN = cotangent_frame(normalize(fragNormalWorld), fragPosWorld, UVs);
 	
     //vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
@@ -444,11 +444,12 @@ void main()
     //vec2 boxuv = SampleSphericalMap(normalize(viewDirection));
     //vec3 boxcolor = texture(fakebox, boxuv).rgb;
 
-	UVs = parallaxOcclusionMapping(UVs, TBN * viewDirection);
+	//UVs = parallaxOcclusionMapping(UVs, TBN * viewDirection);
     
 	vec3 tangentNormal = texture(normals, UVs).xyz * 255.f/127.f - 128.f/127.f;
     tangentNormal.x = -tangentNormal.x;
 	vec3 surfaceNormal = normalize(TBN * tangentNormal);
+    //vec3 surfaceNormal = normalize(fragNormalWorld);
 
     vec3 diffcont = vec3(0.f);
     //float diffcont = 0.f;
@@ -461,9 +462,11 @@ void main()
 
     vec3 diffuseLight = calculateDiffuse(normalize(fragNormalWorld), surfaceNormal, UVs, viewDirection, F0);
     Lo += calculateSunLight(sun, surfaceNormal, UVs, viewDirection, F0, cameraPosWorld);
-    Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
+    //Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
 
-    vec4 diffuse = texture(texSampler, UVs) * (vec4(diffuseLight, 0.0) * texture(AO, UVs).r + vec4(0.01f, 0.01f, 0.02f, 0.f)); 
+    vec4 diffuse = texture(texSampler, UVs) * (vec4(diffuseLight, 0.0) * texture(AO, UVs).r + 
+                    vec4(0.01f, 0.01f, 0.02f, 0.f)) +
+                    vec4(0, 0.043f, 0.1f, 1.f) * currDepth/(FAR*15); 
     //Depth
     //outColor = vec4(vec3(LinearizeDepth(texture(depthMap, uv).r))/FAR, 1.f);
 
