@@ -12,6 +12,7 @@
 *.png
 *.PNG
 *.mtl
+*.jpg
 *.sln
 *.vcxproj
 *.filters
