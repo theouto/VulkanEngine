@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <iostream>
-#include <vulkan/vulkan_core.h>
 
 namespace lve
 {
@@ -86,13 +85,10 @@ namespace lve
 		return gameObj;
 	}
 
-    std::vector<VkDescriptorSet> LveGameObject::write_material(LveDescriptorSetLayout& descLayout,
-                                       std::vector<std::shared_ptr<LveTextures>> textures,
+    void LveGameObject::write_material(LveDescriptorSetLayout& descLayout,
                                        LveDescriptorSetLayout& normalLayout,
                                        LveDescriptorPool& descPool)
     {
-      VkDescriptorSet descriptorSet{}, normalSet{};
-
       auto colorInfo = textures[0]->getDescriptorInfo();
       auto specInfo = textures[1]->getDescriptorInfo();
       auto normInfo = textures[2]->getDescriptorInfo();
@@ -113,8 +109,5 @@ namespace lve
                 .writeImage(0, &normInfo)
                 .writeImage(1, &specInfo)
                 .build(normalSet);
-
-      std::vector<VkDescriptorSet> ret = {descriptorSet, normalSet};
-      return ret;
     }
 }

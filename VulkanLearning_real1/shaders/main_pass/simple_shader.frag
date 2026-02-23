@@ -462,11 +462,15 @@ void main()
 
     vec3 diffuseLight = calculateDiffuse(normalize(fragNormalWorld), surfaceNormal, UVs, viewDirection, F0);
     Lo += calculateSunLight(sun, surfaceNormal, UVs, viewDirection, F0, cameraPosWorld);
-    //Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
+    Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
+
+    //https://www.youtube.com/watch?v=BFld4EBO2RE great video!
+    vec3 lambda = exp(-0.0005f * currDepth * vec3(.5f, 1.f, 4.f));
 
     vec4 diffuse = texture(texSampler, UVs) * (vec4(diffuseLight, 0.0) * texture(AO, UVs).r + 
-                    vec4(0.01f, 0.01f, 0.02f, 0.f)) +
-                    vec4(0, 0.043f, 0.1f, 1.f) * currDepth/(FAR*15); 
+                    vec4(0.01f, 0.01f, 0.02f, 0.f));
+
+    diffuse = vec4(lambda, 0.f) * diffuse + vec4((1 - lambda), 0.f) * vec4(0.1f, 0.1f, 0.1f, 0.f);
     //Depth
     //outColor = vec4(vec3(LinearizeDepth(texture(depthMap, uv).r))/FAR, 1.f);
 

@@ -43,13 +43,11 @@ namespace lve
       lveModel = LveModel::createModelFromFile(lveDevice, model);
       LveGameObject object = LveGameObject::createGameObject();
       object.model = lveModel;
-      object.descriptorSet = materialHandler->retrieveMaterial(material, sceneLayout, 
-                                                               normalLayout, pool)[0];
-      object.normalSet = materialHandler->retrieveMaterial(material, sceneLayout, 
-                                                               normalLayout, pool)[1];
+      object.textures = materialHandler->retrieveMaterial(material);
       object.transform.translation = translation;
       object.transform.rotation = rotation;
       object.transform.scale = scale;
+      object.write_material(sceneLayout, normalLayout, pool);
 
       objects.emplace(object.getId(), std::move(object));
       
