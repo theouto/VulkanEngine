@@ -303,6 +303,9 @@ vec3 calculateSunLight(DirectionalLight sun, vec3 surfaceNormal, vec2 UVs, vec3 
 {
     vec3 directionToLight = sun.direction;
     directionToLight = normalize(-directionToLight);
+    float shadow = ShadowCalculation(directionToLight, surfaceNormal, cameraPosWorld);
+
+    if (shadow == 0) return vec3(0.f);
 
     vec3 intensity = sun.color.xyz * sun.color.w;
     vec3 halfAngle = normalize(directionToLight + viewDirection);
@@ -320,7 +323,7 @@ vec3 calculateSunLight(DirectionalLight sun, vec3 surfaceNormal, vec2 UVs, vec3 
     vec3 kD = metallic(fres, texture(metalness, UVs).r);
 
     float NdotL = max(dot(surfaceNormal, directionToLight), 0.f);
-    float shadow = ShadowCalculation(directionToLight, surfaceNormal, cameraPosWorld);
+   
 
     return (shadow) * (kD * texture(texSampler, UVs).rgb / M_PI + spec) * intensity * NdotL;
 }

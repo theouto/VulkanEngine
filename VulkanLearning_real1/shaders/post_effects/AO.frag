@@ -12,12 +12,23 @@ layout(location = 0) out vec4 outColor;
 layout(set = 0, binding = 2) uniform sampler2D depthBuffer;
 layout(set = 0, binding = 3) uniform sampler2D normalSpec;
 
+struct PointLight
+{
+	vec4 position;
+	vec4 color;
+};
+
 layout(set = 0, binding = 0) uniform GlobalUbo 
 {
   mat4 projection;
   mat4 view;
   mat4 invView;
   mat4 viewStat;
+  vec4 ambientLightColor; // w is intensity
+  PointLight pointLights[10];
+  int numLights;
+  int width;
+  int height;
 } ubo;
 
 float LinearizeDepth(float depth) 
@@ -84,6 +95,11 @@ void main()
 }
 
 */
+
+vec3 clamped (vec3 clampi)
+{
+  return vec3(clamp(clampi.x, 0.00001, 1), clamp(clampi.y, 0.00001, 1), clamp(clampi.z, 0.00001, 1));
+}
 
 float GTAOFastAcos(float x)
 {
@@ -162,16 +178,17 @@ float random(vec2 st)
         //return;
         discard;
         vec2 tc_original = texCoords;
-        vec2 viewsizediv = vec2(1.0 / 1920, 1.0 / 1080);
+        vec2 viewsizediv = vec2(1.0 / ubo.width, 1.0 / ubo.height);
 
         // Depth of the current pixel
-        float dhere = LinearizeDepth(texture(depthBuffer, texCoords).r);
+        float dhere = texture(depthBuffer, texCoords).r;
         // Vector from camera to the current pixel's position
         vec3 ray = GetCameraVec(tc_original) * dhere;
         
         const float normalSampleDist = 1.0;
         
         // Calculate normal from the 4 neighbourhood pixels
+        /*
         vec2 uv = tc_original + vec2(viewsizediv.x * normalSampleDist, 0.0);
         vec3 p1 = ray - GetCameraVec(uv) * LinearizeDepth(texture(depthBuffer, uv).r);
 
@@ -188,7 +205,9 @@ float random(vec2 st)
         vec3 normal2 = normalize(cross(p3, p4));
         
         vec3 normal = normalize(normal1 + normal2);
-        
+        */
+        vec3 normal = clamped(texture(normalSpec, texCoords).rgb);
+
         // Calculate the distance between samples (direction vector scale) so that the world space AO radius remains constant but also clamp to avoid cache trashing
                 float stride = min((1.0 / length(ray)) * SSAO_LIMIT, SSAO_MAX_STRIDE);
         vec2 dirMult = viewsizediv.xy * stride;
