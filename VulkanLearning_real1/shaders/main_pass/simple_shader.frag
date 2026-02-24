@@ -462,7 +462,7 @@ void main()
 
     vec3 diffuseLight = calculateDiffuse(normalize(fragNormalWorld), surfaceNormal, UVs, viewDirection, F0);
     Lo += calculateSunLight(sun, surfaceNormal, UVs, viewDirection, F0, cameraPosWorld);
-    //Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
+    Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
 
     //https://www.youtube.com/watch?v=BFld4EBO2RE great video!
     vec3 lambda = exp(-0.0005f * currDepth * vec3(.5f, 1.f, 4.f));

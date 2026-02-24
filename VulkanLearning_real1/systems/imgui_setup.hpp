@@ -2,11 +2,9 @@
 
 #include "imconfig.h"
 
-#include <imgui.h>
-#include <imgui_impl_vulkan.h>
-#include <imgui_impl_glfw.h>
-#include <vulkan/vulkan_core.h>
-#include <vulkan/vulkan_raii.hpp>
+#include "../imgui/backends/imgui_impl_glfw.h"
+#include "../imgui/backends/imgui_impl_vulkan.h"
+
 #include <glm/glm.hpp>
 
 #include "../include/lve_device.hpp"
@@ -30,12 +28,7 @@ namespace lve
     };
 
     void init();
-    void draw(VkCommandBuffer commandBuffer, int index);
-    VkRenderingAttachmentInfo attachment_info(VkImageView imageView, 
-                             VkClearValue* clear, VkImageLayout layout);
-
-    VkRenderingInfo rendering_info(VkExtent2D extent, VkRenderingAttachmentInfo* attachment, 
-                                            VkRenderingAttachmentInfo* depth);
+    void draw(VkCommandBuffer commandBuffer, glm::vec3 *rotationnn);
 
     private:
 

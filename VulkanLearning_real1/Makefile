@@ -6,7 +6,6 @@ SRC_DIRS := ./src ./include ./systems
 
 CFLAGS = -std=c++17 -O2
 LDFLAGS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi -limgui
-
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. The shell will incorrectly expand these otherwise, but we want to send the * directly to the find command.
 SRCS := $(shell find $(SRC_DIRS) -name '*.cpp' -or -name '*.c' -or -name '*.s')
@@ -26,7 +25,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
-CPPFLAGS := $(INC_FLAGS) -MMD -MP -std=c++17 -O2
+CPPFLAGS := $(INC_FLAGS) -MMD -MP -std=c++20 -O2
 
 # The final build step.
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)

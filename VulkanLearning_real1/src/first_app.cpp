@@ -77,7 +77,7 @@ namespace lve
         DepthBuffer depthBuffer{lveDevice, lveRenderer.getSwapChainDepthPass(), lveRenderer.getGlobalLayout()};
         AOSystem AOSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), *lveRenderer.globalPool, lveRenderer.getGlobalLayout()};
 
-        //Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow};
+        Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow};
 
         LveCamera camera{};
  
@@ -100,6 +100,7 @@ namespace lve
 	
 	auto currentTime = std::chrono::high_resolution_clock::now();
 
+    glm::vec3 rot = {1.f, 5.f, 0.f};
     std::cout << "\n\n\nAll loaded, rendering:\n\n";
     float radius = 10.f;
 	while (!lveWindow.shouldClose())
@@ -146,9 +147,8 @@ namespace lve
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
 
-                glm::vec3 lightPos = {1.f, 1.f, 0.f};
-                glm::mat4 projMat = DirectionalLightSystem::lightViewProjection(
-                  lightPos, 
+                  glm::mat4 projMat = DirectionalLightSystem::lightViewProjection(
+                  rot, 
                   frameInfo.camera.getPosition() + offset, 
                   radius);
 
@@ -158,7 +158,7 @@ namespace lve
 
                 //render shadowmap
 		        lveRenderer.beginShadowRenderPass(commandBuffer);
-                shadowSystem.drawDepth(frameInfo, projMat, lightPos);
+                shadowSystem.drawDepth(frameInfo, projMat, rot);
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
 
                 //Depth Prepass
@@ -178,7 +178,7 @@ namespace lve
                 skybox.render(frameInfo);
 
                 //geometry pass excl. skybox
-                simpleRenderSystem.renderGameObjects(frameInfo, projMat, lightPos);
+                simpleRenderSystem.renderGameObjects(frameInfo, projMat, rot);
 
                 //Ambient Occlusion
                 AOSystem.render(frameInfo);
@@ -186,7 +186,7 @@ namespace lve
                 //renders light dots
                 pointLightSystem.render(frameInfo);
 
-                //imgui.draw(commandBuffer, frameIndex);
+                imgui.draw(commandBuffer, &rot);
                 
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
 				lveRenderer.endFrame();

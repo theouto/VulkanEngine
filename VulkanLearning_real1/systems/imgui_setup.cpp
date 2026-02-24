@@ -1,7 +1,9 @@
 #include "imgui_setup.hpp"
+
+#include <format>
+
 #include <GLFW/glfw3.h>
 #include <imgui.h>
-#include <imgui_impl_vulkan.h>
 #include <vulkan/vulkan_core.h>
 
 namespace lve 
@@ -20,103 +22,58 @@ namespace lve
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
 
-    	VkDescriptorPoolSize pool_sizes[] = { { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
-		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
-		{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
-		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
-		{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 } };
-
-	VkDescriptorPoolCreateInfo pool_info = {};
-	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-	pool_info.maxSets = 1000;
-	pool_info.poolSizeCount = (uint32_t)std::size(pool_sizes);
-	pool_info.pPoolSizes = pool_sizes;
-
-	VkDescriptorPool imguiPool;
-	vkCreateDescriptorPool(lveDevice.device(), &pool_info, nullptr, &imguiPool);
-    pool = imguiPool;
-
     ImGui_ImplGlfw_InitForVulkan(lveWindow.getGLFWwindow(), true);
 
+    ImGui_ImplVulkan_PipelineInfo pipelineInfo{};
+    pipelineInfo.RenderPass = lveRenderer.getSwapChainRenderPass();
+    pipelineInfo.Subpass = 0;
+    pipelineInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+
     // this initializes imgui for Vulkan
-	ImGui_ImplVulkan_InitInfo init_info = {};
-	init_info.Instance = lveDevice.getInstance();
-	init_info.PhysicalDevice = lveDevice.getPhysicalDevice();
-	init_info.Device = lveDevice.device();
-	init_info.Queue = lveDevice.graphicsQueue();
-    init_info.PipelineCache = VK_NULL_HANDLE;
-	init_info.DescriptorPool = pool;
-	init_info.MinImageCount = LveSwapChain::MAX_FRAMES_IN_FLIGHT;
-	init_info.ImageCount = LveSwapChain::MAX_FRAMES_IN_FLIGHT;
-	init_info.UseDynamicRendering = false;
+    ImGui_ImplVulkan_InitInfo init_info{};
+    init_info.Instance = lveDevice.getInstance();
+    init_info.PhysicalDevice = lveDevice.getPhysicalDevice();
+    init_info.Device = lveDevice.device();
     init_info.QueueFamily = lveDevice.findPhysicalQueueFamilies().graphicsFamily;
+    init_info.Queue = lveDevice.graphicsQueue();
+    init_info.PipelineCache = VK_NULL_HANDLE;
+    init_info.DescriptorPool = lveRenderer.globalPool->getDescriptorPool();
+    init_info.MinImageCount = LveSwapChain::MAX_FRAMES_IN_FLIGHT;
+    init_info.ImageCount = LveSwapChain::MAX_FRAMES_IN_FLIGHT;
     init_info.Allocator = nullptr;
     init_info.CheckVkResultFn = nullptr;
+    init_info.PipelineInfoMain = pipelineInfo;
 
-    ImGui_ImplVulkan_Init(&init_info);
+    ImGui_ImplVulkan_Init(&init_info);  
+
   }
 
-  void Imgui_LVE::draw(VkCommandBuffer commandBuffer, int index)
+  void Imgui_LVE::draw(VkCommandBuffer commandBuffer, glm::vec3 *rotationnn)
   {
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame(); 
-    ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
     ImGui::NewFrame();
 
-    ImGui::ShowDemoWindow();
-    ImGui::Render();
+    ImGui::Begin("Directional light");
+    ImGui::SliderFloat("X", &rotationnn->x, -5.0f, 5.0f);
+    ImGui::SliderFloat("Y", &rotationnn->y, 5.0f, 10.0f);
+    ImGui::SliderFloat("Z", &rotationnn->z, -5.0f, 5.0f);
 
-    VkRenderingAttachmentInfo colorAttachment = 
-                        attachment_info(lveRenderer.getSwapChainImageView(index), 
-                        nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    ImGui::End();
 
-	VkRenderingInfo renderInfo = rendering_info(lveWindow.getExtent(), &colorAttachment, nullptr);
 
-	vkCmdBeginRendering(commandBuffer, &renderInfo);
+    ImGui::Begin("Framerate");
 
-	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+    std::string lovely = std::to_string(ImGui::GetIO().Framerate);
 
-	vkCmdEndRendering(commandBuffer);
+    ImGui::PlotLines(lovely.c_str(), &ImGui::GetIO().Framerate, 30, 0, 
+                     NULL, 0.f, FLT_MAX, ImVec2(0, 100.f), 0.f);
+
+    ImGui::End();
+
 
     ImGui::EndFrame();
-  }
-
-  VkRenderingAttachmentInfo Imgui_LVE::attachment_info(VkImageView imageView, 
-                             VkClearValue* clear, VkImageLayout layout)
-  {
-    VkRenderingAttachmentInfo colorAttachment {};
-    colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-    colorAttachment.pNext = nullptr;
-
-    colorAttachment.imageView = imageView;
-    colorAttachment.imageLayout = layout;
-    colorAttachment.loadOp = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
-    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    if (clear) {
-        colorAttachment.clearValue = *clear;
-    }
-
-    return colorAttachment;
-  }
-
-  VkRenderingInfo Imgui_LVE::rendering_info(VkExtent2D extent, VkRenderingAttachmentInfo* attachment, 
-                                            VkRenderingAttachmentInfo* depth)
-  {
-    VkRenderingInfo colorAttachment {};
-    colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-    colorAttachment.pNext = nullptr;
-
-    colorAttachment.renderArea.extent = extent;
-    colorAttachment.pColorAttachments = attachment;
-    colorAttachment.pDepthAttachment = depth;
-
-    return colorAttachment;
+    ImGui::Render();
+    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
   }
 }
