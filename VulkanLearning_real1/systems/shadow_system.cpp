@@ -57,6 +57,7 @@ namespace lve
 	PipelineConfigInfo pipelineConfig{};
 	LvePipeline::defaultPipelineConfigInfo(pipelineConfig);
     LvePipeline::defaultPipelineShadowInfo(pipelineConfig);
+    pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_FRONT_BIT;
 
     pipelineConfig.renderPass = renderPass;
 	pipelineConfig.pipelineLayout = pipelineLayout;

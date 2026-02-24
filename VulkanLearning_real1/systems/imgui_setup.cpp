@@ -1,98 +1,122 @@
 #include "imgui_setup.hpp"
 #include <GLFW/glfw3.h>
+#include <imgui.h>
+#include <imgui_impl_vulkan.h>
 #include <vulkan/vulkan_core.h>
 
 namespace lve 
 {
-  Imgui_LVE::Imgui_LVE(LveDevice &device, VkExtent2D happenstance) 
-      : lveDevice{device}
+  Imgui_LVE::Imgui_LVE(LveDevice &device, LveRenderer &render, LveWindow &window) 
+      : lveDevice{device}, lveWindow{window}, lveRenderer{render}
   {
-    init(happenstance);
+    init();
   }
 
-  void Imgui_LVE::init(VkExtent2D happenstance)
+  void Imgui_LVE::init()
   {
-    float width = happenstance.width, height = happenstance.height;
-
     // Initialize ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-
-    // Configure ImGui
     ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable keyboard controls
-    //io.ConfigFlags |= ImGuiConfigFlags_;      // Enable docking
+    (void)io;
 
-    // Set display size
-    io.DisplaySize = ImVec2(width, height);
-    io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+    	VkDescriptorPoolSize pool_sizes[] = { { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+		{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 } };
 
-    // Set up style
-    vulkanStyle = ImGui::GetStyle();
-    vulkanStyle.Colors[ImGuiCol_TitleBg] = ImVec4(1.0f, 0.0f, 0.0f, 0.6f);
-    vulkanStyle.Colors[ImGuiCol_TitleBgActive] = ImVec4(1.0f, 0.0f, 0.0f, 0.8f);
-    vulkanStyle.Colors[ImGuiCol_MenuBarBg] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
-    vulkanStyle.Colors[ImGuiCol_Header] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
-    vulkanStyle.Colors[ImGuiCol_CheckMark] = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
+	VkDescriptorPoolCreateInfo pool_info = {};
+	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+	pool_info.maxSets = 1000;
+	pool_info.poolSizeCount = (uint32_t)std::size(pool_sizes);
+	pool_info.pPoolSizes = pool_sizes;
 
-    // Apply default style
-    setStyle(0);
+	VkDescriptorPool imguiPool;
+	vkCreateDescriptorPool(lveDevice.device(), &pool_info, nullptr, &imguiPool);
+    pool = imguiPool;
+
+    ImGui_ImplGlfw_InitForVulkan(lveWindow.getGLFWwindow(), true);
+
+    // this initializes imgui for Vulkan
+	ImGui_ImplVulkan_InitInfo init_info = {};
+	init_info.Instance = lveDevice.getInstance();
+	init_info.PhysicalDevice = lveDevice.getPhysicalDevice();
+	init_info.Device = lveDevice.device();
+	init_info.Queue = lveDevice.graphicsQueue();
+    init_info.PipelineCache = VK_NULL_HANDLE;
+	init_info.DescriptorPool = pool;
+	init_info.MinImageCount = LveSwapChain::MAX_FRAMES_IN_FLIGHT;
+	init_info.ImageCount = LveSwapChain::MAX_FRAMES_IN_FLIGHT;
+	init_info.UseDynamicRendering = false;
+    init_info.QueueFamily = lveDevice.findPhysicalQueueFamilies().graphicsFamily;
+    init_info.Allocator = nullptr;
+    init_info.CheckVkResultFn = nullptr;
+
+    ImGui_ImplVulkan_Init(&init_info);
   }
- 
-  void Imgui_LVE::setStyle(uint32_t index)
-  {
-    ImGuiStyle& style = ImGui::GetStyle();
 
-    switch (index) {
-        case 0:
-            // Custom Vulkan style
-            style = vulkanStyle;
-            break;
-        case 1:
-            // Classic style
-            ImGui::StyleColorsClassic();
-            break;
-        case 2:
-            // Dark style
-            ImGui::StyleColorsDark();
-            break;
-        case 3:
-            // Light style
-            ImGui::StyleColorsLight();
-            break;
+  void Imgui_LVE::draw(VkCommandBuffer commandBuffer, int index)
+  {
+    ImGui_ImplVulkan_NewFrame();
+    ImGui_ImplGlfw_NewFrame(); 
+    ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
+    ImGui::NewFrame();
+
+    ImGui::ShowDemoWindow();
+    ImGui::Render();
+
+    VkRenderingAttachmentInfo colorAttachment = 
+                        attachment_info(lveRenderer.getSwapChainImageView(index), 
+                        nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
+	VkRenderingInfo renderInfo = rendering_info(lveWindow.getExtent(), &colorAttachment, nullptr);
+
+	vkCmdBeginRendering(commandBuffer, &renderInfo);
+
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+
+	vkCmdEndRendering(commandBuffer);
+
+    ImGui::EndFrame();
+  }
+
+  VkRenderingAttachmentInfo Imgui_LVE::attachment_info(VkImageView imageView, 
+                             VkClearValue* clear, VkImageLayout layout)
+  {
+    VkRenderingAttachmentInfo colorAttachment {};
+    colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+    colorAttachment.pNext = nullptr;
+
+    colorAttachment.imageView = imageView;
+    colorAttachment.imageLayout = layout;
+    colorAttachment.loadOp = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    if (clear) {
+        colorAttachment.clearValue = *clear;
     }
+
+    return colorAttachment;
   }
 
-  void Imgui_LVE::initResources() 
+  VkRenderingInfo Imgui_LVE::rendering_info(VkExtent2D extent, VkRenderingAttachmentInfo* attachment, 
+                                            VkRenderingAttachmentInfo* depth)
   {
-    // Extract font atlas data from ImGui's internal font system
-    // ImGui generates a texture atlas containing all glyphs needed for text rendering
-    ImGuiIO& io = ImGui::GetIO();
-    unsigned char* fontData;                    // Raw pixel data from font atlas
-    int texWidth, texHeight;                    // Dimensions of the generated font atlas
-    io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
+    VkRenderingInfo colorAttachment {};
+    colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+    colorAttachment.pNext = nullptr;
 
-    // Calculate total memory requirements for GPU transfer
-    // Each pixel contains 4 bytes (RGBA) requiring precise memory allocation
-    vk::DeviceSize uploadSize = texWidth * texHeight * 4 * sizeof(char);
-  
-        // Define image dimensions and create extent structure
-    // Vulkan requires explicit specification of all image dimensions
-    vk::Extent3D fontExtent{
-        static_cast<uint32_t>(texWidth),        // Image width in pixels
-        static_cast<uint32_t>(texHeight),       // Image height in pixels
-        1                                       // Single layer (not a 3D texture or array)
-    };
+    colorAttachment.renderArea.extent = extent;
+    colorAttachment.pColorAttachments = attachment;
+    colorAttachment.pDepthAttachment = depth;
 
-    // Create optimized GPU image for font texture storage
-    // This image will be sampled by shaders during UI rendering
-    fontImage = Image(*device, fontExtent, vk::Format::eR8G8B8A8Unorm,
-                    vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
-                    vk::MemoryPropertyFlagBits::eDeviceLocal);
-
-    // Create image view for shader access
-    // The image view defines how shaders interpret the raw image data
-    fontImageView = VkImageView(*device, fontImage.getHandle(), vk::Format::eR8G8B8A8Unorm,
-                           vk::ImageAspectFlagBits::eColor);
+    return colorAttachment;
   }
 }

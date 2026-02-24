@@ -239,7 +239,7 @@ float calculateRandPCF(float currentDepth, vec2 uv)
     
     int steps = 2;
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-    float bias = 0.0005f;
+    float bias = 0.00009f;
     for(int x = -steps; x <= steps; ++x)
     {
        for(int y = -steps; y <= steps; ++y)
@@ -247,7 +247,7 @@ float calculateRandPCF(float currentDepth, vec2 uv)
             vec2 randomOffset = vec2(rand(uv + vec2(x, y)), rand(uv - vec2(x, y))) * texelSize;
 
             float pcfDepth = texture(shadowMap, uv + vec2(float(x)/steps, float(y)/steps) * texelSize + randomOffset).r; 
-           shadow += currentDepth < pcfDepth ? 1.0 : 0.0;        
+           shadow += currentDepth - bias < pcfDepth ? 1.0 : 0.0;        
        }    
     }
     shadow /= (steps * 2) * (steps * 2);
@@ -462,7 +462,7 @@ void main()
 
     vec3 diffuseLight = calculateDiffuse(normalize(fragNormalWorld), surfaceNormal, UVs, viewDirection, F0);
     Lo += calculateSunLight(sun, surfaceNormal, UVs, viewDirection, F0, cameraPosWorld);
-    Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
+    //Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
 
     //https://www.youtube.com/watch?v=BFld4EBO2RE great video!
     vec3 lambda = exp(-0.0005f * currDepth * vec3(.5f, 1.f, 4.f));

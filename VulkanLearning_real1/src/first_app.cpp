@@ -77,7 +77,7 @@ namespace lve
         DepthBuffer depthBuffer{lveDevice, lveRenderer.getSwapChainDepthPass(), lveRenderer.getGlobalLayout()};
         AOSystem AOSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), *lveRenderer.globalPool, lveRenderer.getGlobalLayout()};
 
-        //Imgui_LVE imgui{lveDevice, lveWindow};
+        //Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow};
 
         LveCamera camera{};
  
@@ -146,7 +146,7 @@ namespace lve
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
 
-                glm::vec3 lightPos = {1.f, 1.f, 1.f};
+                glm::vec3 lightPos = {1.f, 1.f, 0.f};
                 glm::mat4 projMat = DirectionalLightSystem::lightViewProjection(
                   lightPos, 
                   frameInfo.camera.getPosition() + offset, 
@@ -186,7 +186,7 @@ namespace lve
                 //renders light dots
                 pointLightSystem.render(frameInfo);
 
-                //imgui.draw(commandBuffer, lveRenderer.getSwapChainImageView(frameIndex));
+                //imgui.draw(commandBuffer, frameIndex);
                 
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
 				lveRenderer.endFrame();
