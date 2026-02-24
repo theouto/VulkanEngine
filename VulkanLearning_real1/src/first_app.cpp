@@ -14,6 +14,7 @@
 #include "../systems/normal_spec.hpp"
 #include "../systems/ambientocclusion_system.hpp"
 #include "../systems/depth_buffer.hpp"
+#include "../systems/imgui_setup.hpp"
 
 
 #include <GLFW/glfw3.h>
@@ -74,8 +75,9 @@ namespace lve
         DirectionalLightSystem shadowSystem{lveDevice, lveRenderer.getSwapChainShadowPass(),lveRenderer.getGlobalLayout()};
         NormalSpecPass normalSpecPass{lveDevice, lveRenderer.getSwapChainNormalPass(), lveRenderer.getGlobalLayout(), normalLayout->getDescriptorSetLayout()};
         DepthBuffer depthBuffer{lveDevice, lveRenderer.getSwapChainDepthPass(), lveRenderer.getGlobalLayout()};
-
         AOSystem AOSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), *lveRenderer.globalPool, lveRenderer.getGlobalLayout()};
+
+        //Imgui_LVE imgui{lveDevice, lveWindow};
 
         LveCamera camera{};
  
@@ -144,7 +146,7 @@ namespace lve
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
 
-                glm::vec3 lightPos = {1.f, 2.f, 2.f};
+                glm::vec3 lightPos = {1.f, 1.f, 1.f};
                 glm::mat4 projMat = DirectionalLightSystem::lightViewProjection(
                   lightPos, 
                   frameInfo.camera.getPosition() + offset, 
@@ -183,6 +185,8 @@ namespace lve
 
                 //renders light dots
                 pointLightSystem.render(frameInfo);
+
+                //imgui.draw(commandBuffer, lveRenderer.getSwapChainImageView(frameIndex));
                 
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
 				lveRenderer.endFrame();

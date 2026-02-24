@@ -1,79 +1,98 @@
 #include "imgui_setup.hpp"
+#include <GLFW/glfw3.h>
+#include <vulkan/vulkan_core.h>
 
-/*
 namespace lve 
 {
-  Imgui_LVE::Imgui_LVE(LveDevice &device, LveWindow &window, LveSwapChain &chain) 
-      : lveDevice{device}, lveWindow{window}, swapChain{chain}
+  Imgui_LVE::Imgui_LVE(LveDevice &device, VkExtent2D happenstance) 
+      : lveDevice{device}
   {
-    init_imgui();
+    init(happenstance);
   }
 
-  void Imgui_LVE::init_imgui()
+  void Imgui_LVE::init(VkExtent2D happenstance)
   {
-    
-    VkDescriptorPoolSize pool_sizes[] = { { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
-		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
-		{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
-		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
-		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
-		{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 } };
+    float width = happenstance.width, height = happenstance.height;
 
-	VkDescriptorPoolCreateInfo pool_info = {};
-	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-	pool_info.maxSets = 1000;
-	pool_info.poolSizeCount = (uint32_t)std::size(pool_sizes);
-	pool_info.pPoolSizes = pool_sizes;
-
-	VkDescriptorPool imguiPool;
-	vkCreateDescriptorPool(lveDevice.device(), &pool_info, nullptr, &imguiPool);
-
-    // Setup Dear ImGui context
+    // Initialize ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
+    // Configure ImGui
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable keyboard controls
+    //io.ConfigFlags |= ImGuiConfigFlags_;      // Enable docking
 
-    // Setup Platform/Renderer bindings
-    ImGui_ImplGlfw_InitForVulkan(lveWindow.getGLFWwindow(), true);
-   
-    ImGui_ImplVulkan_InitInfo init_info = {};
-	init_info.Instance = lveDevice.getInstance();
-	init_info.PhysicalDevice = lveDevice.getPhysicalDevice();
-	init_info.Device = lveDevice.device();
-	init_info.Queue = lveDevice.presentQueue();
-	init_info.DescriptorPool = imguiPool;
-	init_info.MinImageCount = 3;
-	init_info.ImageCount = 3;
-	init_info.UseDynamicRendering = true;
+    // Set display size
+    io.DisplaySize = ImVec2(width, height);
+    io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 
-	ImGui_ImplVulkan_Init(&init_info);
+    // Set up style
+    vulkanStyle = ImGui::GetStyle();
+    vulkanStyle.Colors[ImGuiCol_TitleBg] = ImVec4(1.0f, 0.0f, 0.0f, 0.6f);
+    vulkanStyle.Colors[ImGuiCol_TitleBgActive] = ImVec4(1.0f, 0.0f, 0.0f, 0.8f);
+    vulkanStyle.Colors[ImGuiCol_MenuBarBg] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
+    vulkanStyle.Colors[ImGuiCol_Header] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
+    vulkanStyle.Colors[ImGuiCol_CheckMark] = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
 
-
-	// add the destroy the imgui created structures
-	//_mainDeletionQueue.push_function([=]() {
-		ImGui_ImplVulkan_Shutdown();
-		vkDestroyDescriptorPool(lveDevice.device(), imguiPool, nullptr);
-	//});
-    
+    // Apply default style
+    setStyle(0);
   }
  
-  VkRenderingAttachmentInfo Imgui_LVE::attachment_info(VkImageView view, VkClearValue* clear, VkImageLayout layout)
+  void Imgui_LVE::setStyle(uint32_t index)
   {
-    
-    return VkRenderingAttachmentInfo{};
+    ImGuiStyle& style = ImGui::GetStyle();
+
+    switch (index) {
+        case 0:
+            // Custom Vulkan style
+            style = vulkanStyle;
+            break;
+        case 1:
+            // Classic style
+            ImGui::StyleColorsClassic();
+            break;
+        case 2:
+            // Dark style
+            ImGui::StyleColorsDark();
+            break;
+        case 3:
+            // Light style
+            ImGui::StyleColorsLight();
+            break;
+    }
   }
 
+  void Imgui_LVE::initResources() 
+  {
+    // Extract font atlas data from ImGui's internal font system
+    // ImGui generates a texture atlas containing all glyphs needed for text rendering
+    ImGuiIO& io = ImGui::GetIO();
+    unsigned char* fontData;                    // Raw pixel data from font atlas
+    int texWidth, texHeight;                    // Dimensions of the generated font atlas
+    io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
+
+    // Calculate total memory requirements for GPU transfer
+    // Each pixel contains 4 bytes (RGBA) requiring precise memory allocation
+    vk::DeviceSize uploadSize = texWidth * texHeight * 4 * sizeof(char);
+  
+        // Define image dimensions and create extent structure
+    // Vulkan requires explicit specification of all image dimensions
+    vk::Extent3D fontExtent{
+        static_cast<uint32_t>(texWidth),        // Image width in pixels
+        static_cast<uint32_t>(texHeight),       // Image height in pixels
+        1                                       // Single layer (not a 3D texture or array)
+    };
+
+    // Create optimized GPU image for font texture storage
+    // This image will be sampled by shaders during UI rendering
+    fontImage = Image(*device, fontExtent, vk::Format::eR8G8B8A8Unorm,
+                    vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
+                    vk::MemoryPropertyFlagBits::eDeviceLocal);
+
+    // Create image view for shader access
+    // The image view defines how shaders interpret the raw image data
+    fontImageView = VkImageView(*device, fontImage.getHandle(), vk::Format::eR8G8B8A8Unorm,
+                           vk::ImageAspectFlagBits::eColor);
+  }
 }
-*/

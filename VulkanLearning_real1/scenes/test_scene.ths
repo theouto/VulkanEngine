@@ -1,21 +1,16 @@
-4
+3
 models/cube.obj
 materials/wet_rock.thmat
 0 0.5 0
 1 -1 1
 0 0 0
-models/Terrain001_1K.obj
-materials/bread.thmat
--1 3 0
+models/sponza.obj
+materials/wet_rock.thmat
+0 0.5 0
 0.005 -0.005 0.005
 0 0 0
-models/cube.obj
-materials/planks.thmat
-0.8 0.5 1.4
-1 -1 1
-0 0 0
 models/smooth_vase.obj
-materials/planks.thmat
+materials/wet_rock.thmat
 -1 -1 0
 2 2 2
 0 0 0
