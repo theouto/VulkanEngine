@@ -4,7 +4,6 @@
 #include "../include/lve_camera.hpp"
 #include "../include/lve_buffer.hpp"
 #include "../include/lve_frame_info.hpp"
-#include "../include/the_scene.hpp"
 
 
 #include "../systems/point_light_system.hpp"
@@ -66,7 +65,7 @@ namespace lve
 
         std::vector<VkDescriptorSetLayout> setLayouts = {
             lveRenderer.getGlobalLayout(),
-            matLayout->getDescriptorSetLayout()};
+            sceneManager.mattLayout().getDescriptorSetLayout()};
 
         SimpleRenderSystem simpleRenderSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), setLayouts};
         PointLightSystem pointLightSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), lveRenderer.getGlobalLayout() };
@@ -77,7 +76,7 @@ namespace lve
         DepthBuffer depthBuffer{lveDevice, lveRenderer.getSwapChainDepthPass(), lveRenderer.getGlobalLayout()};
         AOSystem AOSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), *lveRenderer.globalPool, lveRenderer.getGlobalLayout()};
 
-        Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow, gameObjects};
+        Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow, gameObjects, sceneManager};
 
         LveCamera camera{};
  
@@ -228,7 +227,7 @@ namespace lve
         };
         */
        
-
+          
         matLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //albedo
             .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //specular
@@ -296,10 +295,7 @@ namespace lve
 
         */
 
-        LveScene sceneManager{ lveDevice};
-
-        sceneManager.load("scenes/test_scene.ths", *matLayout, 
-                          *normalLayout, *lveRenderer.globalPool, gameObjects);
+        sceneManager.load("scenes/test_scene.ths", *lveRenderer.globalPool);
         
         std::vector<glm::vec3> lightColors{
             {1.f, .1f, .1f},
@@ -311,24 +307,22 @@ namespace lve
             {.0157f, 0.824f, 0.745f}    //0x04d3be
         };
 
-        auto pointLight = LveGameObject::makePointLight(0.9f);
-        pointLight.color = {1.f, 1.f, 1.f};
-        pointLight.transform.translation = glm::vec3(0.7f, -0.2f, 0.7f);
-        std::cout << pointLight.getId() << "\n\n\n\n";
-        gameObjects.emplace(pointLight.getId(), std::move(pointLight));
-
         for (int i = 0; i < lightColors.size(); i++) 
         {
-            pointLight = LveGameObject::makePointLight(0.7f);
+            auto pointLight = LveGameObject::makePointLight(0.7f);
             pointLight.color = lightColors[i];
             auto rotateLight = glm::rotate(
                 glm::mat4(1.f),
                 (i * glm::two_pi<float>()) / lightColors.size(),
                 { 0.f, -1.f, 0.f });
             pointLight.transform.translation = glm::vec3(rotateLight * glm::vec4(-1.f, -1.f, -1.f, 1.f));
+
+            std::cout << pointLight.getId() << "\n\n\n\n";
+
             gameObjects.emplace(pointLight.getId(), std::move(pointLight));
         }
+        
 
-        	}
+      }
 
 }

@@ -11,13 +11,12 @@
 namespace lve
 {
 
-  LveScene::LveScene(LveDevice &device) : lveDevice{device}
+  LveScene::LveScene(LveDevice &device, LveGameObject::Map& objects) : lveDevice{device}, gameObjects{objects}
   {
     materialHandler = std::make_unique<LveMaterials>(lveDevice);
   }
 
-  void LveScene::load(std::string file, LveDescriptorSetLayout& sceneLayout, LveDescriptorSetLayout& normalLayout, 
-                      LveDescriptorPool& pool, LveGameObject::Map &objects)
+  void LveScene::load(std::string file, LveDescriptorPool& pool)
   {
     std::ifstream scene(file.c_str());
     if (!scene.is_open()) {throw std::runtime_error("Failed to open scene file!");}
@@ -47,13 +46,28 @@ namespace lve
       object.transform.translation = translation;
       object.transform.rotation = rotation;
       object.transform.scale = scale;
-      object.write_material(sceneLayout, normalLayout, pool);
+      object.write_material(*matLayout, *normalLayout, pool);
 
-      objects.emplace(object.getId(), std::move(object));
+      std::cout << object.getId() << '\n';
+
+      gameObjects.emplace(object.getId(), std::move(object));
       
       getline(scene, line); //clear the line
     }
     
     scene.close();
+  }
+
+  void LveScene::loadModel(LveDescriptorPool& pool)
+  {
+    std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/cube.obj");
+    auto quad = LveGameObject::createGameObject();
+    quad.model = lveModel;
+    quad.transform.translation = { 0.f, .5f, 0.f };
+    quad.transform.scale = { 1.f, 1.f, 1.f };
+    quad.textures = materialHandler->retrieveMaterial("materials/wet_rock.thmat");
+    quad.write_material(*matLayout, *normalLayout, pool);
+    std::cout << quad.getId() << '\n';
+    gameObjects.emplace(quad.getId(), std::move(quad));
   }
 }

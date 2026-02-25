@@ -13,16 +13,34 @@ namespace lve
   {
     public:
 
-      LveScene(LveDevice &device);
+      LveScene(LveDevice &device, LveGameObject::Map& objects);
 
-      //Dodgy workaround until I work it out
-      void load(std::string file, LveDescriptorSetLayout& sceneLayout, LveDescriptorSetLayout& normalLayout, 
-                LveDescriptorPool& pool, LveGameObject::Map &objects);
+      void load(std::string file, LveDescriptorPool& pool);
+
+      void loadModel(LveDescriptorPool& pool);
+      LveDescriptorSetLayout& mattLayout(){return *matLayout;}
 
     private:
 
+      LveDevice& lveDevice;
+
+      std::unique_ptr<LveDescriptorSetLayout> matLayout = LveDescriptorSetLayout::Builder(lveDevice)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //albedo
+            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //specular
+            .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //normal
+            .addBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //roughness
+            .addBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //AO
+            .addBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //metalness
+            .build();
+
+      std::unique_ptr<LveDescriptorSetLayout> normalLayout = LveDescriptorSetLayout::Builder(lveDevice)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+            .build();
+
+
       std::unique_ptr<LveMaterials> materialHandler;
       std::vector<LveGameObject> objArr;
-      LveDevice& lveDevice;
-  };
+      LveGameObject::Map& gameObjects;
+    };
 }

@@ -8,8 +8,8 @@
 
 namespace lve 
 {
-  Imgui_LVE::Imgui_LVE(LveDevice &device, LveRenderer &render, LveWindow &window, LveGameObject::Map& map) 
-      : lveDevice{device}, lveWindow{window}, lveRenderer{render}, gameObjects{map}
+  Imgui_LVE::Imgui_LVE(LveDevice &device, LveRenderer &render, LveWindow &window, LveGameObject::Map& map, LveScene& scene) 
+      : lveDevice{device}, lveWindow{window}, lveRenderer{render}, gameObjects{map}, sceneManager{scene}
   {
     init();
   }
@@ -75,7 +75,7 @@ namespace lve
  
     ImGui::Begin("Object control");
 
-    ImGui::SliderInt("Object", &object, 0, gameObjects.size());
+    ImGui::SliderInt("Object", &object, 0, gameObjects.size()-1);
  
     ImGui::LabelText("\nPosition", "");
     ImGui::SliderFloat("X-pos", &gameObjects.at(object).transform.translation.x, -10.f, 10.f);
@@ -94,10 +94,18 @@ namespace lve
     ImGui::SliderFloat("Y-scale", &gameObjects.at(object).transform.scale.y, -10.f, 10.f);
     ImGui::SliderFloat("Z-scale", &gameObjects.at(object).transform.scale.z, -10.f, 10.f);
 
+    if(ImGui::Button("LOAD NOW!!!", ImVec2(50.f, 20.f))) boobledybop();
+
     ImGui::End();
 
     ImGui::EndFrame();
     ImGui::Render();
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+  }
+
+  void Imgui_LVE::boobledybop()
+  {
+        //WHY THE FUCK IS THERE A NULL POSITION IN THE MAP???? WHY DO I SKIP AN ENTIRE FUCKING POSITION??? HOW?????
+        sceneManager.loadModel(*lveRenderer.globalPool);
   }
 }

@@ -19,7 +19,7 @@ namespace lve
     std::vector<std::shared_ptr<LveTextures>> retrieveMaterial(const std::string path);
 
     private:
-    
+
     LveDevice &lveDevice;
     std::unordered_map<std::string, std::vector<std::shared_ptr<LveTextures>>> loadedMaterials;
   };

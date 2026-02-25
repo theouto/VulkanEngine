@@ -6,6 +6,7 @@
 #include "lve_game_object.hpp"
 #include "lve_renderer.hpp"
 #include "lve_descriptors.hpp"
+#include "the_scene.hpp"
 #include "lve_textures.hpp"
 
 #include <memory>
@@ -35,9 +36,11 @@ namespace lve
 
 		LveDevice lveDevice{ lveWindow };
 		LveRenderer lveRenderer{ lveWindow, lveDevice };
+
         std::unique_ptr<LveDescriptorSetLayout> matLayout;
         std::unique_ptr<LveDescriptorSetLayout> normalLayout;
 
 		LveGameObject::Map gameObjects;
+        LveScene sceneManager{ lveDevice, gameObjects};
 	};
 }

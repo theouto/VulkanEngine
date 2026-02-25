@@ -28,7 +28,7 @@ namespace lve
       		rotate.x -= rotx;
         }
 
-		if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon()) {
+        if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon()) {
 			gameObject.transform.rotation += lookSpeed * dt * rotate;
 		}
 
