@@ -1,11 +1,11 @@
 2
 models/sponza.obj
-materials/wet_sand.thmat
+materials/wet_rock.thmat
 0 0.5 0
 0.005 -0.005 0.005
 0 0 0
 models/smooth_vase.obj
-materials/wet_sand.thmat
+materials/wet_rock.thmat
 -1 -1 0
 2 2 2
 0 0 0

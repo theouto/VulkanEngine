@@ -77,7 +77,7 @@ namespace lve
         DepthBuffer depthBuffer{lveDevice, lveRenderer.getSwapChainDepthPass(), lveRenderer.getGlobalLayout()};
         AOSystem AOSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), *lveRenderer.globalPool, lveRenderer.getGlobalLayout()};
 
-        Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow};
+        Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow, gameObjects};
 
         LveCamera camera{};
  
@@ -147,14 +147,10 @@ namespace lve
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
 
-                  glm::mat4 projMat = DirectionalLightSystem::lightViewProjection(
+                glm::mat4 projMat = DirectionalLightSystem::lightViewProjection(
                   rot, 
                   frameInfo.camera.getPosition() + offset, 
                   radius);
-
-                auto rotate = glm::rotate(glm::mat4(1.f), frameInfo.frameTIme, { 0.1f, -0.5f, 0.f });
-                gameObjects.at(3).transform.translation = glm::vec3(rotate 
-                              * glm::vec4(gameObjects.at(3).transform.translation, 1.f));
 
                 //render shadowmap
 		        lveRenderer.beginShadowRenderPass(commandBuffer);

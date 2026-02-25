@@ -8,8 +8,8 @@
 
 namespace lve 
 {
-  Imgui_LVE::Imgui_LVE(LveDevice &device, LveRenderer &render, LveWindow &window) 
-      : lveDevice{device}, lveWindow{window}, lveRenderer{render}
+  Imgui_LVE::Imgui_LVE(LveDevice &device, LveRenderer &render, LveWindow &window, LveGameObject::Map& map) 
+      : lveDevice{device}, lveWindow{window}, lveRenderer{render}, gameObjects{map}
   {
     init();
   }
@@ -66,11 +66,34 @@ namespace lve
 
     std::string lovely = std::to_string(ImGui::GetIO().Framerate);
 
-    ImGui::PlotLines(lovely.c_str(), &ImGui::GetIO().Framerate, 30, 0, 
+    ImGui::PlotLines(lovely.c_str(), &ImGui::GetIO().Framerate, 30, 10.f, 
                      NULL, 0.f, FLT_MAX, ImVec2(0, 100.f), 0.f);
 
     ImGui::End();
 
+ 
+    ImGui::Begin("Object control");
+
+    ImGui::SliderInt("Object", &object, 0, gameObjects.size());
+ 
+    ImGui::LabelText("\nPosition", "");
+    ImGui::SliderFloat("X-pos", &gameObjects.at(object).transform.translation.x, -10.f, 10.f);
+    ImGui::SliderFloat("Y-pos", &gameObjects.at(object).transform.translation.y, -10.f, 10.f);
+    ImGui::SliderFloat("Z-pos", &gameObjects.at(object).transform.translation.z, -10.f, 10.f);
+
+
+    ImGui::LabelText("\nRotation", "");
+    ImGui::SliderFloat("X-rot", &gameObjects.at(object).transform.rotation.x, -10.f, 10.f);
+    ImGui::SliderFloat("Y-rot", &gameObjects.at(object).transform.rotation.y, -10.f, 10.f);
+    ImGui::SliderFloat("Z-rot", &gameObjects.at(object).transform.rotation.z, -10.f, 10.f);
+
+
+    ImGui::LabelText("\nScale", "");
+    ImGui::SliderFloat("X-scale", &gameObjects.at(object).transform.scale.x, -10.f, 10.f);
+    ImGui::SliderFloat("Y-scale", &gameObjects.at(object).transform.scale.y, -10.f, 10.f);
+    ImGui::SliderFloat("Z-scale", &gameObjects.at(object).transform.scale.z, -10.f, 10.f);
+
+    ImGui::End();
 
     ImGui::EndFrame();
     ImGui::Render();

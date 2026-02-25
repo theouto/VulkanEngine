@@ -7,6 +7,7 @@
 
 #include <glm/glm.hpp>
 
+#include "../include/lve_game_object.hpp"
 #include "../include/lve_device.hpp"
 #include "../include/lve_window.hpp"
 #include "../include/lve_renderer.hpp"
@@ -19,7 +20,7 @@ namespace lve
   {
     public:
     
-    Imgui_LVE(LveDevice &device, LveRenderer &render, LveWindow &window);
+    Imgui_LVE(LveDevice &device, LveRenderer &render, LveWindow &window, LveGameObject::Map& map);
     ~Imgui_LVE()
     {
       ImGui_ImplVulkan_Shutdown();
@@ -32,6 +33,8 @@ namespace lve
 
     private:
 
+    int object = 0;
+    LveGameObject::Map& gameObjects;
     LveDevice& lveDevice;
     LveRenderer& lveRenderer;
     LveWindow& lveWindow;

@@ -66,7 +66,7 @@ vec3 perturb_normal( vec3 N, vec3 V, vec2 texcoord )
 
 void main()
 {
-    vec2 UVs = fragUv*4;
+    vec2 UVs = fragUv;
 
     vec3 surfaceNormal = normalize(fragNormalWorld);
 
@@ -74,7 +74,8 @@ void main()
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld);
 
     surfaceNormal = perturb_normal(surfaceNormal, viewDirection, UVs);
-    
+
     float spec = texture(specular, UVs).r;
+
     outColor = vec4(surfaceNormal, spec);
 }
