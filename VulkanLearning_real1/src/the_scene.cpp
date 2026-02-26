@@ -55,15 +55,15 @@ namespace lve
     scene.close();
   }
 
-  void LveScene::loadModel(LveDescriptorPool& pool)
+  void LveScene::loadModel(LveGameObject& object, LveDescriptorPool& pool, const char* path)
   {
-    std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/cube.obj");
-    auto quad = LveGameObject::createGameObject();
-    quad.model = lveModel;
-    quad.transform.translation = { 0.f, .5f, 0.f };
-    quad.transform.scale = { 1.f, 1.f, 1.f };
-    quad.textures = materialHandler->retrieveMaterial("materials/wet_rock.thmat");
-    quad.write_material(*matLayout, *normalLayout, pool);
-    gameObjects.emplace(quad.getId(), std::move(quad));
+    //std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/cube.obj");
+    //auto quad = LveGameObject::createGameObject();
+    //object.model = lveModel;
+    //object.transform.translation = { 0.f, .5f, 0.f };
+    //object.transform.scale = { 1.f, 1.f, 1.f };
+    object.textures = materialHandler->retrieveMaterial(path);
+    object.write_material(*matLayout, *normalLayout, pool);
+    gameObjects.emplace(object.getId(), std::move(object));
   }
 }

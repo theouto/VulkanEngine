@@ -94,6 +94,29 @@ namespace lve
     ImGui::SliderFloat("Y-scale", &gameObjects.at(object).transform.scale.y, -10.f, 10.f);
     ImGui::SliderFloat("Z-scale", &gameObjects.at(object).transform.scale.z, -10.f, 10.f);
 
+    ImGui::End();
+
+    ImGui::Begin("Object loader");
+
+    ImGui::LabelText("\nPosition", "");
+    ImGui::InputFloat("X-pos", &trans.x, -10.f, 10.f);
+    ImGui::InputFloat("Y-pos", &trans.y, -10.f, 10.f);
+    ImGui::InputFloat("Z-pos", &trans.z, -10.f, 10.f);
+
+
+    ImGui::LabelText("\nRotation", "");
+    ImGui::InputFloat("X-rot", &rot.x, -10.f, 10.f);
+    ImGui::InputFloat("Y-rot", &rot.y, -10.f, 10.f);
+    ImGui::InputFloat("Z-rot", &rot.z, -10.f, 10.f);
+
+
+    ImGui::LabelText("\nScale", "");
+    ImGui::InputFloat("X-scale", &scale.x, -10.f, 10.f);
+    ImGui::InputFloat("Y-scale", &scale.y, -10.f, 10.f);
+    ImGui::InputFloat("Z-scale", &scale.z, -10.f, 10.f);
+
+    ImGui::InputText("modelFile: ", modelFile.c_str(), 1024); 
+
     if(ImGui::Button("LOAD NOW!!!", ImVec2(50.f, 20.f))) boobledybop();
 
     ImGui::End();
@@ -105,7 +128,16 @@ namespace lve
 
   void Imgui_LVE::boobledybop()
   {
-        //WHY THE FUCK IS THERE A NULL POSITION IN THE MAP???? WHY DO I SKIP AN ENTIRE FUCKING POSITION??? HOW?????
-        sceneManager.loadModel(*lveRenderer.globalPool);
+        std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, modelFile.c_str());
+        auto object = LveGameObject::createGameObject();
+        object.model = lveModel;
+        object.transform.translation = trans;
+        object.transform.scale = scale;
+        object.transform.rotation = rot;
+        sceneManager.loadModel(object, *lveRenderer.globalPool, materialFile.c_str());
+
+        scale = {0.f, 0.f, 0.f};
+        rot = {0.f, 0.f, 0.f};
+        trans = {0.f, 0.f, 0.f};
   }
 }

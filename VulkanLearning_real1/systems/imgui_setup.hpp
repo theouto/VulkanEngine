@@ -35,6 +35,13 @@ namespace lve
 
     private:
 
+    glm::vec3 rot{0.f, 0.f, 0.f};
+    glm::vec3 trans{0.f, 0.f, 0.f};
+    glm::vec3 scale{1.f, 1.f, 1.f};
+
+    std::string modelFile = "";
+    std::string materialFile = "";
+
     int object = 1;
     LveScene& sceneManager;
     LveGameObject::Map& gameObjects;

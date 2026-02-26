@@ -17,7 +17,7 @@ namespace lve
 
       void load(std::string file, LveDescriptorPool& pool);
 
-      void loadModel(LveDescriptorPool& pool);
+      void loadModel(LveGameObject& object, LveDescriptorPool& pool, const char* path);
       LveDescriptorSetLayout& mattLayout(){return *matLayout;}
       LveDescriptorSetLayout& normallLayout(){return *normalLayout;}
 
