@@ -115,9 +115,10 @@ namespace lve
     ImGui::InputFloat("Y-scale", &scale.y, -10.f, 10.f);
     ImGui::InputFloat("Z-scale", &scale.z, -10.f, 10.f);
 
-    ImGui::InputText("modelFile: ", modelFile.c_str(), 1024); 
+    ImGui::InputText("modelFile: ", modelFile, 1024); 
+    ImGui::InputText("materialFile: ", materialFile, 1024);
 
-    if(ImGui::Button("LOAD NOW!!!", ImVec2(50.f, 20.f))) boobledybop();
+    if(ImGui::Button("LOAD NOW!!!", ImVec2(100.f, 20.f))) boobledybop();
 
     ImGui::End();
 
@@ -128,15 +129,15 @@ namespace lve
 
   void Imgui_LVE::boobledybop()
   {
-        std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, modelFile.c_str());
+        std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, modelFile);
         auto object = LveGameObject::createGameObject();
         object.model = lveModel;
         object.transform.translation = trans;
         object.transform.scale = scale;
         object.transform.rotation = rot;
-        sceneManager.loadModel(object, *lveRenderer.globalPool, materialFile.c_str());
+        sceneManager.loadModel(object, *lveRenderer.globalPool, materialFile);
 
-        scale = {0.f, 0.f, 0.f};
+        scale = {1.f, 1.f, 1.f};
         rot = {0.f, 0.f, 0.f};
         trans = {0.f, 0.f, 0.f};
   }

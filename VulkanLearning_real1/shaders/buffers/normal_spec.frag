@@ -1,6 +1,6 @@
 #version 450
-#define near 0.1
-#define far 30.f
+#define NEAR 0.1
+#define FAR 30.f
 
 layout(location = 0) in vec3 fragColor;
 layout(location = 1) in vec3 fragPosWorld;
@@ -9,6 +9,7 @@ layout(location = 3) in vec2 fragUv;
 
 layout(set = 1, binding = 0) uniform sampler2D normals;
 layout(set = 1, binding = 1) uniform sampler2D specular;
+layout(set = 0, binding = 2) uniform sampler2D depthMap;
 
 layout (location = 0) out vec4 outColor;
 
@@ -27,12 +28,13 @@ layout(set = 0, binding = 0) uniform GlobalUbo
   vec4 ambientLightColor; // w is intensity
   PointLight pointLights[10];
   int numLights;
+  int width;
+  int height;
 } ubo;
 
 float LinearizeDepth(float depth) 
 {
-    float z = depth * 2.0 - 1.0; // back to NDC 
-    return (2.0 * near * far) / (far + near - z * (far - near));	
+  return NEAR * FAR / (FAR + depth * (NEAR - FAR));	
 }
 
 mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
@@ -66,6 +68,12 @@ vec3 perturb_normal( vec3 N, vec3 V, vec2 texcoord )
 
 void main()
 {
+    vec2 projCoords = vec2(gl_FragCoord.x/ubo.width, gl_FragCoord.y/ubo.height);
+    float currDepth = LinearizeDepth(gl_FragCoord.z);
+    float prePassDepth = LinearizeDepth(texture(depthMap, projCoords).r);
+    
+    if (prePassDepth < currDepth) discard;
+
     vec2 UVs = fragUv;
 
     vec3 surfaceNormal = normalize(fragNormalWorld);

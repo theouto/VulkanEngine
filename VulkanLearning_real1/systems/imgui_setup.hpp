@@ -39,8 +39,11 @@ namespace lve
     glm::vec3 trans{0.f, 0.f, 0.f};
     glm::vec3 scale{1.f, 1.f, 1.f};
 
-    std::string modelFile = "";
-    std::string materialFile = "";
+    char a[1024];
+    char b[1024];
+
+    char* modelFile = a;
+    char* materialFile = b;
 
     int object = 1;
     LveScene& sceneManager;
