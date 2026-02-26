@@ -75,7 +75,7 @@ namespace lve
  
     ImGui::Begin("Object control");
 
-    ImGui::SliderInt("Object", &object, 0, gameObjects.size()-1);
+    ImGui::SliderInt("Object", &object, 1, gameObjects.size());
  
     ImGui::LabelText("\nPosition", "");
     ImGui::SliderFloat("X-pos", &gameObjects.at(object).transform.translation.x, -10.f, 10.f);

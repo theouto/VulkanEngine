@@ -35,7 +35,7 @@ namespace lve
 
     private:
 
-    int object = 0;
+    int object = 1;
     LveScene& sceneManager;
     LveGameObject::Map& gameObjects;
     LveDevice& lveDevice;

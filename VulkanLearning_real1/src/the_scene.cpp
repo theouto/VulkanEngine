@@ -47,9 +47,6 @@ namespace lve
       object.transform.rotation = rotation;
       object.transform.scale = scale;
       object.write_material(*matLayout, *normalLayout, pool);
-
-      std::cout << object.getId() << '\n';
-
       gameObjects.emplace(object.getId(), std::move(object));
       
       getline(scene, line); //clear the line
@@ -67,7 +64,6 @@ namespace lve
     quad.transform.scale = { 1.f, 1.f, 1.f };
     quad.textures = materialHandler->retrieveMaterial("materials/wet_rock.thmat");
     quad.write_material(*matLayout, *normalLayout, pool);
-    std::cout << quad.getId() << '\n';
     gameObjects.emplace(quad.getId(), std::move(quad));
   }
 }

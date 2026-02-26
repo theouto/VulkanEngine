@@ -19,6 +19,7 @@ namespace lve
 
       void loadModel(LveDescriptorPool& pool);
       LveDescriptorSetLayout& mattLayout(){return *matLayout;}
+      LveDescriptorSetLayout& normallLayout(){return *normalLayout;}
 
     private:
 
