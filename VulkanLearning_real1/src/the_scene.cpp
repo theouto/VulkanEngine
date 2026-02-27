@@ -46,6 +46,7 @@ namespace lve
       object.transform.translation = translation;
       object.transform.rotation = rotation;
       object.transform.scale = scale;
+      object.name = model;
       object.write_material(*matLayout, *normalLayout, pool);
       gameObjects.emplace(object.getId(), std::move(object));
       
@@ -57,11 +58,6 @@ namespace lve
 
   void LveScene::loadModel(LveGameObject& object, LveDescriptorPool& pool, const char* path)
   {
-    //std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/cube.obj");
-    //auto quad = LveGameObject::createGameObject();
-    //object.model = lveModel;
-    //object.transform.translation = { 0.f, .5f, 0.f };
-    //object.transform.scale = { 1.f, 1.f, 1.f };
     object.textures = materialHandler->retrieveMaterial(path);
     object.write_material(*matLayout, *normalLayout, pool);
     gameObjects.emplace(object.getId(), std::move(object));

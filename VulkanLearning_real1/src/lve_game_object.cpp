@@ -2,6 +2,7 @@
 #include "../include/lve_swap_chain.hpp"
 
 #include <vector>
+#include <format>
 #include <iostream>
 
 namespace lve
@@ -79,6 +80,7 @@ namespace lve
 	{
 		LveGameObject gameObj = LveGameObject::createGameObject();
 		gameObj.color = color;
+        gameObj.name = std::format("Point Light {}", gameObj.getId());
 		gameObj.transform.scale.x = radius;
 		gameObj.pointLight = std::make_unique<PointLightComponent>();
 		gameObj.pointLight->lightIntensity = intensity;

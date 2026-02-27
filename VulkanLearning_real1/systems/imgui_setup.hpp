@@ -6,6 +6,7 @@
 #include "../imgui/backends/imgui_impl_vulkan.h"
 
 #include <glm/glm.hpp>
+#include <vector>
 
 #include "../include/lve_game_object.hpp"
 #include "../include/lve_device.hpp"
@@ -31,7 +32,10 @@ namespace lve
 
     void init();
     void draw(VkCommandBuffer commandBuffer, glm::vec3 *rotationnn);
-    void boobledybop();
+    void entityControl();
+    void performance();
+    void assetLoading();
+    void objectLoader();
 
     private:
 
@@ -45,6 +49,7 @@ namespace lve
     char* modelFile = a;
     char* materialFile = b;
 
+    std::vector<bool> tabs = {true, false};
     int object = 1;
     LveScene& sceneManager;
     LveGameObject::Map& gameObjects;
