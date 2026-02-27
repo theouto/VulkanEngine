@@ -51,15 +51,18 @@ namespace lve {
 
         id_t getId() { return id; }
 
+        int type = -1;
         std::shared_ptr<LveModel> model{};
         glm::vec3 color{};
         TransformComponent transform{};
-        
+
         void createDescriptorSets();
 		VkDescriptorSetLayout descriptorSetLayout;
         VkDescriptorSet descriptorSet{};
         VkDescriptorSet normalSet{};
         std::string name = "";
+        std::string matName = "";
+        std::string modelName = "";
         std::vector<std::shared_ptr<LveTextures>> textures;
 
         void write_material(LveDescriptorSetLayout& descLayout, 

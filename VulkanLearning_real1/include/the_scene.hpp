@@ -16,7 +16,10 @@ namespace lve
       LveScene(LveDevice &device, LveGameObject::Map& objects);
 
       void load(std::string file, LveDescriptorPool& pool);
+      void saveScene();
 
+      void createPointLightHelper(std::ifstream& scene);
+      void createObjectHelper(std::ifstream& scene, LveDescriptorPool& pool);
       void loadModel(LveGameObject& object, LveDescriptorPool& pool, const char* path);
       LveDescriptorSetLayout& mattLayout(){return *matLayout;}
       LveDescriptorSetLayout& normallLayout(){return *normalLayout;}
@@ -39,6 +42,12 @@ namespace lve
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
             .build();
 
+
+      std::string line, model, material, name;
+      float intensity, radius;
+      glm::vec3 rotation{}, scale{1.f, 1.f, 1.f}, translation{}, color{};
+      int count, type;
+      std::shared_ptr<LveModel> lveModel = nullptr;
 
       std::unique_ptr<LveMaterials> materialHandler;
       std::vector<LveGameObject> objArr;

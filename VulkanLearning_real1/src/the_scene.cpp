@@ -21,36 +21,15 @@ namespace lve
     std::ifstream scene(file.c_str());
     if (!scene.is_open()) {throw std::runtime_error("Failed to open scene file!");}
 
-    std::shared_ptr<LveModel> lveModel = nullptr;
-    std::string line, model, material;
-    glm::vec3 rotation{}, scale{1.f, 1.f, 1.f}, translation{};
-    int count;
     scene >> count;
     getline(scene, line); //clear the line
 
     for (int i = 0; i < count; i++)
     {
+      scene >> type;
       getline(scene, line);
-      model = line;
-      getline(scene, line);
-      material = line;
-
-      scene >> translation[0] >> translation[1] >> translation[2];
-      scene >> scale[0] >> scale[1] >> scale[2];
-      scene >> rotation[0] >> rotation[1] >> rotation[2];
-      
-      lveModel = LveModel::createModelFromFile(lveDevice, model);
-      LveGameObject object = LveGameObject::createGameObject();
-      object.model = lveModel;
-      object.textures = materialHandler->retrieveMaterial(material);
-      object.transform.translation = translation;
-      object.transform.rotation = rotation;
-      object.transform.scale = scale;
-      object.name = model;
-      object.write_material(*matLayout, *normalLayout, pool);
-      gameObjects.emplace(object.getId(), std::move(object));
-      
-      getline(scene, line); //clear the line
+      if (type == -1) {createObjectHelper(scene, pool); std::cout << "chosen!\n";}
+      else if (type == 0) createPointLightHelper(scene);
     }
     
     scene.close();
@@ -61,5 +40,93 @@ namespace lve
     object.textures = materialHandler->retrieveMaterial(path);
     object.write_material(*matLayout, *normalLayout, pool);
     gameObjects.emplace(object.getId(), std::move(object));
+  }
+
+  void LveScene::saveScene()
+  {
+    std::ofstream scene("./scenes/test_scene.ths");
+    if (!scene.is_open()) {throw std::runtime_error("Failed to open scene file!");}
+
+    scene << gameObjects.size() << '\n';
+    for (int i = 1; i < gameObjects.size()+1; i++)
+    {
+      scene << gameObjects.at(i).type << '\n';
+
+      scene << gameObjects.at(i).name << '\n';
+      if (gameObjects.at(i).type == -1)
+      {
+        scene << gameObjects.at(i).modelName << '\n'
+              << gameObjects.at(i).matName << '\n';
+
+        scene << gameObjects.at(i).transform.translation[0] << " "
+              << gameObjects.at(i).transform.translation[1] << " "
+              << gameObjects.at(i).transform.translation[2] << '\n';
+
+        scene << gameObjects.at(i).transform.scale[0] << " "
+              << gameObjects.at(i).transform.scale[1] << " "
+              << gameObjects.at(i).transform.scale[2] << '\n';
+
+        scene << gameObjects.at(i).transform.rotation[0] << " "
+              << gameObjects.at(i).transform.rotation[1] << " "
+              << gameObjects.at(i).transform.rotation[2] << '\n';
+      } else if (gameObjects.at(i).type == 0) 
+      {
+        //TODO: Update docs to account for this shit that I just made up on the spot
+        scene << gameObjects.at(i).color[0] << " "
+              << gameObjects.at(i).color[1] << " "
+              << gameObjects.at(i).color[2] << '\n';
+
+        scene << gameObjects.at(i).transform.translation[0] << " "
+              << gameObjects.at(i).transform.translation[1] << " "
+              << gameObjects.at(i).transform.translation[2] << '\n';
+
+        scene << gameObjects.at(i).transform.scale.x << " " 
+              << gameObjects.at(i).pointLight->lightIntensity << '\n';
+      }
+    }
+  }
+
+  void LveScene::createObjectHelper(std::ifstream& scene, LveDescriptorPool& pool)
+  {
+    getline(scene, line);
+    name = line;
+    getline(scene, line);
+    model = line;
+    getline(scene, line);
+    material = line;
+
+    scene >> translation[0] >> translation[1] >> translation[2];
+    scene >> scale[0] >> scale[1] >> scale[2];
+    scene >> rotation[0] >> rotation[1] >> rotation[2];
+
+    lveModel = LveModel::createModelFromFile(lveDevice, model);
+    LveGameObject object = LveGameObject::createGameObject();
+    object.model = lveModel;
+    object.matName = material;
+    object.modelName = model;
+    object.textures = materialHandler->retrieveMaterial(material);
+    object.transform.translation = translation;
+    object.transform.rotation = rotation;
+    object.transform.scale = scale;
+    object.name = name;
+    object.write_material(*matLayout, *normalLayout, pool);
+    gameObjects.emplace(object.getId(), std::move(object));
+
+    getline(scene, line); //clear the line
+
+  }
+
+  void LveScene::createPointLightHelper(std::ifstream& scene)
+  {
+    getline(scene, name);
+    scene >> color[0] >> color[1] >> color[2];
+    scene >> translation[0] >> translation[1] >> translation[2];
+    scene >> radius >> intensity;
+    getline(scene, line);
+
+    LveGameObject light = LveGameObject::makePointLight(intensity, radius, color);
+    light.name = name;
+    light.transform.translation = translation;
+    gameObjects.emplace(light.getId(), std::move(light));
   }
 }

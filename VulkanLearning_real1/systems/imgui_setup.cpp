@@ -4,6 +4,7 @@
 
 #include <GLFW/glfw3.h>
 #include <imgui.h>
+#include <memory>
 #include <vulkan/vulkan_core.h>
 
 namespace lve 
@@ -78,21 +79,8 @@ namespace lve
       if (ImGui::TabItemButton("Entities")) {tabs[0] = true; tabs[1] = false;}
       else if (ImGui::TabItemButton("Asset Loading")) {tabs[1] = true; tabs[0] = false;}
       
-      if (tabs[0])// assetLoading();
-      {
-        for (int i = 1; i < gameObjects.size() + 1; i++)
-        {
-          if (ImGui::Button(gameObjects.at(i).name.c_str(), ImVec2())) object = i;
-          ImGui::Spacing();
-        }
-      }
+      if (tabs[0]) scene();
       else if (tabs[1]) assetLoading();
-    //}
-   
-      //ImGui::TabItemButton("thingy");
-      //assetLoading();
-      //ImGui::EndTabItem();
-    //}
     
     ImGui::EndTabBar();
     ImGui::End();
@@ -102,17 +90,31 @@ namespace lve
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
   }
 
+  void Imgui_LVE::scene()
+  {
+    for (int i = 1; i < gameObjects.size() + 1; i++)
+    {
+      if (ImGui::Button(gameObjects.at(i).name.c_str(), ImVec2())) object = i;
+      ImGui::Spacing();
+    }
+
+    if (ImGui::Button("Save to file: ", ImVec2())) sceneManager.saveScene();
+  }
+
   void Imgui_LVE::entityControl()
   {
-    //ImGui::SliderInt("Object", &object, 1, gameObjects.size());
- 
+    if (ImGui::InputText("Name", placeholder, 1024)) gameObjects.at(object).name = placeholder;
+
     ImGui::LabelText("\nPosition", "");
-    
-    ImGui::InputFloat("X", &gameObjects.at(object).transform.translation.x, 1.f, 10.f, "%.4f");
-    ImGui::SameLine();
-    ImGui::InputFloat("Y", &gameObjects.at(object).transform.translation.y, 1.f, 10.f);
-    ImGui::SameLine();
-    ImGui::InputFloat("Z", &gameObjects.at(object).transform.translation.z, 1.f, 10.f);
+
+    ImGui::InputFloat("X", &gameObjects.at(object).transform.translation.x, 
+                      1.f, 10.f, "%.4f");
+    //ImGui::SameLine();
+    ImGui::InputFloat("Y", &gameObjects.at(object).transform.translation.y,
+                      1.f, 10.f);
+    //ImGui::SameLine();
+    ImGui::InputFloat("Z", &gameObjects.at(object).transform.translation.z, 
+                      1.f, 10.f);
 
     ImGui::LabelText("\nRotation", "");
     ImGui::SliderFloat("X-rot", &gameObjects.at(object).transform.rotation.x, -10.f, 10.f);

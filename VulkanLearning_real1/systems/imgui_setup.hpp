@@ -36,6 +36,7 @@ namespace lve
     void performance();
     void assetLoading();
     void objectLoader();
+    void scene();
 
     private:
 
@@ -45,6 +46,7 @@ namespace lve
 
     char a[1024];
     char b[1024];
+    char placeholder[1024] = {""};
 
     char* modelFile = a;
     char* materialFile = b;

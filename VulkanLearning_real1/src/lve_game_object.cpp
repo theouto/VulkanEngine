@@ -84,6 +84,7 @@ namespace lve
 		gameObj.transform.scale.x = radius;
 		gameObj.pointLight = std::make_unique<PointLightComponent>();
 		gameObj.pointLight->lightIntensity = intensity;
+        gameObj.type = 0;
 		return gameObj;
 	}
 

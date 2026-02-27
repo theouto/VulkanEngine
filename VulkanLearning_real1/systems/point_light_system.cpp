@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <stdexcept>
+#include <iostream>
 #include <array>
 #include <map>
 
