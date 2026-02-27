@@ -20,7 +20,7 @@
 *.mtlx
 *.usdc
 
-//get it out
+# get it out
 imgui.ini
 
 # User-specific files (MonoDevelop/Xamarin Studio)
