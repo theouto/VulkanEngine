@@ -246,7 +246,7 @@ float calculateRandPCF(float currentDepth, vec2 uv)
        {
             vec2 randomOffset = vec2(rand(uv + vec2(x, y)), rand(uv - vec2(x, y))) * texelSize;
 
-            float pcfDepth = texture(shadowMap, uv + vec2(float(x)/steps, float(y)/steps) * texelSize + randomOffset).r; 
+            float pcfDepth = texture(shadowMap, uv + vec2(float(x)/steps, float(y)/steps) * texelSize + randomOffset*2).r; 
            shadow += currentDepth - bias < pcfDepth ? 1.0 : 0.0;        
        }    
     }

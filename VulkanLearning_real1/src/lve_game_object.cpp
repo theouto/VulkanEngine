@@ -88,6 +88,9 @@ namespace lve
 		return gameObj;
 	}
 
+    //todo: make this static
+    //in order to store descriptor sets in its own array for texture reuse
+    //helps in optimising the pool usage, even if I end up moving ot a bindless system
     void LveGameObject::write_material(LveDescriptorSetLayout& descLayout,
                                        LveDescriptorSetLayout& normalLayout,
                                        LveDescriptorPool& descPool)
