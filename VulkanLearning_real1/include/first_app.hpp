@@ -30,7 +30,6 @@ namespace lve
 		void run();
 
 	private:
-		void loadGameObjects();
 
 		LveWindow lveWindow{ WIDTH, HEIGHT, "thengine" };
 

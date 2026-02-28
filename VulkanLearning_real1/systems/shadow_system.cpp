@@ -94,7 +94,6 @@ namespace lve
   glm::mat4 DirectionalLightSystem::lightViewProjection(const glm::vec3 &dirLightPos, 
                                                         const glm::vec3 &cameraPosition, float sceneRadius)
   {
-      
       float zNear = 0.01f;
       float zFar = 100.f;
       float lightSize = sceneRadius * 2.f;

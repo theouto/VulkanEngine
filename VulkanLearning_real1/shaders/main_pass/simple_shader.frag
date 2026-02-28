@@ -1,7 +1,7 @@
 #version 450
 
 #define NEAR 0.1
-#define FAR 30.f
+#define FAR 50.f
 #define numBlockerSearchSamples 64
 #define numPCFSamples 64
 
@@ -375,8 +375,7 @@ vec3 calculateLights(vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
 }
 
 vec3 calculateDiffuse(vec3 fragNormal, vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
-{
-    vec3 directionToLight = vec3(0.f, -1.f, 0.f);
+{    vec3 directionToLight = vec3(0.f, -1.f, 0.f);
     vec3 intensity = (ubo.ambientLightColor.xyz * vec3(0.8, 0.8f, 1.2f)) * ubo.ambientLightColor.w * 80;
 
     vec3 halfAngle = normalize(directionToLight + viewDirection);
@@ -463,7 +462,7 @@ void main()
 
     vec3 Lo = vec3(0.f);
 
-    vec3 diffuseLight = calculateDiffuse(normalize(fragNormalWorld), surfaceNormal, UVs, viewDirection, F0);
+    vec3 diffuseLight = vec3(0.f);//vec3(0.02f, 0.01f, 0.08f);
     Lo += calculateSunLight(sun, surfaceNormal, UVs, viewDirection, F0, cameraPosWorld);
     Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
 

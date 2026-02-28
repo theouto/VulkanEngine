@@ -103,7 +103,7 @@ namespace lve
 
     glm::vec3 rot = {1.f, 5.f, 0.f};
     std::cout << "\n\n\nAll loaded, rendering:\n\n";
-    float radius = 10.f;
+    float radius = 15.f;
 	while (!lveWindow.shouldClose())
 	{
 	    glfwPollEvents();
@@ -119,7 +119,7 @@ namespace lve
 	
 
             float aspect = lveRenderer.getAspectRatio();
-            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.01f, 30.f);	
+            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.01f, 50.f);	
 
             glm::vec3 offset = {-radius, radius, -2.f};
 		if (auto commandBuffer = lveRenderer.beginFrame())
@@ -192,97 +192,4 @@ namespace lve
 
 		vkDeviceWaitIdle(lveDevice.device());
 	}
-
-	void FirstApp::loadGameObjects()
-	{
-      /*
-        std::vector<std::shared_ptr<LveTextures>> granite = {std::make_unique<LveTextures>( lveDevice, "textures/Granite001A_2K-PNG_Color.png", LveTextures::COLOR ),
-        std::make_unique<LveTextures>( lveDevice, "textures/Granite001A_2K-PNG_Roughness.png", LveTextures::SPECULAR ),
-        std::make_unique<LveTextures>( lveDevice, "textures/Granite001A_2K-PNG_NormalGL.png", LveTextures::NORMAL ),
-        std::make_unique<LveTextures>( lveDevice, "textures/Granite001A_2K-PNG_Displacement.png", LveTextures::DEPTH ),
-        std::make_unique<LveTextures>( lveDevice, "textures/NA.png", LveTextures::SPECULAR),
-        std::make_unique<LveTextures>(lveDevice, "textures/NAM.png", LveTextures::SPECULAR)
-        };
-        
-
-       
-        
-        };
-        
-
-        
-        std::vector<std::shared_ptr<LveTextures>> sMetal = {std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_Color.png", LveTextures::COLOR ),
-            std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_Roughness.png", LveTextures::SINGLE_UNORM ),
-            std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_NormalGL.png", LveTextures::NORMAL ),
-            std::make_unique<LveTextures>( lveDevice, "textures/Metal051A_2K-PNG_Displacement.png", LveTextures::SINGLE_UNORM ),
-            std::make_unique<LveTextures>( lveDevice, "textures/NA.png", LveTextures::SINGLE_UNORM),
-            std::make_unique<LveTextures>(lveDevice, "textures/Metal051A_2K-PNG_Metalness.png", LveTextures::SINGLE_UNORM)
-        };
-        
-        
-        std::vector<std::shared_ptr<LveTextures>> ice = {std::make_unique<LveTextures>( lveDevice, "textures/Ice003_2K-PNG_Color.png", LveTextures::COLOR ),
-            std::make_unique<LveTextures>( lveDevice, "textures/Ice003_2K-PNG_Roughness.png", LveTextures::SINGLE_UNORM ),
-            std::make_unique<LveTextures>( lveDevice, "textures/Ice003_2K-PNG_NormalGL.png", LveTextures::NORMAL ),
-            std::make_unique<LveTextures>( lveDevice, "textures/Ice003_2K-PNG_Displacement.png", LveTextures::SINGLE_UNORM ),
-            std::make_unique<LveTextures>( lveDevice, "textures/NA.png", LveTextures::SINGLE_UNORM),
-            std::make_unique<LveTextures>(lveDevice, "textures/NAM.png", LveTextures::SINGLE_UNORM)
-        };
-        */
-        
-        /*
-        LveMaterials retriever{lveDevice};
-        std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/smooth_vase.obj");
-        auto sVase = LveGameObject::createGameObject();
-        sVase.model = lveModel;
-        sVase.transform.translation = { -.5f, .2f, 0.f };
-        sVase.transform.scale = { 2.f, 2.f, 2.f };
-        sVase.textures = retriever.retrieveMaterial("materials/wet_rock.thmat");
-        gameObjects.emplace(sVase.getId(), std::move(sVase));
-
-        lveModel = LveModel::createModelFromFile(lveDevice, "models/flat_vase.obj");
-        auto vase = LveGameObject::createGameObject();
-        vase.model = lveModel;
-        vase.transform.translation = { .5f, .2f, 0.f };
-        vase.transform.scale = { 1.5f, 1.5f, 1.5f };
-        vase.textures = retriever.retrieveMaterial("materials/wet_rock.thmat");
-        gameObjects.emplace(vase.getId(), std::move(vase));
-
-        lveModel = LveModel::createModelFromFile(lveDevice, "models/quad.obj");
-        auto quad = LveGameObject::createGameObject();
-        quad.model = lveModel;
-        quad.transform.translation = { 0.f, .5f, 0.f };
-        quad.transform.scale = { 6.f, 1.f, 6.f };
-        quad.textures = retriever.retrieveMaterial("materials/wet_rock.thmat");;
-        gameObjects.emplace(quad.getId(), std::move(quad));
-
-        lveModel = LveModel::createModelFromFile(lveDevice, "models/pleasepot.obj");
-        auto pot = LveGameObject::createGameObject();
-        pot.model = lveModel;
-        pot.transform.translation = {0.f, -0.5f, 2.f};
-        pot.transform.scale = {0.3f, -0.3f, 0.3f};
-        pot.textures = retriever.retrieveMaterial("materials/wet_rock.thmat");
-        gameObjects.emplace(pot.getId(), std::move(pot));
-
-        
-        lveModel = LveModel::createModelFromFile(lveDevice, "models/cube.obj");
-        auto quad2 = LveGameObject::createGameObject();
-        quad2.model = lveModel;
-        quad2.transform.translation = {0.f, 0.5f, 2.f};
-        quad2.transform.scale = {1.f, -1.f, 1.f};
-        quad2.transform.rotation = {0.f, 2.5f, 0.f};
-        quad2.textures = retriever.retrieveMaterial("materials/wet_rock.thmat");
-        gameObjects.emplace(quad2.getId(), std::move(quad2));
-        
-
-        for (auto &kv : gameObjects)
-        {
-          kv.second.write_material(*matLayout, *normalLayout, *globalPool);
-        }
-        
-
-        */
-        
-
-      }
-
 }
