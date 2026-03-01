@@ -92,9 +92,9 @@ namespace lve
 
   void Imgui_LVE::scene()
   {
-    for (int i = 1; i < gameObjects.size() + 1; i++)
+    for (auto& kv : gameObjects)
     {
-      if (ImGui::Button(gameObjects.at(i).name.c_str(), ImVec2())) object = i;
+      if (ImGui::Button(kv.second.name.c_str(), ImVec2())) object = kv.first;
       ImGui::Spacing();
     }
 

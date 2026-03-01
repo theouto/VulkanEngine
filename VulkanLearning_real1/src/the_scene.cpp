@@ -48,40 +48,40 @@ namespace lve
     if (!scene.is_open()) {throw std::runtime_error("Failed to open scene file!");}
 
     scene << gameObjects.size() << '\n';
-    for (int i = 1; i < gameObjects.size()+1; i++)
+    for (auto &kv : gameObjects)
     {
-      scene << gameObjects.at(i).type << '\n';
+      scene << kv.second.type << '\n';
 
-      scene << gameObjects.at(i).name << '\n';
-      if (gameObjects.at(i).type == -1)
+      scene << kv.second.name << '\n';
+      if (kv.second.type == -1)
       {
-        scene << gameObjects.at(i).modelName << '\n'
-              << gameObjects.at(i).matName << '\n';
+        scene << kv.second.modelName << '\n'
+              << kv.second.matName << '\n';
 
-        scene << gameObjects.at(i).transform.translation[0] << " "
-              << gameObjects.at(i).transform.translation[1] << " "
-              << gameObjects.at(i).transform.translation[2] << '\n';
+        scene << kv.second.transform.translation[0] << " "
+              << kv.second.transform.translation[1] << " "
+              << kv.second.transform.translation[2] << '\n';
 
-        scene << gameObjects.at(i).transform.scale[0] << " "
-              << gameObjects.at(i).transform.scale[1] << " "
-              << gameObjects.at(i).transform.scale[2] << '\n';
+        scene << kv.second.transform.scale[0] << " "
+              << kv.second.transform.scale[1] << " "
+              << kv.second.transform.scale[2] << '\n';
 
-        scene << gameObjects.at(i).transform.rotation[0] << " "
-              << gameObjects.at(i).transform.rotation[1] << " "
-              << gameObjects.at(i).transform.rotation[2] << '\n';
-      } else if (gameObjects.at(i).type == 0) 
+        scene << kv.second.transform.rotation[0] << " "
+              << kv.second.transform.rotation[1] << " "
+              << kv.second.transform.rotation[2] << '\n';
+      } else if (kv.second.type == 0)
       {
         //TODO: Update docs to account for this shit that I just made up on the spot
-        scene << gameObjects.at(i).color[0] << " "
-              << gameObjects.at(i).color[1] << " "
-              << gameObjects.at(i).color[2] << '\n';
+        scene << kv.second.color[0] << " "
+              << kv.second.color[1] << " "
+              << kv.second.color[2] << '\n';
 
-        scene << gameObjects.at(i).transform.translation[0] << " "
-              << gameObjects.at(i).transform.translation[1] << " "
-              << gameObjects.at(i).transform.translation[2] << '\n';
+        scene << kv.second.transform.translation[0] << " "
+              << kv.second.transform.translation[1] << " "
+              << kv.second.transform.translation[2] << '\n';
 
-        scene << gameObjects.at(i).transform.scale.x << " " 
-              << gameObjects.at(i).pointLight->lightIntensity << '\n';
+        scene << kv.second.transform.scale.x << " "
+              << kv.second.pointLight->lightIntensity << '\n';
       }
     }
   }

@@ -21,6 +21,6 @@ namespace lve
     private:
 
     LveDevice &lveDevice;
-    std::unordered_map<std::string, std::vector<std::shared_ptr<LveTextures>>> loadedMaterials;
+    std::unordered_map<unsigned int, std::vector<std::shared_ptr<LveTextures>>> loadedMaterials;
   };
 }

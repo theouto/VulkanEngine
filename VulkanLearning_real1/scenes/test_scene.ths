@@ -1,42 +1,8 @@
 9
--1
-and again!
-models/sponza.obj
-materials/ice.thmat
-0 0.5 0
-0.005 -0.005 0.005
-0 0 0
--1
-software.
-models/smooth_vase.obj
-materials/wet_rock.thmat
--1 -1 0
-2 2 2
-0 0 0
 0
-Point Light 3
-1 0.1 0.1
--1 -1 -1
-0.1 0.7
-0
-Point Light 4
-0.1 0.1 1
-0.158342 -1 -1.40532
-0.1 0.7
-0
-Point Light 5
-0.1 1 0.1
-1.19745 -1 -0.752407
-0.1 0.7
-0
-Point Light 6
-1 1 0.1
-1.33485 -1 0.467085
-0.1 0.7
-0
-this too
-0.1 1 1
-0.467085 -1 1.33485
+Point Light 9
+0.0157 0.824 0.745
+-1.40532 -1 0.158342
 0.1 0.7
 0
 Point Light 8
@@ -44,7 +10,41 @@ Point Light 8
 -0.752407 -1 1.19745
 0.1 0.7
 0
-Point Light 9
-0.0157 0.824 0.745
--1.40532 -1 0.158342
+this too
+0.1 1 1
+0.467085 -1 1.33485
 0.1 0.7
+0
+Point Light 6
+1 1 0.1
+1.33485 -1 0.467085
+0.1 0.7
+0
+Point Light 5
+0.1 1 0.1
+1.19745 -1 -0.752407
+0.1 0.7
+0
+Point Light 4
+0.1 0.1 1
+0.158342 -1 -1.40532
+0.1 0.7
+0
+Point Light 3
+1 0.1 0.1
+-1 -1 -1
+0.1 0.7
+-1
+software.
+models/smooth_vase.obj
+materials/wet_rock.thmat
+-1 -1 0
+2 2 2
+0 0 0
+-1
+and again!
+models/sponza.obj
+materials/ice.thmat
+0 0.5 0
+0.005 -0.005 0.005
+0 0 0
