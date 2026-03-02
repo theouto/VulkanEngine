@@ -87,33 +87,4 @@ namespace lve
         gameObj.type = 0;
 		return gameObj;
 	}
-
-    //todo: make this static
-    //in order to store descriptor sets in its own array for texture reuse
-    //helps in optimising the pool usage, even if I end up moving ot a bindless system
-    void LveGameObject::write_material(LveDescriptorSetLayout& descLayout,
-                                       LveDescriptorSetLayout& normalLayout,
-                                       LveDescriptorPool& descPool)
-    {
-      auto colorInfo = textures[0]->getDescriptorInfo();
-      auto specInfo = textures[1]->getDescriptorInfo();
-      auto normInfo = textures[2]->getDescriptorInfo();
-      auto dispInfo = textures[3]->getDescriptorInfo();
-      auto AOInfo = textures[4]->getDescriptorInfo();
-      auto metalInfo = textures[5]->getDescriptorInfo();
-
-      LveDescriptorWriter(descLayout, descPool)
-                .writeImage(1, &colorInfo) // colour
-                .writeImage(2, &specInfo) //spec 
-                .writeImage(3, &normInfo) //normal
-                .writeImage(4, &dispInfo) //displacement
-                .writeImage(5, &AOInfo)
-                .writeImage(6, &metalInfo)
-                .build(descriptorSet);
-
-      LveDescriptorWriter(normalLayout, descPool)
-                .writeImage(0, &normInfo)
-                .writeImage(1, &specInfo)
-                .build(normalSet);
-    }
 }

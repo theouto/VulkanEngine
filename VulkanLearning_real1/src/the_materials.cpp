@@ -8,21 +8,25 @@
 #include <string>
 #include <stdexcept>
 #include <memory>
+#include <vulkan/vulkan_core.h>
 
 namespace lve
 {
   LveMaterials::LveMaterials(LveDevice& device) : lveDevice{device} {}
 
-  std::vector<std::shared_ptr<LveTextures>> LveMaterials::retrieveMaterial(const std::string path)
+  VkDescriptorSet LveMaterials::retrieveMaterial(const std::string path, 
+                                                 LveDescriptorSetLayout& descLayout,
+                                                 LveDescriptorPool& descPool)
   {
     std::ifstream material(path);
     if (!material.is_open()) {throw std::runtime_error("Failed to open material file!");}
     XXH32_hash_t hash = XXH32(path.c_str(), 256, 0);
 
     std::string dummy;
-    std::vector<std::shared_ptr<LveTextures>> materials;
-    try {materials = loadedMaterials.at(hash);} catch (std::out_of_range e)
+    VkDescriptorSet load{};
+    try {load = loadedMaterials.at(hash).first;} catch (std::out_of_range e)
     {
+      std::pair<VkDescriptorSet, std::vector<std::shared_ptr<LveTextures>>> materials;
       std::string mat_id = dummy;
       for (int i = 0; i < 6; i++)
       {
@@ -31,9 +35,11 @@ namespace lve
         if (i == 0) format = LveTextures::COLOR;
         else if (i == 2) format = LveTextures::NORMAL;
 
-        materials.push_back(std::make_shared<LveTextures>(lveDevice, dummy, format));
+        materials.second.push_back(std::make_shared<LveTextures>(lveDevice, dummy, format));
       }
 
+      materials.first = write_material(materials.second, descLayout, descPool);
+      load = materials.first;
       std::cout << "emplacing textures...\n";
 
       loadedMaterials.emplace(hash, materials);
@@ -41,6 +47,34 @@ namespace lve
       std::cout << "emplaced!\n";
     };
 
-    return materials;
+    return load;
   }
+
+    //todo: make this static
+    //in order to store descriptor sets in its own array for texture reuse
+    //helps in optimising the pool usage, even if I end up moving ot a bindless system
+    VkDescriptorSet LveMaterials::write_material(std::vector<std::shared_ptr<LveTextures>> textures,
+                                                  LveDescriptorSetLayout& descLayout,
+                                                  LveDescriptorPool& descPool)
+    {
+      VkDescriptorSet descriptor{};
+
+      auto colorInfo = textures[0]->getDescriptorInfo();
+      auto specInfo = textures[1]->getDescriptorInfo();
+      auto normInfo = textures[2]->getDescriptorInfo();
+      auto dispInfo = textures[3]->getDescriptorInfo();
+      auto AOInfo = textures[4]->getDescriptorInfo();
+      auto metalInfo = textures[5]->getDescriptorInfo();
+
+      LveDescriptorWriter(descLayout, descPool)
+                .writeImage(1, &colorInfo) // colour
+                .writeImage(2, &specInfo) //spec 
+                .writeImage(3, &normInfo) //normal
+                .writeImage(4, &dispInfo) //displacement
+                .writeImage(5, &AOInfo)
+                .writeImage(6, &metalInfo)
+                .build(descriptor);
+
+      return descriptor;
+    }
 }

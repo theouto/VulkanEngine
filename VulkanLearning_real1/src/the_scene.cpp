@@ -37,8 +37,7 @@ namespace lve
 
   void LveScene::loadModel(LveGameObject& object, LveDescriptorPool& pool, const char* path)
   {
-    object.textures = materialHandler->retrieveMaterial(path);
-    object.write_material(*matLayout, *normalLayout, pool);
+    object.descriptorSet = materialHandler->retrieveMaterial(path, *matLayout, pool);
     gameObjects.emplace(object.getId(), std::move(object));
   }
 
@@ -104,12 +103,11 @@ namespace lve
     object.model = lveModel;
     object.matName = material;
     object.modelName = model;
-    object.textures = materialHandler->retrieveMaterial(material);
+    object.descriptorSet = materialHandler->retrieveMaterial(material, *matLayout, pool);
     object.transform.translation = translation;
     object.transform.rotation = rotation;
     object.transform.scale = scale;
     object.name = name;
-    object.write_material(*matLayout, *normalLayout, pool);
     gameObjects.emplace(object.getId(), std::move(object));
 
     getline(scene, line); //clear the line

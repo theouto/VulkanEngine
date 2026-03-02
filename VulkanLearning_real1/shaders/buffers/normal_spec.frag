@@ -7,8 +7,8 @@ layout(location = 1) in vec3 fragPosWorld;
 layout(location = 2) in vec3 fragNormalWorld;
 layout(location = 3) in vec2 fragUv;
 
-layout(set = 1, binding = 0) uniform sampler2D normals;
-layout(set = 1, binding = 1) uniform sampler2D specular;
+layout(set = 1, binding = 3) uniform sampler2D normals;
+layout(set = 1, binding = 2) uniform sampler2D specular;
 layout(set = 0, binding = 2) uniform sampler2D depthMap;
 
 layout (location = 0) out vec4 outColor;

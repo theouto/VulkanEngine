@@ -57,17 +57,12 @@ namespace lve {
         TransformComponent transform{};
 
         void createDescriptorSets();
-		VkDescriptorSetLayout descriptorSetLayout;
+		//VkDescriptorSetLayout descriptorSetLayout;
         VkDescriptorSet descriptorSet{};
-        VkDescriptorSet normalSet{};
         std::string name = "";
         std::string matName = "";
         std::string modelName = "";
-        std::vector<std::shared_ptr<LveTextures>> textures;
-
-        void write_material(LveDescriptorSetLayout& descLayout, 
-                            LveDescriptorSetLayout& normalLayout,
-                            LveDescriptorPool& descPool);
+        //std::vector<std::shared_ptr<LveTextures>> textures;
 
         std::unique_ptr<PointLightComponent> pointLight = nullptr;
 

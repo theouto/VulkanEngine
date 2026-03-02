@@ -72,7 +72,8 @@ namespace lve
         SkyboxSystem skybox{lveDevice, lveRenderer.getSwapChainRenderPass(), lveRenderer.getGlobalLayout(), *lveRenderer.globalPool};
 
         DirectionalLightSystem shadowSystem{lveDevice, lveRenderer.getSwapChainShadowPass(),lveRenderer.getGlobalLayout()};
-        NormalSpecPass normalSpecPass{lveDevice, lveRenderer.getSwapChainNormalPass(), lveRenderer.getGlobalLayout(), sceneManager.normallLayout().getDescriptorSetLayout()};
+        NormalSpecPass normalSpecPass{lveDevice, lveRenderer.getSwapChainNormalPass(), lveRenderer.getGlobalLayout(), setLayouts[1]};
+
         DepthBuffer depthBuffer{lveDevice, lveRenderer.getSwapChainDepthPass(), lveRenderer.getGlobalLayout()};
         AOSystem AOSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), *lveRenderer.globalPool, lveRenderer.getGlobalLayout()};
 

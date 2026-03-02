@@ -16,11 +16,19 @@ namespace lve
     LveMaterials(LveDevice &device);
     ~LveMaterials(){}
 
-    std::vector<std::shared_ptr<LveTextures>> retrieveMaterial(const std::string path);
+    VkDescriptorSet retrieveMaterial(const std::string path,
+                                     LveDescriptorSetLayout& descLayout,
+                                     LveDescriptorPool& descPool);
+
+    static VkDescriptorSet write_material(std::vector<std::shared_ptr<LveTextures>> textures,
+                                          LveDescriptorSetLayout& descLayout, 
+                                          LveDescriptorPool& descPool);
 
     private:
 
     LveDevice &lveDevice;
-    std::unordered_map<unsigned int, std::vector<std::shared_ptr<LveTextures>>> loadedMaterials;
+    std::unordered_map<unsigned int, 
+                       std::pair<VkDescriptorSet, 
+                       std::vector<std::shared_ptr<LveTextures>>>> loadedMaterials;
   };
 }

@@ -22,7 +22,6 @@ namespace lve
       void createObjectHelper(std::ifstream& scene, LveDescriptorPool& pool);
       void loadModel(LveGameObject& object, LveDescriptorPool& pool, const char* path);
       LveDescriptorSetLayout& mattLayout(){return *matLayout;}
-      LveDescriptorSetLayout& normallLayout(){return *normalLayout;}
 
     private:
 
@@ -36,12 +35,6 @@ namespace lve
             .addBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //AO
             .addBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //metalness
             .build();
-
-      std::unique_ptr<LveDescriptorSetLayout> normalLayout = LveDescriptorSetLayout::Builder(lveDevice)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-            .build();
-
 
       std::string line, model, material, name;
       float intensity, radius;
