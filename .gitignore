@@ -21,7 +21,7 @@
 *.usdc
 
 # get it out
-imgui.ini
+*.ini
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
