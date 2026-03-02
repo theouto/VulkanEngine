@@ -22,8 +22,6 @@ namespace lve
     if (!material.is_open()) {throw std::runtime_error("Failed to open material file!");}
     XXH32_hash_t hash = XXH32(path.c_str(), path.length(), 0);
 
-    std::cout << "path: " << path.c_str() << '\n' << "hash: " << hash << '\n';
-
     std::string dummy;
     VkDescriptorSet load{};
     try {load = loadedMaterials.at(hash).first;} catch (std::out_of_range e)

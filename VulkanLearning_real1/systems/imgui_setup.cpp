@@ -170,6 +170,9 @@ namespace lve
         object.transform.scale = scale;
         object.transform.rotation = rot;
         object.name = modelFile;
+        object.modelName = modelFile;
+        object.matName = materialFile;
+        object.type = -1;
         sceneManager.loadModel(object, *lveRenderer.globalPool, materialFile);
 
         scale = {1.f, 1.f, 1.f};
