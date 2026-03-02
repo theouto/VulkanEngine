@@ -20,7 +20,9 @@ namespace lve
   {
     std::ifstream material(path);
     if (!material.is_open()) {throw std::runtime_error("Failed to open material file!");}
-    XXH32_hash_t hash = XXH32(path.c_str(), 256, 0);
+    XXH32_hash_t hash = XXH32(path.c_str(), path.length(), 0);
+
+    std::cout << "path: " << path.c_str() << '\n' << "hash: " << hash << '\n';
 
     std::string dummy;
     VkDescriptorSet load{};
@@ -50,9 +52,6 @@ namespace lve
     return load;
   }
 
-    //todo: make this static
-    //in order to store descriptor sets in its own array for texture reuse
-    //helps in optimising the pool usage, even if I end up moving ot a bindless system
     VkDescriptorSet LveMaterials::write_material(std::vector<std::shared_ptr<LveTextures>> textures,
                                                   LveDescriptorSetLayout& descLayout,
                                                   LveDescriptorPool& descPool)

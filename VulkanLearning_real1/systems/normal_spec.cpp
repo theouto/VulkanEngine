@@ -87,7 +87,7 @@ namespace lve
                 pipelineLayout,
                 1,
                 1,
-                &obj.normalSet,
+                &obj.descriptorSet,
                 0,
                 nullptr);
 			vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
