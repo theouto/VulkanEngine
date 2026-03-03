@@ -1,15 +1,15 @@
 10
 -1
 AOI
-models/AOI.obj
-materials/granite.thmat
+models/cube.obj
+materials/wet_rock.thmat
 -2 -1 -1
 1 -1.022 1
 0 0 0
 -1
 and again!
 models/sponza.obj
-materials/ice.thmat
+materials/wet_rock.thmat
 0 0.5 0
 0.005 -0.005 0.005
 0 0 0

@@ -166,6 +166,25 @@ void LveDevice::createLogicalDevice() {
     queueCreateInfos.push_back(queueCreateInfo);
   }
 
+  //Used for bindless descriptors
+  //I want to avoid texture atlases :3
+  VkPhysicalDeviceDescriptorIndexingFeatures descriptorIndexing = {};
+  descriptorIndexing.runtimeDescriptorArray = true;
+  descriptorIndexing.descriptorBindingPartiallyBound = true;
+  descriptorIndexing.shaderStorageBufferArrayNonUniformIndexing = true;
+  descriptorIndexing.shaderSampledImageArrayNonUniformIndexing = true;
+  descriptorIndexing.shaderStorageImageArrayNonUniformIndexing = true;
+  descriptorIndexing.descriptorBindingStorageBufferUpdateAfterBind = true;
+  descriptorIndexing.descriptorBindingSampledImageUpdateAfterBind = true;
+  descriptorIndexing.descriptorBindingStorageImageUpdateAfterBind = true;
+  descriptorIndexing.pNext = nullptr;
+
+  VkPhysicalDeviceFeatures2 deviceFeatures2{};
+  deviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+  deviceFeatures2.pNext = &descriptorIndexing;
+
+  vkGetPhysicalDeviceFeatures2(physicalDevice, &deviceFeatures2);
+
   VkPhysicalDeviceFeatures deviceFeatures = {};
   deviceFeatures.samplerAnisotropy = VK_TRUE;
 
@@ -178,6 +197,8 @@ void LveDevice::createLogicalDevice() {
   createInfo.pEnabledFeatures = &deviceFeatures;
   createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
   createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+
+  createInfo.pNext = &deviceFeatures2;
 
   // might not really be necessary anymore because device specific validation layers
   // have been deprecated
