@@ -15,8 +15,11 @@ namespace lve
 {
 	class SimpleBindlessSystem
 	{
-	public:
+        static constexpr int STORAGE_BINDING = 0;
+        static constexpr int SAMPLER_BINDING = 1;
+        static constexpr int IMAGE_BINDING = 2;
 
+	public:
 		SimpleBindlessSystem(LveDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> globalSetLayout);
 		~SimpleBindlessSystem();
 
