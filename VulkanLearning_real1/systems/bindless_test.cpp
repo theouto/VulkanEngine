@@ -1,4 +1,4 @@
-#include "simple_render_system.hpp"
+#include "bindless_test.hpp"
 #include "shadow_system.hpp"
 
 #define GLM_FORCE_RADIANS
@@ -20,19 +20,19 @@ namespace lve
         glm::vec3 lightPos{-1.f, 2.f, -1.f};
 	};
 
-	SimpleRenderSystem::SimpleRenderSystem(LveDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> globalSetLayout) : lveDevice{device}
+	SimpleBindlessSystem::SimpleBindlessSystem(LveDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> globalSetLayout) : lveDevice{device}
 	{
-        createPipeLineLayout(globalSetLayout);
+		createPipeLineLayout(globalSetLayout);
 		createPipeline(renderPass);
 	}
 
-	SimpleRenderSystem::~SimpleRenderSystem()
+	SimpleBindlessSystem::~SimpleBindlessSystem()
 	{
 		vkDestroyPipelineLayout(lveDevice.device(), pipelineLayout, nullptr);
 
 	}
 
-	void SimpleRenderSystem::createPipeLineLayout(std::vector<VkDescriptorSetLayout> &globalSetLayout)
+	void SimpleBindlessSystem::createPipeLineLayout(std::vector<VkDescriptorSetLayout> &globalSetLayout)
 	{
 		VkPushConstantRange pushConstantRange{};
 		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -56,7 +56,7 @@ namespace lve
 	}
 
 	//SHADERS HERE
-	void SimpleRenderSystem::createPipeline(VkRenderPass renderPass)
+	void SimpleBindlessSystem::createPipeline(VkRenderPass renderPass)
 	{
 		assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 
@@ -74,7 +74,7 @@ namespace lve
 	}
 
 
-	void SimpleRenderSystem::renderGameObjects(FrameInfo &frameInfo, glm::mat4 matrix, glm::vec3 lightPos)
+	void SimpleBindlessSystem::renderGameObjects(FrameInfo &frameInfo, glm::mat4 matrix, glm::vec3 lightPos)
 	{
 		lvePipeline->bind(frameInfo.commandBuffer);
 

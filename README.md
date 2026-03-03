@@ -1,5 +1,5 @@
 # Vulkan rendering engine
 
-Vulkan based rendering engine written mostly from scratch, utilising the GLFW, GLM, tinyobjloader.h and stb_image.h libraries.
+Vulkan based rendering engine written mostly from scratch, utilising the GLFW, GLM, tinyobjloader.h, stb_image.h, imgui and xxHash libraries.
 
-Still barebones, but updates are planned. Done almost entirely for learning purposes.
+Currently features texture loading, an ImGui UI, scene saving and loading, (barebones) material loading, skybox and shadowmap rendering, transparencies and a depth pre-pass, among other features
