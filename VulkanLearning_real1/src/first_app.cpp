@@ -14,6 +14,7 @@
 #include "../systems/ambientocclusion_system.hpp"
 #include "../systems/depth_buffer.hpp"
 #include "../systems/imgui_setup.hpp"
+#include "../systems/bindless_test.hpp"
 
 
 #include <GLFW/glfw3.h>
@@ -76,6 +77,9 @@ namespace lve
 
         DepthBuffer depthBuffer{lveDevice, lveRenderer.getSwapChainDepthPass(), lveRenderer.getGlobalLayout()};
         AOSystem AOSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), *lveRenderer.globalPool, lveRenderer.getGlobalLayout()};
+
+        SimpleBindlessSystem simpleBindlessSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), 
+                             {lveRenderer.getGlobalLayout(), lveRenderer.bindlessSetLayout->getDescriptorSetLayout()}};
 
         Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow, gameObjects, sceneManager};
 

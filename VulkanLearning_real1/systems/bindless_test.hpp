@@ -20,13 +20,14 @@ namespace lve
         static constexpr int IMAGE_BINDING = 2;
 
 	public:
-		SimpleBindlessSystem(LveDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> globalSetLayout);
+		SimpleBindlessSystem(LveDevice& device, VkRenderPass renderPass, 
+                       std::vector<VkDescriptorSetLayout> globalSetLayout);
 		~SimpleBindlessSystem();
 
 		SimpleBindlessSystem(const SimpleBindlessSystem&) = delete;
 		SimpleBindlessSystem& operator=(const SimpleBindlessSystem&) = delete;
 
-		void renderGameObjects(FrameInfo &frameInfo, glm::mat4 matrix, glm::vec3 lightPos);
+		void renderGameObjects(FrameInfo &frameInfo);
 	private:
 		void createPipeLineLayout(std::vector<VkDescriptorSetLayout> &globalSetLayout);
 		void createPipeline(VkRenderPass renderPass);

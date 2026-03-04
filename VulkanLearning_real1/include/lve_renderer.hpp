@@ -114,6 +114,7 @@ namespace lve
 
         std::unique_ptr<LveDescriptorPool> globalPool = LveDescriptorPool::Builder(lveDevice)
             .setMaxSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS * 4)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 65536)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS * 2)
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * LveGameObject::MAX_OBJECTS * 4)
             .build();
@@ -125,6 +126,12 @@ namespace lve
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
             .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
             .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .build();
+
+        std::unique_ptr<LveDescriptorSetLayout> bindlessSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 65536)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS, 65536 )
             .build();
 
         VkDescriptorSetLayout getGlobalLayout() {return globalSetLayout->getDescriptorSetLayout();}

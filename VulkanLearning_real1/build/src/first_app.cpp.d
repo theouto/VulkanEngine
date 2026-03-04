@@ -16,7 +16,8 @@ build/./src/first_app.cpp.o: src/first_app.cpp \
  src/../systems/depth_buffer.hpp src/../systems/imgui_setup.hpp \
  src/../systems/imconfig.h \
  src/../systems/../imgui/backends/imgui_impl_glfw.h \
- src/../systems/../imgui/backends/imgui_impl_vulkan.h
+ src/../systems/../imgui/backends/imgui_impl_vulkan.h \
+ src/../systems/bindless_test.hpp
 src/../include/first_app.hpp:
 src/../include/lve_window.hpp:
 src/../include/lve_device.hpp:
@@ -44,3 +45,4 @@ src/../systems/imgui_setup.hpp:
 src/../systems/imconfig.h:
 src/../systems/../imgui/backends/imgui_impl_glfw.h:
 src/../systems/../imgui/backends/imgui_impl_vulkan.h:
+src/../systems/bindless_test.hpp:

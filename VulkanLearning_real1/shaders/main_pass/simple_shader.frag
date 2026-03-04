@@ -420,12 +420,13 @@ vec3 WorldPosFromDepth(float depth) {
 
 void main()
 { 
+    //discard;
     vec2 projCoords = vec2(gl_FragCoord.x/ubo.width, gl_FragCoord.y/ubo.height);
-    float currDepth = LinearizeDepth(gl_FragCoord.z);
+    float currDepth = gl_FragCoord.z;
 
     //if (1.f + rand(fragUv) > currDepth) discard;
 
-    float prePassDepth = LinearizeDepth(texture(depthMap, projCoords).r);
+    float prePassDepth = texture(depthMap, projCoords).r;
     
     if (prePassDepth < currDepth) discard;
 

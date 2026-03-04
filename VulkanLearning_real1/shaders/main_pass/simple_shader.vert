@@ -11,6 +11,7 @@ layout(location = 2) out vec3 fragNormalWorld;
 layout(location = 3) out vec2 fragUv;
 layout(location = 4) out vec4 FragPosLightSpace;
 layout(location = 5) out vec3 lightPos;
+layout(location = 6) out mat3 TBN;
 
 /*
 layout(set = 1, binding = 1) uniform sampler2D texSampler;
@@ -64,6 +65,7 @@ mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
     return mat3( T * invmax, B * invmax, N );
 }
 */
+
 void main() 
 {
   vec4 positionWorld = push.modelMatrix * vec4(position, 1.0);
@@ -75,4 +77,5 @@ void main()
   fragUv = uv;
   FragPosLightSpace = push.lightSpaceMatrix * push.modelMatrix * vec4(position, 1.f);
   lightPos = push.lightPos;
+  //TBN = cotangent_frame(fragNormalWorld, fragPosWorld, fragUv);
 }
