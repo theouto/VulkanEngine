@@ -74,4 +74,19 @@ namespace lve
 
       return descriptor;
     }
+
+    VkDescriptorSet LveMaterials::write_test(LveDevice& lveDevice, LveDescriptorPool& descPool, LveDescriptorSetLayout& descLayout)
+    {
+      auto NERDDDinfo = std::make_unique<LveTextures>
+                    (lveDevice , "../textures/NEEERDDDD.png",
+                     LveTextures::COLOR)->getDescriptorInfo();
+
+      VkDescriptorSet desc{};
+
+      LveDescriptorWriter(descLayout, descPool)
+              .writeImage(0, &NERDDDinfo)
+              .build(desc);
+
+      return desc;
+    }
 }

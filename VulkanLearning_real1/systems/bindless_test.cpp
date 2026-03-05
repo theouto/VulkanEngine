@@ -65,11 +65,11 @@ namespace lve
 		LvePipeline::defaultPipelineConfigInfo(pipelineConfig);
 		
 		//LvePipeline::enableMSAA(pipelineConfig);
-		
+	
 		pipelineConfig.renderPass = renderPass;
 		pipelineConfig.pipelineLayout = pipelineLayout;
-		std::vector<std::string> filePaths = { "shaders/compiled/simple_shader.vert.spv",
-			"shaders/compiled/simple_shader.frag.spv" };
+		std::vector<std::string> filePaths = { "shaders/compiled/bindless_test.vert.spv",
+			"shaders/compiled/bindless_test.frag.spv" };
 		lvePipeline = std::make_unique<LvePipeline>(lveDevice, filePaths, pipelineConfig);
 
 	}
@@ -92,9 +92,11 @@ namespace lve
 			SimplePushConstantData push{};
 			push.modelMatrix = obj.transform.mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
+            push.RID = 0;
 
 			vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 				0, sizeof(SimplePushConstantData), &push);
+            /*
             vkCmdBindDescriptorSets(
                 frameInfo.commandBuffer,
                 VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -104,6 +106,7 @@ namespace lve
                 &obj.descriptorSet,
                 0,
                 nullptr);
+            */
 			obj.model->bind(frameInfo.commandBuffer);
 			obj.model->draw(frameInfo.commandBuffer);
 		}
