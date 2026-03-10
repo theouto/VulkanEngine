@@ -17,7 +17,28 @@ layout(push_constant) uniform Push
   uint RID;
 } push;
 
+struct PointLight
+{
+	vec4 position;
+	vec4 color;
+};
+
+layout(set = 0, binding = 0) uniform GlobalUbo 
+{
+  mat4 projection;
+  mat4 view;
+  mat4 invView;
+  mat4 viewStat;
+  vec4 ambientLightColor; // w is intensity
+  PointLight pointLights[10];
+  int numLights;
+  int width;
+  int height;
+} ubo;
+
 void main()
 {
-  outColor = vec4(texture(storageSampler[0], fragUv).rgb, 1.f);
+  vec2 projCoords = vec2(gl_FragCoord.x/ubo.width, gl_FragCoord.y/ubo.height);
+
+  outColor = vec4(texture(storageSampler[3], fragUv).rgb, 1.f);
 }

@@ -14,3 +14,5 @@ glslc buffers/depth.vert -o compiled/depth.vert.spv
 glslc buffers/depth.frag -o compiled/depth.frag.spv
 glslc post_effects/AO.vert -o compiled/AO.vert.spv
 glslc post_effects/AO.frag -o compiled/AO.frag.spv
+glslc testing/bindless_test.vert -o compiled/bindless_test.vert.spv
+glslc testing/bindless_test.frag -o compiled/bindless_test.frag.spv
