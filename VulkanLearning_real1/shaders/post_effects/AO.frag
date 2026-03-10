@@ -55,8 +55,8 @@ float randf(int x, int y) {
 
 #define RADIUS 2.f
 #define FALLOFF_START 1.5f
-#define Nd 4
-#define Ns 6
+#define Nd 2
+#define Ns 2
 #define THICKNESS 0.4f
 
 
@@ -64,26 +64,67 @@ float randf(int x, int y) {
 void main() 
 {
   discard;
-  /*
   uint indirect = 0u;
   uint occlusion = 0u;
 
   float visibility = 0.0;
   vec3 lighting = vec3(0.0);
   vec2 frontBackHorizon = vec2(0.0);
-  vec2 aspect = screenSize.yx / screenSize.x;
-  vec3 position = texture(screenPosition, fragUV).rgb
+  vec2 aspect = vec2(ubo.height, ubo.width) / ubo.width;
+  vec3 position = vec3(texCoords, texture(depthBuffer, texCoords).r);
   vec3 camera = normalize(-position);
-  vec3 normal = normalize(texture(screenNormal, fragUV).rgb);
+  vec3 normal = normalize(texture(normalSpec, texCoords).rgb);
 
-  float sliceRotation = twoPi / (sliceCount - 1.0);
-  float sampleScale = (-sampleRadius * projection[0][0]) / position.z;
+  float sliceRotation = PI_HALF / (Ns - 1.0);
+  float sampleScale = (-RADIUS) / position.z;
   float sampleOffset = 0.01;
   float jitter = randf(int(gl_FragCoord.x), int(gl_FragCoord.y)) - 0.5;
 
-  for (int i = 0; i < Nd; i++)
-  {
+  
 
-  }
-  */
+  for (float slice = 0.0; slice < Nd + 0.5; slice += 1.0) {
+        float phi = sliceRotation * (slice + jitter) + PI;
+        vec2 omega = vec2(cos(phi), sin(phi));
+        vec3 direction = vec3(omega.x, omega.y, 0.0);
+        vec3 orthoDirection = direction - dot(direction, camera) * camera;
+        vec3 axis = cross(direction, camera);
+        vec3 projNormal = normal - axis * dot(normal, axis);
+        float projLength = length(projNormal);
+
+        float signN = sign(dot(orthoDirection, projNormal));
+        float cosN = clamp(dot(projNormal, camera) / projLength, 0.0, 1.0);
+        float n = signN * acos(cosN);
+
+        for (float currentSample = 0.0; currentSample < Ns + 0.5; currentSample += 1.0) {
+            float sampleStep = (currentSample + jitter) / Ns + sampleOffset;
+            vec2 sampleUV = texCoords - sampleStep * sampleScale * omega * aspect;
+            vec3 samplePosition = vec3(sampleUV, texture(depthBuffer, sampleUV).r);
+            vec3 sampleNormal = normalize(texture(normalSpec, sampleUV).rgb);
+            vec3 sampleDistance = samplePosition - position;
+            float sampleLength = length(sampleDistance);
+            vec3 sampleHorizon = sampleDistance / sampleLength;
+
+            frontBackHorizon.x = dot(sampleHorizon, camera);
+            frontBackHorizon.y = dot(normalize(sampleDistance - camera * THICKNESS), camera);
+
+            frontBackHorizon = acos(frontBackHorizon);
+            frontBackHorizon = clamp((frontBackHorizon + n + PI_HALF) / PI, 0.0, 1.0);
+
+            indirect = updateSectors(frontBackHorizon.x, frontBackHorizon.y, 0u);
+
+            /*
+            lighting += (1.0 - float(bitCount(indirect & ~occlusion)) / float(sectorCount)) *
+                sampleLight * clamp(dot(normal, sampleHorizon), 0.0, 1.0) *
+                clamp(dot(sampleNormal, -sampleHorizon), 0.0, 1.0);
+            */
+
+            occlusion |= indirect;
+        }
+        visibility += 1.0 - float(bitCount(occlusion)) / float(sectorCount);
+    }
+
+    visibility /= Nd;
+    lighting /= Nd;
+
+    outColor = vec4(vec3(visibility), 1.f);  
 }

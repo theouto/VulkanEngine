@@ -25,7 +25,7 @@ namespace lve
                                           LveDescriptorPool& descPool);
 
     //this will be removed once the bindless descriptors stop being an experiment, but for nowwwww yeahhhhhhhhh
-    static VkDescriptorSet write_test(LveDevice& lveDevice, LveDescriptorPool& descPool, LveDescriptorSetLayout& descLayout);
+    static VkDescriptorImageInfo write_test(LveDevice& lveDevice, LveDescriptorPool& descPool, LveDescriptorSetLayout& descLayout);
 
     private:
 

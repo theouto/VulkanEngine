@@ -64,10 +64,10 @@ namespace lve
       auto metalInfo = textures[5]->getDescriptorInfo();
 
       LveDescriptorWriter(descLayout, descPool)
-                .writeImage(1, &colorInfo) // colour
-                .writeImage(2, &specInfo) //spec 
-                .writeImage(3, &normInfo) //normal
-                .writeImage(4, &dispInfo) //displacement
+                .writeImage(1, &colorInfo)
+                .writeImage(2, &specInfo)
+                .writeImage(3, &normInfo)
+                .writeImage(4, &dispInfo)
                 .writeImage(5, &AOInfo)
                 .writeImage(6, &metalInfo)
                 .build(descriptor);
@@ -75,18 +75,10 @@ namespace lve
       return descriptor;
     }
 
-    VkDescriptorSet LveMaterials::write_test(LveDevice& lveDevice, LveDescriptorPool& descPool, LveDescriptorSetLayout& descLayout)
+    VkDescriptorImageInfo LveMaterials::write_test(LveDevice& lveDevice, LveDescriptorPool& descPool, LveDescriptorSetLayout& descLayout)
     {
-      auto NERDDDinfo = std::make_unique<LveTextures>
-                    (lveDevice , "../textures/NEEERDDDD.png",
+      return std::make_unique<LveTextures>
+                    (lveDevice , "textures/NEEERDDDD.png",
                      LveTextures::COLOR)->getDescriptorInfo();
-
-      VkDescriptorSet desc{};
-
-      LveDescriptorWriter(descLayout, descPool)
-              .writeImage(0, &NERDDDinfo)
-              .build(desc);
-
-      return desc;
     }
 }

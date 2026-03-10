@@ -45,6 +45,10 @@ namespace lve
 
 	void FirstApp::run()
 	{
+        
+        VkDescriptorSet thingy = lveRenderer.getBindlessLayout();
+        
+
         std::vector<std::shared_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
         {
@@ -59,9 +63,6 @@ namespace lve
         }
 
         lveRenderer.loadUboInfo(uboBuffers);
-
-        std::cout << "\n\n\nhello\n\n\n";
-
         lveRenderer.generateDescriptors();
 
         std::vector<VkDescriptorSetLayout> setLayouts = {
@@ -87,8 +88,9 @@ namespace lve
  
         auto viewerObject = LveGameObject::createGameObject();
         viewerObject.transform.translation.z = -1.5f;
-	
+
         
+
         sceneManager.load("scenes/test_scene.ths", *lveRenderer.globalPool);
 
 	    // https://www.glfw.org/docs/3.3/input_guide.html#raw_mouse_motion <- important
@@ -180,7 +182,10 @@ namespace lve
                 skybox.render(frameInfo);
 
                 //geometry pass excl. skybox
-                simpleRenderSystem.renderGameObjects(frameInfo, projMat, rot);
+                //simpleRenderSystem.renderGameObjects(frameInfo, projMat, rot);
+
+                //bindless_test
+                simpleBindlessSystem.renderGameObjects(frameInfo, thingy);
 
                 //Ambient Occlusion
                 AOSystem.render(frameInfo);

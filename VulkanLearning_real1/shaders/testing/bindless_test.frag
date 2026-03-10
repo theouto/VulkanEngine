@@ -8,7 +8,7 @@ layout(location = 3) in vec2 fragUv;
 
 layout(location = 0) out vec4 outColor;
 
-layout(binding = 0) uniform sampler2D storageSampler[];
+layout(binding = 2) uniform sampler2D storageSampler[];
 
 layout(push_constant) uniform Push 
 {
@@ -19,5 +19,5 @@ layout(push_constant) uniform Push
 
 void main()
 {
-  outColor = vec4(texture(storageSampler[push.RID], fragUv).rgb, 1.f);
+  outColor = vec4(texture(storageSampler[0], fragUv).rgb, 1.f);
 }

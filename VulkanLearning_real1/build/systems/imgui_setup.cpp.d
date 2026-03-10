@@ -7,8 +7,8 @@ build/./systems/imgui_setup.cpp.o: systems/imgui_setup.cpp \
  systems/../include/lve_buffer.hpp systems/../include/lve_textures.hpp \
  systems/../include/lve_descriptors.hpp \
  systems/../include/lve_renderer.hpp \
- systems/../include/lve_swap_chain.hpp systems/../include/the_scene.hpp \
- systems/../include/the_materials.hpp
+ systems/../include/lve_swap_chain.hpp \
+ systems/../include/the_materials.hpp systems/../include/the_scene.hpp
 systems/imgui_setup.hpp:
 systems/imconfig.h:
 systems/../imgui/backends/imgui_impl_glfw.h:
@@ -22,5 +22,5 @@ systems/../include/lve_textures.hpp:
 systems/../include/lve_descriptors.hpp:
 systems/../include/lve_renderer.hpp:
 systems/../include/lve_swap_chain.hpp:
-systems/../include/the_scene.hpp:
 systems/../include/the_materials.hpp:
+systems/../include/the_scene.hpp:

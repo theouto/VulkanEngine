@@ -75,7 +75,7 @@ namespace lve
 	}
 
 
-	void SimpleBindlessSystem::renderGameObjects(FrameInfo &frameInfo)
+	void SimpleBindlessSystem::renderGameObjects(FrameInfo &frameInfo, VkDescriptorSet& bindlessSet)
 	{
 		lvePipeline->bind(frameInfo.commandBuffer);
 
@@ -83,7 +83,7 @@ namespace lve
 			0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
         
         vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,  pipelineLayout,
-			0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
+			0, 1, &bindlessSet, 0, nullptr);
 
 		for (auto& kv : frameInfo.gameObjects)
 		{

@@ -7,7 +7,8 @@ build/./systems/depth_buffer.cpp.o: systems/depth_buffer.cpp \
  systems/../include/lve_game_object.hpp \
  systems/../include/lve_frame_info.hpp systems/./shadow_system.hpp \
  systems/./../include/lve_renderer.hpp \
- systems/./../include/lve_swap_chain.hpp
+ systems/./../include/lve_swap_chain.hpp \
+ systems/./../include/the_materials.hpp
 systems/depth_buffer.hpp:
 systems/../include/lve_camera.hpp:
 systems/../include/lve_pipeline.hpp:
@@ -22,3 +23,4 @@ systems/../include/lve_frame_info.hpp:
 systems/./shadow_system.hpp:
 systems/./../include/lve_renderer.hpp:
 systems/./../include/lve_swap_chain.hpp:
+systems/./../include/the_materials.hpp:

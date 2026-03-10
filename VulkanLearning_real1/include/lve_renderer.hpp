@@ -8,6 +8,7 @@
 #include "lve_swap_chain.hpp"
 #include "lve_model.hpp"
 #include "lve_textures.hpp"
+#include "the_materials.hpp"
 
 #include <cassert>
 #include <memory>
@@ -129,8 +130,8 @@ namespace lve
             .build();
 
         std::unique_ptr<LveDescriptorSetLayout> bindlessSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 65536)
-            .addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS, 65536)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS, 65536)
             .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS, 65536 )
             .build();
 
@@ -155,7 +156,36 @@ namespace lve
                     .writeImage(3, &normalSpecInfo)
                     .build(globalSetLayouts[i]);
             }
+
+            LveDescriptorWriter(*bindlessSetLayout, *globalPool).build(bindlessLayout);
+
+            /*
+            VkDescriptorSetAllocateInfo allocateInfo{};
+            allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+            allocateInfo.pNext = nullptr;
+            // Pass the pool that is created with update after bind flag
+            allocateInfo.descriptorPool = globalPool->getDescriptorPool();
+            // Pass the bindless layout
+            VkDescriptorSetLayout layouts[] = {bindlessSetLayout->getDescriptorSetLayout()};
+            allocateInfo.pSetLayouts = layouts;
+            allocateInfo.descriptorSetCount = 1;
+
+            // Create descriptor
+            VkDescriptorSet bindlessDescriptorSet = VK_NULL_HANDLE;
+            vkAllocateDescriptorSets(lveDevice.device(), &allocateInfo, &bindlessDescriptorSet);
+            */
         }
+
+      void bindlessImage()
+      {
+        auto nerdInfo = LveMaterials::write_test(lveDevice, *globalPool, *bindlessSetLayout);
+
+        LveDescriptorWriter(*globalSetLayout, *globalPool)
+                .writeImage(2, &nerdInfo)
+                .overwrite(bindlessLayout);
+      }
+
+      VkDescriptorSet getBindlessLayout() {return bindlessLayout;}
 
       void updateDescriptors()
       {
@@ -188,6 +218,7 @@ namespace lve
         std::vector<VkDescriptorBufferInfo> uboInfo;
 
         std::vector<VkDescriptorSet> globalSetLayouts;
+        VkDescriptorSet bindlessLayout = VK_NULL_HANDLE;
 
         std::unique_ptr<LveSwapChain> lveSwapChain;
 		std::vector<VkCommandBuffer> commandBuffers;

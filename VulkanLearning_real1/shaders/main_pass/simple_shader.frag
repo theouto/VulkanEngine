@@ -435,9 +435,9 @@ void main()
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld); 
 
     vec2 UVs = fragUv;
-    mat3 TBN = cotangent_frame(normalize(fragNormalWorld), fragPosWorld, UVs);
+    mat3 TBN = cotangent_frame(normalize(fragNormalWorld), viewDirection, UVs);
 	
-    //vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
+    vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
 	vec3 specularLight = vec3(0.0);
 
     DirectionalLight sun;
@@ -450,8 +450,8 @@ void main()
 	//UVs = parallaxOcclusionMapping(UVs, TBN * viewDirection);
     
 	vec3 tangentNormal = texture(normals, UVs).xyz * 255.f/127.f - 128.f/127.f;
-    tangentNormal.x = -tangentNormal.x;
-	vec3 surfaceNormal = normalize(TBN * tangentNormal);
+	//vec3 surfaceNormal = texture(normalSpec, projCoords).rgb;
+    vec3 surfaceNormal = normalize(TBN * tangentNormal);
     //vec3 surfaceNormal = normalize(fragNormalWorld);
 
     vec3 diffcont = vec3(0.f);
@@ -463,7 +463,7 @@ void main()
 
     vec3 Lo = vec3(0.f);
 
-    vec3 diffuseLight = vec3(0.f);//vec3(0.02f, 0.01f, 0.08f);
+    //vec3 diffuseLight = vec3(0.f);//vec3(0.02f, 0.01f, 0.08f);
     Lo += calculateSunLight(sun, surfaceNormal, UVs, viewDirection, F0, cameraPosWorld);
     Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
 

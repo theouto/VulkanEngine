@@ -27,7 +27,7 @@ namespace lve
 		SimpleBindlessSystem(const SimpleBindlessSystem&) = delete;
 		SimpleBindlessSystem& operator=(const SimpleBindlessSystem&) = delete;
 
-		void renderGameObjects(FrameInfo &frameInfo);
+		void renderGameObjects(FrameInfo &frameInfo, VkDescriptorSet& bindlessSet);
 	private:
 		void createPipeLineLayout(std::vector<VkDescriptorSetLayout> &globalSetLayout);
 		void createPipeline(VkRenderPass renderPass);

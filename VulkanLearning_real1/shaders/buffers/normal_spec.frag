@@ -59,9 +59,8 @@ mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
 vec3 perturb_normal( vec3 N, vec3 V, vec2 texcoord ) 
 { 
   // assume N, the interpolated vertex normal and // V, the view vector (vertex to eye) 
-  vec3 map = texture( normals, texcoord ).xyz; 
-  map = map * 255./127. - 128./127.; 
-  map.y = -map.y; 
+  vec3 map = texture( normals, texcoord ).rgb; 
+  map = map * 255./127. - 128./127.;
   mat3 TBN = cotangent_frame( N, V, texcoord ); 
   return normalize( TBN * map ); 
 }
@@ -69,9 +68,9 @@ vec3 perturb_normal( vec3 N, vec3 V, vec2 texcoord )
 void main()
 {
     vec2 projCoords = vec2(gl_FragCoord.x/ubo.width, gl_FragCoord.y/ubo.height);
-    float currDepth = LinearizeDepth(gl_FragCoord.z);
-    float prePassDepth = LinearizeDepth(texture(depthMap, projCoords).r);
-    
+    float currDepth = gl_FragCoord.z;
+    float prePassDepth = texture(depthMap, projCoords).r;
+
     if (prePassDepth < currDepth) discard;
 
     vec2 UVs = fragUv;

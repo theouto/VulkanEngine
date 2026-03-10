@@ -43,6 +43,7 @@ namespace lve {
         descriptorSetLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
         descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
+        descriptorSetLayoutInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
 
         if (vkCreateDescriptorSetLayout(
             lveDevice.device(),
@@ -92,7 +93,7 @@ namespace lve {
         descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
         descriptorPoolInfo.pPoolSizes = poolSizes.data();
         descriptorPoolInfo.maxSets = maxSets;
-        descriptorPoolInfo.flags = poolFlags;
+        descriptorPoolInfo.flags =  VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;//poolFlags;
 
         if (vkCreateDescriptorPool(lveDevice.device(), &descriptorPoolInfo, nullptr, &descriptorPool) !=
             VK_SUCCESS) {

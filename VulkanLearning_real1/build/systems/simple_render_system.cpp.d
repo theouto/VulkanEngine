@@ -8,7 +8,8 @@ build/./systems/simple_render_system.cpp.o: \
  systems/../include/lve_game_object.hpp \
  systems/../include/lve_frame_info.hpp systems/./shadow_system.hpp \
  systems/./../include/lve_renderer.hpp \
- systems/./../include/lve_swap_chain.hpp
+ systems/./../include/lve_swap_chain.hpp \
+ systems/./../include/the_materials.hpp
 systems/simple_render_system.hpp:
 systems/../include/lve_camera.hpp:
 systems/../include/lve_pipeline.hpp:
@@ -23,3 +24,4 @@ systems/../include/lve_frame_info.hpp:
 systems/./shadow_system.hpp:
 systems/./../include/lve_renderer.hpp:
 systems/./../include/lve_swap_chain.hpp:
+systems/./../include/the_materials.hpp:
