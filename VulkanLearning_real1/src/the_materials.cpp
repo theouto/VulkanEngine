@@ -75,10 +75,8 @@ namespace lve
       return descriptor;
     }
 
-    VkDescriptorImageInfo LveMaterials::write_test(LveDevice& lveDevice, LveDescriptorPool& descPool, LveDescriptorSetLayout& descLayout)
+    std::shared_ptr<LveTextures> LveMaterials::write_test(LveDevice& lveDevice)
     {
-      return std::make_unique<LveTextures>
-                    (lveDevice , "textures/NEEERDDDD.png",
-                     LveTextures::COLOR)->getDescriptorInfo();
+      return std::make_shared<LveTextures>(lveDevice, "textures/NEEERDDDD.png",LveTextures::COLOR);
     }
 }

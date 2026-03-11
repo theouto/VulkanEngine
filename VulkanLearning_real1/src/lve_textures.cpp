@@ -87,9 +87,6 @@ namespace lve
 		
 		generateMipmaps(texWidth, texHeight);
 
-		//transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, 
-		//	VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
 		vkDestroyBuffer(lveDevice.device(), stagingBuffer, nullptr);
 		vkFreeMemory(lveDevice.device(), stagingBufferMemory, nullptr);
 	}

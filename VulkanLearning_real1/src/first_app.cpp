@@ -45,10 +45,6 @@ namespace lve
 
 	void FirstApp::run()
 	{
-        
-        VkDescriptorSet thingy = lveRenderer.getBindlessLayout();
-        
-
         std::vector<std::shared_ptr<LveBuffer>> uboBuffers(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
         {
@@ -64,6 +60,7 @@ namespace lve
 
         lveRenderer.loadUboInfo(uboBuffers);
         lveRenderer.generateDescriptors();
+        
 
         std::vector<VkDescriptorSetLayout> setLayouts = {
             lveRenderer.getGlobalLayout(),
@@ -87,13 +84,9 @@ namespace lve
         LveCamera camera{};
  
         auto viewerObject = LveGameObject::createGameObject();
-        viewerObject.transform.translation.z = -1.5f;
+        viewerObject.transform.translation.z = -1.5f; 
 
-        
-
-        sceneManager.load("scenes/test_scene.ths", *lveRenderer.globalPool);
-
-	    // https://www.glfw.org/docs/3.3/input_guide.html#raw_mouse_motion <- important
+        // https://www.glfw.org/docs/3.3/input_guide.html#raw_mouse_motion <- important
         glfwSetInputMode(lveWindow.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         if (glfwRawMouseMotionSupported())
         {
@@ -105,7 +98,11 @@ namespace lve
         cameraController.mousecontrol = true;
         double mouseX = 0.f;
         double mouseY = 0.f;
-	
+
+
+        sceneManager.load("scenes/test_scene.ths", *lveRenderer.globalPool);
+        lveRenderer.bindlessImage();
+
 	auto currentTime = std::chrono::high_resolution_clock::now();
 
     glm::vec3 rot = {1.f, 5.f, 0.f};
@@ -139,9 +136,13 @@ namespace lve
                   commandBuffer,
                   camera,
                   nullptr,
+                  nullptr,
                   gameObjects
                 };
+
+                //patchwork until I figure out what the fuck is happening
                 frameInfo.globalDescriptorSet = lveRenderer.getLayout(frameIndex);
+                frameInfo.bindlessSet = lveRenderer.getBindlessLayout(1);
 		
                 //update               
                 GlobalUbo ubo{};
@@ -185,10 +186,10 @@ namespace lve
                 //simpleRenderSystem.renderGameObjects(frameInfo, projMat, rot);
 
                 //bindless_test
-                simpleBindlessSystem.renderGameObjects(frameInfo, thingy);
+                simpleBindlessSystem.renderGameObjects(frameInfo);
 
                 //Ambient Occlusion
-                AOSystem.render(frameInfo);
+                //AOSystem.render(frameInfo);
 
                 //renders light dots
                 pointLightSystem.render(frameInfo);

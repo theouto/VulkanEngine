@@ -25,7 +25,7 @@ namespace lve
                                           LveDescriptorPool& descPool);
 
     //this will be removed once the bindless descriptors stop being an experiment, but for nowwwww yeahhhhhhhhh
-    static VkDescriptorImageInfo write_test(LveDevice& lveDevice, LveDescriptorPool& descPool, LveDescriptorSetLayout& descLayout);
+    static std::shared_ptr<LveTextures> write_test(LveDevice& lveDevice);
 
     private:
 

@@ -126,6 +126,9 @@ namespace lve
     ImGui::SliderFloat("X-scale", &gameObjects.at(object).transform.scale.x, -10.f, 10.f);
     ImGui::SliderFloat("Y-scale", &gameObjects.at(object).transform.scale.y, -10.f, 10.f);
     ImGui::SliderFloat("Z-scale", &gameObjects.at(object).transform.scale.z, -10.f, 10.f);
+
+    ImGui::LabelText("\nRID", "");
+    ImGui::InputInt("Int", &gameObjects.at(object).RID, 1, 10);
   }
 
   void Imgui_LVE::performance()

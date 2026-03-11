@@ -1,5 +1,8 @@
 #version 450
 #extension GL_EXT_nonuniform_qualifier : enable
+#define NEAR 0.01f
+#define FAR 200.f
+
 
 layout(location = 0) in vec3 fragColor;
 layout(location = 1) in vec3 fragPosWorld;
@@ -36,9 +39,16 @@ layout(set = 0, binding = 0) uniform GlobalUbo
   int height;
 } ubo;
 
+float LinearizeDepth(float depth) 
+{
+  return NEAR * FAR / (FAR + depth * (NEAR - FAR));	
+}
+
 void main()
 {
   vec2 projCoords = vec2(gl_FragCoord.x/ubo.width, gl_FragCoord.y/ubo.height);
 
-  outColor = vec4(texture(storageSampler[3], fragUv).rgb, 1.f);
+  //vec3(LinearizeDepth(texture(storageSampler[push.RID], projCoords).r)/FAR
+
+  outColor = vec4(texture(storageSampler[push.RID], projCoords).rgb, 1.f);
 }

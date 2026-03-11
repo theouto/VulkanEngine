@@ -35,6 +35,7 @@ namespace lve
 		VkCommandBuffer commandBuffer;
 		LveCamera& camera;
 		VkDescriptorSet globalDescriptorSet;
+        VkDescriptorSet bindlessSet;
 		LveGameObject::Map &gameObjects;
 	};
 }
