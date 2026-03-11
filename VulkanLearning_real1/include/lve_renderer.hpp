@@ -21,6 +21,9 @@ namespace lve
 	{
 	public:
 
+        enum class TextureHandle : uint32_t { Invalid = 0 };
+        enum class BufferHandle : uint32_t { Invalid = 0 };
+
 		LveRenderer(LveWindow &window, LveDevice& device);
 		~LveRenderer();
 
@@ -131,9 +134,9 @@ namespace lve
             .build();
 
         std::unique_ptr<LveDescriptorSetLayout> bindlessSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS, 65536)
-            .addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS, 65536)
-            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS, 65536 )
+            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS, 1000)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS, 1000)
+            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS, 1000 )
             .build();
 
         VkDescriptorSetLayout getGlobalLayout() {return globalSetLayout->getDescriptorSetLayout();}
@@ -142,7 +145,6 @@ namespace lve
         void generateDescriptors()
         {
             globalSetLayouts.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
-            bindlessLayout.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
             
             for(int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
             {
@@ -164,11 +166,20 @@ namespace lve
                     .writeImage(2, &depthInfo)
                     .writeImage(3, &normalSpecInfo)
                     .build(globalSetLayouts[i]);
-            
-                LveDescriptorWriter(*bindlessSetLayout, *globalPool)
-                  .build(bindlessLayout[i]);
             }
-        }
+
+              VkDescriptorSetAllocateInfo allocateInfo{};
+              allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+              allocateInfo.pNext = nullptr;
+              // Pass the pool that is created with update after bind flag
+              allocateInfo.descriptorPool = globalPool->getDescriptorPool();
+              // Pass the bindless layout
+              VkDescriptorSetLayout fuck[] = {bindlessSetLayout->getDescriptorSetLayout()};
+              allocateInfo.pSetLayouts = fuck;
+              allocateInfo.descriptorSetCount = 1;
+
+              vkAllocateDescriptorSets(lveDevice.device(), &allocateInfo, &bindlessLayout);
+      }
 
       void bindlessImage()
       {
@@ -185,7 +196,7 @@ namespace lve
 
       }
 
-      VkDescriptorSet getBindlessLayout(uint32_t index) {return bindlessLayout[index];}
+      VkDescriptorSet getBindlessLayout() {return bindlessLayout;}
 
       void updateDescriptors()
       {
@@ -218,7 +229,7 @@ namespace lve
         std::vector<VkDescriptorBufferInfo> uboInfo;
 
         std::vector<VkDescriptorSet> globalSetLayouts;
-        std::vector<VkDescriptorSet> bindlessLayout;
+        VkDescriptorSet bindlessLayout;
 
         std::unique_ptr<LveSwapChain> lveSwapChain;
 		std::vector<VkCommandBuffer> commandBuffers;

@@ -142,7 +142,7 @@ namespace lve
 
                 //patchwork until I figure out what the fuck is happening
                 frameInfo.globalDescriptorSet = lveRenderer.getLayout(frameIndex);
-                frameInfo.bindlessSet = lveRenderer.getBindlessLayout(1);
+                frameInfo.bindlessSet = lveRenderer.getBindlessLayout();
 		
                 //update               
                 GlobalUbo ubo{};

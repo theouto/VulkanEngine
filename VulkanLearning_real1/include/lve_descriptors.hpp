@@ -6,6 +6,7 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
+#include <vulkan/vulkan_core.h>
 
 namespace lve {
 
@@ -20,11 +21,17 @@ namespace lve {
                 VkDescriptorType descriptorType,
                 VkShaderStageFlags stageFlags,
                 uint32_t count = 1);
+
+            Builder& addBindingFlag(
+                     VkDescriptorBindingFlags bindingFlags,
+                     uint32_t count = 1);
+
             std::unique_ptr<LveDescriptorSetLayout> build() const;
 
         private:
             LveDevice& lveDevice;
             std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings{};
+            std::unordered_map<uint32_t, VkDescriptorSetLayoutBindingFlagsCreateInfo> bindingFlags{};
         };
 
         LveDescriptorSetLayout(

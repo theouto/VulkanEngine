@@ -26,6 +26,7 @@ namespace lve {
         return *this;
     }
 
+
     std::unique_ptr<LveDescriptorSetLayout> LveDescriptorSetLayout::Builder::build() const {
         return std::make_unique<LveDescriptorSetLayout>(lveDevice, bindings);
     }
@@ -45,6 +46,8 @@ namespace lve {
         descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
         descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
         descriptorSetLayoutInfo.flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
+
+        //if (bindingFlags != nullptr) descriptorSetLayoutInfo.pNext = bindingFlags;
 
         if (vkCreateDescriptorSetLayout(
             lveDevice.device(),
