@@ -10,12 +10,74 @@
 namespace lve {
 
 LveRenderer::LveRenderer(LveWindow& window, LveDevice& device)
-    : lveWindow{window}, lveDevice{device} {
+    : lveWindow{window}, lveDevice{device} 
+{
+  createResources();
   recreateSwapChain();
   createCommandBuffers();
 }
 
 LveRenderer::~LveRenderer() { freeCommandBuffers(); }
+
+void LveRenderer::createResources() //I got tired of having such a dogshit renderer header file
+{
+    globalPool = LveDescriptorPool::Builder(lveDevice)
+            .setMaxSets(65536)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 65536)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 65536)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 65536)
+            .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT | VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
+            .build();
+
+    globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)            
+            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+            .build();
+
+    bindlessSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS, 1000)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS, 1000)
+            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS, 1000 )
+            .build();
+}
+
+void LveRenderer::generateDescriptors()
+{
+  globalSetLayouts.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
+
+  auto nerd = LveMaterials::write_test(lveDevice);
+
+  for(int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+  {
+    auto nerdInfo = nerd->getDescriptorInfo();
+
+    auto bufferInfo = getUboInfo(i);
+    auto shadowInfo = getShadowInfo();
+    auto depthInfo = getDepthInfo();
+    auto normalSpecInfo = getNormalInfo();
+
+    LveDescriptorWriter(*globalSetLayout, *globalPool)
+      .writeBuffer(0, &bufferInfo) 
+      .writeImage(1, &shadowInfo)
+      .writeImage(2, &depthInfo)
+      .writeImage(3, &normalSpecInfo)
+      .build(globalSetLayouts[i]);
+  }
+
+  VkDescriptorSetAllocateInfo allocateInfo{};
+  allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+  allocateInfo.pNext = nullptr;
+  // Pass the pool that is created with update after bind flag
+  allocateInfo.descriptorPool = globalPool->getDescriptorPool();
+  // Pass the bindless layout
+  VkDescriptorSetLayout fuck[] = {bindlessSetLayout->getDescriptorSetLayout()};
+  allocateInfo.pSetLayouts = fuck;
+  allocateInfo.descriptorSetCount = 1;
+
+  vkAllocateDescriptorSets(lveDevice.device(), &allocateInfo, &bindlessLayout);
+}
 
 void LveRenderer::recreateSwapChain() {
   

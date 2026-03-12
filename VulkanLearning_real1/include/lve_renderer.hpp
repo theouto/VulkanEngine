@@ -110,74 +110,25 @@ namespace lve
         void beginDepthRenderPass(VkCommandBuffer commandBuffer);
 		void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
 
-
-         private:
-		LveDevice& lveDevice;
-        //what the fuck am I doing
-        public: 
-
-        std::unique_ptr<LveDescriptorPool> globalPool = LveDescriptorPool::Builder(lveDevice)
-            .setMaxSets(65536)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 65536)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 65536)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 65536)
-            .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT | VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
-            .build();
-
-        //Risky until I find a better way
-        //Why do I get the feeling that I'll be staring at this comment 6 months from now?
-        std::unique_ptr<LveDescriptorSetLayout> globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)            
-            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
-            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
-            .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
-            .build();
-
-        std::unique_ptr<LveDescriptorSetLayout> bindlessSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS, 1000)
-            .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS, 1000)
-            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS, 1000 )
-            .build();
+        std::unique_ptr<LveDescriptorPool> globalPool = nullptr; 
+        std::unique_ptr<LveDescriptorSetLayout> globalSetLayout = nullptr;
+        std::unique_ptr<LveDescriptorSetLayout> bindlessSetLayout = nullptr;
 
         VkDescriptorSetLayout getGlobalLayout() {return globalSetLayout->getDescriptorSetLayout();}
         VkDescriptorSet getLayout(uint32_t index) {return globalSetLayouts[index];}
         
-        void generateDescriptors()
-        {
-            globalSetLayouts.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
-            
-            for(int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
-            {
-                auto nerd = LveMaterials::write_test(lveDevice);
-
-                auto nerdInfo = nerd->getDescriptorInfo();
-
-                auto bufferInfo = getUboInfo(i);
-                auto shadowInfo = getShadowInfo();
-                auto depthInfo = getDepthInfo();
-                auto normalSpecInfo = getNormalInfo();
-
-                LveDescriptorWriter(*globalSetLayout, *globalPool)
-                    .writeBuffer(0, &bufferInfo) 
-                    .writeImage(1, &shadowInfo)
-                    .writeImage(2, &depthInfo)
-                    .writeImage(3, &normalSpecInfo)
-                    .build(globalSetLayouts[i]);
-            }
-
-              LveDescriptorWriter(*bindlessSetLayout, *globalPool)
-                  .build(bindlessLayout);
-      }
+        void generateDescriptors();
 
       void bindlessImage()
       {
         std::shared_ptr<LveTextures> nerd = LveMaterials::write_test(lveDevice);
 
         auto nerdInfo = nerd->getDescriptorInfo();
-
+        /*
         LveDescriptorWriter(*bindlessSetLayout, *globalPool)
               .addImage(2, &nerdInfo)
               .overwrite(bindlessLayout);
+        */
 
       }
 
@@ -204,13 +155,14 @@ namespace lve
 
 	private:
 
+        void createResources();
 		void createCommandBuffers();
 		void freeCommandBuffers();
 		void recreateSwapChain();
 
         bool skip = false;
 		LveWindow& lveWindow;
-
+        LveDevice& lveDevice;
         std::vector<VkDescriptorBufferInfo> uboInfo;
 
         std::vector<VkDescriptorSet> globalSetLayouts;
