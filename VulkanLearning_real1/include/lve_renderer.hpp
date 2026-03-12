@@ -118,41 +118,20 @@ namespace lve
         VkDescriptorSet getLayout(uint32_t index) {return globalSetLayouts[index];}
         
         void generateDescriptors();
+        void updateDescriptors();
 
-      void bindlessImage()
-      {
-        std::shared_ptr<LveTextures> nerd = LveMaterials::write_test(lveDevice);
+        void bindlessImage()
+        {
+          std::shared_ptr<LveTextures> nerd = LveMaterials::write_test(lveDevice);
 
-        auto nerdInfo = nerd->getDescriptorInfo();
-        /*
-        LveDescriptorWriter(*bindlessSetLayout, *globalPool)
+          auto nerdInfo = nerd->getDescriptorInfo();
+        
+          LveDescriptorWriter(*bindlessSetLayout, *globalPool)
               .addImage(2, &nerdInfo)
               .overwrite(bindlessLayout);
-        */
+        }
 
-      }
-
-      VkDescriptorSet getBindlessLayout() {return bindlessLayout;}
-
-      void updateDescriptors()
-      {
-            for(int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
-            {
-                auto bufferInfo = getUboInfo(i);
-                auto shadowInfo = getShadowInfo();
-                auto depthInfo = getDepthInfo();
-                auto normalSpecInfo = getNormalInfo();
-
-                LveDescriptorWriter(*globalSetLayout, *globalPool)
-                    .writeBuffer(0, &bufferInfo) 
-                    .writeImage(1, &shadowInfo)
-                    .writeImage(2, &depthInfo)
-                    .writeImage(3, &normalSpecInfo)
-                    .overwrite(globalSetLayouts[i]);
-            }
-
-      }
-
+        VkDescriptorSet getBindlessLayout() {return bindlessLayout;}
 	private:
 
         void createResources();

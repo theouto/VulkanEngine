@@ -60,7 +60,6 @@ namespace lve
 
         lveRenderer.loadUboInfo(uboBuffers);
         lveRenderer.generateDescriptors();
-        lveRenderer.bindlessImage();
 
         std::vector<VkDescriptorSetLayout> setLayouts = {
             lveRenderer.getGlobalLayout(),
@@ -183,10 +182,10 @@ namespace lve
                 skybox.render(frameInfo);
 
                 //geometry pass excl. skybox
-                simpleRenderSystem.renderGameObjects(frameInfo, projMat, rot);
+                //simpleRenderSystem.renderGameObjects(frameInfo, projMat, rot);
 
                 //bindless_test
-                //simpleBindlessSystem.renderGameObjects(frameInfo);
+                simpleBindlessSystem.renderGameObjects(frameInfo);
 
                 //Ambient Occlusion
                 //AOSystem.render(frameInfo);

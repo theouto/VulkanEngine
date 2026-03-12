@@ -48,11 +48,10 @@ void LveRenderer::generateDescriptors()
   globalSetLayouts.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
 
   auto nerd = LveMaterials::write_test(lveDevice);
+  auto nerdInfo = nerd->getDescriptorInfo();
 
   for(int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
   {
-    auto nerdInfo = nerd->getDescriptorInfo();
-
     auto bufferInfo = getUboInfo(i);
     auto shadowInfo = getShadowInfo();
     auto depthInfo = getDepthInfo();
@@ -66,18 +65,27 @@ void LveRenderer::generateDescriptors()
       .build(globalSetLayouts[i]);
   }
 
-  VkDescriptorSetAllocateInfo allocateInfo{};
-  allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-  allocateInfo.pNext = nullptr;
-  // Pass the pool that is created with update after bind flag
-  allocateInfo.descriptorPool = globalPool->getDescriptorPool();
-  // Pass the bindless layout
-  VkDescriptorSetLayout fuck[] = {bindlessSetLayout->getDescriptorSetLayout()};
-  allocateInfo.pSetLayouts = fuck;
-  allocateInfo.descriptorSetCount = 1;
-
-  vkAllocateDescriptorSets(lveDevice.device(), &allocateInfo, &bindlessLayout);
+    LveDescriptorWriter(*bindlessSetLayout, *globalPool)
+      .build(bindlessLayout);
 }
+
+void LveRenderer::updateDescriptors()
+  {
+    for(int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+    {
+      auto bufferInfo = getUboInfo(i);
+      auto shadowInfo = getShadowInfo();
+      auto depthInfo = getDepthInfo();
+      auto normalSpecInfo = getNormalInfo();
+
+      LveDescriptorWriter(*globalSetLayout, *globalPool)
+        .writeBuffer(0, &bufferInfo) 
+        .writeImage(1, &shadowInfo)
+        .writeImage(2, &depthInfo)
+        .writeImage(3, &normalSpecInfo)
+        .overwrite(globalSetLayouts[i]);
+    }
+  }
 
 void LveRenderer::recreateSwapChain() {
   

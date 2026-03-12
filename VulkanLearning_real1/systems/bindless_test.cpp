@@ -79,11 +79,12 @@ namespace lve
 	{
 		lvePipeline->bind(frameInfo.commandBuffer);
 
-        vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,  pipelineLayout,
-			0, 1, &frameInfo.bindlessSet, 2, nullptr);
-	
         vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
 			0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
+        
+        vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,  pipelineLayout,
+			1, 1, &frameInfo.bindlessSet, 2, nullptr);
+	
         
         for (auto& kv : frameInfo.gameObjects)
 		{
