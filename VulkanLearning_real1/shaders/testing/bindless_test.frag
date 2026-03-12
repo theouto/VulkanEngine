@@ -11,7 +11,7 @@ layout(location = 3) in vec2 fragUv;
 
 layout(location = 0) out vec4 outColor;
 
-layout(binding = 2) uniform sampler2D storageSampler[];
+layout(set = 0, binding = 2) uniform sampler2D storageSampler[];
 
 layout(push_constant) uniform Push 
 {
@@ -26,7 +26,7 @@ struct PointLight
 	vec4 color;
 };
 
-layout(set = 0, binding = 0) uniform GlobalUbo 
+layout(set = 1, binding = 0) uniform GlobalUbo 
 {
   mat4 projection;
   mat4 view;

@@ -121,7 +121,7 @@ namespace lve
             .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 65536)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 65536)
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 65536)
-            .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT)
+            .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT | VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
             .build();
 
         //Risky until I find a better way
@@ -152,13 +152,10 @@ namespace lve
 
                 auto nerdInfo = nerd->getDescriptorInfo();
 
-
                 auto bufferInfo = getUboInfo(i);
                 auto shadowInfo = getShadowInfo();
                 auto depthInfo = getDepthInfo();
                 auto normalSpecInfo = getNormalInfo();
-
-                VkDescriptorImageInfo info[]{shadowInfo, normalSpecInfo};
 
                 LveDescriptorWriter(*globalSetLayout, *globalPool)
                     .writeBuffer(0, &bufferInfo) 
@@ -168,31 +165,19 @@ namespace lve
                     .build(globalSetLayouts[i]);
             }
 
-              VkDescriptorSetAllocateInfo allocateInfo{};
-              allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-              allocateInfo.pNext = nullptr;
-              // Pass the pool that is created with update after bind flag
-              allocateInfo.descriptorPool = globalPool->getDescriptorPool();
-              // Pass the bindless layout
-              VkDescriptorSetLayout fuck[] = {bindlessSetLayout->getDescriptorSetLayout()};
-              allocateInfo.pSetLayouts = fuck;
-              allocateInfo.descriptorSetCount = 1;
-
-              vkAllocateDescriptorSets(lveDevice.device(), &allocateInfo, &bindlessLayout);
+              LveDescriptorWriter(*bindlessSetLayout, *globalPool)
+                  .build(bindlessLayout);
       }
 
       void bindlessImage()
       {
-        auto nerd = LveMaterials::write_test(lveDevice);
+        std::shared_ptr<LveTextures> nerd = LveMaterials::write_test(lveDevice);
 
         auto nerdInfo = nerd->getDescriptorInfo();
 
-        //for(int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
-        //    {
-        //        LveDescriptorWriter(*bindlessSetLayout, *globalPool)
-        //        .writeImage(2, &nerdInfo)
-        //        .overwrite(bindlessLayout[i]);
-        //    }
+        LveDescriptorWriter(*bindlessSetLayout, *globalPool)
+              .addImage(2, &nerdInfo)
+              .overwrite(bindlessLayout);
 
       }
 

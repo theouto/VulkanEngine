@@ -184,6 +184,29 @@ namespace lve {
         return *this;
     }
 
+    LveDescriptorWriter& LveDescriptorWriter::addImage(
+        uint32_t binding, VkDescriptorImageInfo* imageInfo) {
+        assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
+
+        auto& bindingDescription = setLayout.bindings[binding];
+
+        /*
+        assert(
+            bindingDescription.descriptorCount == 1 &&
+            "Binding single descriptor info, but binding expects multiple"); 
+        */
+
+        VkWriteDescriptorSet write{};
+        write.descriptorType = bindingDescription.descriptorType;
+        write.dstArrayElement = binding + 2;
+        write.dstBinding = binding;
+        write.pImageInfo = imageInfo;
+        write.descriptorCount = 1;
+
+        writes.push_back(write);
+        return *this;
+    }
+
     bool LveDescriptorWriter::build(VkDescriptorSet& set) {
         bool success = pool.allocateDescriptor(setLayout.getDescriptorSetLayout(), set);
         if (!success) {

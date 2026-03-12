@@ -98,6 +98,7 @@ namespace lve {
 
         LveDescriptorWriter& writeBuffer(uint32_t binding, VkDescriptorBufferInfo* bufferInfo);
         LveDescriptorWriter& writeImage(uint32_t binding, VkDescriptorImageInfo* imageInfo);
+        LveDescriptorWriter& addImage(uint32_t binding, VkDescriptorImageInfo* imageInfo);
 
         bool build(VkDescriptorSet& set);
         void overwrite(VkDescriptorSet& set);
