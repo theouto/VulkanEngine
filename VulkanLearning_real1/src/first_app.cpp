@@ -100,12 +100,12 @@ namespace lve
 
 
         sceneManager.load("scenes/test_scene.ths", *lveRenderer.globalPool);
-        lveRenderer.bindlessImage();
+        lveRenderer.testerholyFUCK();
 
 	auto currentTime = std::chrono::high_resolution_clock::now();
 
     glm::vec3 rot = {1.f, 5.f, 0.f};
-    std::cout << "\n\n\nAll loaded, rendering:\n\n";
+    std::cout << "\n\n\nAll loaded, rendering:\n\n\n\n\n\n\n";
     float radius = 15.f;
 	while (!lveWindow.shouldClose())
 	{

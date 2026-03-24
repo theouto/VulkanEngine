@@ -31,7 +31,7 @@ namespace lve {
         private:
             LveDevice& lveDevice;
             std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings{};
-            std::unordered_map<uint32_t, VkDescriptorSetLayoutBindingFlagsCreateInfo> bindingFlags{};
+            std::vector<VkDescriptorBindingFlags> bindingFlags{};
         };
 
         LveDescriptorSetLayout(
@@ -47,6 +47,7 @@ namespace lve {
         LveDevice& lveDevice;
         VkDescriptorSetLayout descriptorSetLayout;
         std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings;
+        std::vector<VkDescriptorBindingFlags> bindingFlags;
 
         friend class LveDescriptorWriter;
     };
@@ -102,6 +103,7 @@ namespace lve {
 
         bool build(VkDescriptorSet& set);
         void overwrite(VkDescriptorSet& set);
+        void writeArrayElement(VkDescriptorSet& set);
 
     private:
         LveDescriptorSetLayout& setLayout;

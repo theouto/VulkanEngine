@@ -38,8 +38,11 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
 
     bindlessSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS, 1000)
+            .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT, 0)
             .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS, 1000)
+            .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT, 1)
             .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS, 1000 )
+            .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT, 2)
             .build();
 }
 
@@ -313,6 +316,18 @@ void LveRenderer::beginNormalRenderPass(VkCommandBuffer commandBuffer)
     VkRect2D scissor{{0, 0}, lveSwapChain->getSwapChainExtent()};
     vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+  }
+
+  void LveRenderer::testerholyFUCK()
+  {
+    std::shared_ptr<LveTextures> nerd = LveMaterials::write_test(lveDevice);
+
+    auto nerdInfo = nerd->getDescriptorInfo();
+
+    LveDescriptorWriter(*bindlessSetLayout, *globalPool)
+          .addImage(2, &nerdInfo)
+          .overwrite(bindlessLayout);
+
   }
 
 }  // namespace lve

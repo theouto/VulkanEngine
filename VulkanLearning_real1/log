@@ -1,0 +1,223 @@
+available extensions:
+	VK_KHR_device_group_creation
+	VK_KHR_display
+	VK_KHR_external_fence_capabilities
+	VK_KHR_external_memory_capabilities
+	VK_KHR_external_semaphore_capabilities
+	VK_KHR_get_display_properties2
+	VK_KHR_get_physical_device_properties2
+	VK_KHR_get_surface_capabilities2
+	VK_KHR_surface
+	VK_KHR_surface_maintenance1
+	VK_KHR_surface_protected_capabilities
+	VK_KHR_wayland_surface
+	VK_KHR_xcb_surface
+	VK_KHR_xlib_surface
+	VK_EXT_acquire_drm_display
+	VK_EXT_acquire_xlib_display
+	VK_EXT_debug_report
+	VK_EXT_debug_utils
+	VK_EXT_direct_mode_display
+	VK_EXT_display_surface_counter
+	VK_EXT_headless_surface
+	VK_EXT_surface_maintenance1
+	VK_EXT_swapchain_colorspace
+	VK_NV_display_stereo
+	VK_KHR_portability_enumeration
+	VK_LUNARG_direct_driver_loading
+	VK_EXT_layer_settings
+required extensions:
+	VK_KHR_surface
+	VK_KHR_wayland_surface
+	VK_EXT_debug_utils
+Device count: 1
+MSAA samples: 8
+physical device: AMD Radeon Graphics (RADV RENOIR)
+validation layer: vkGetPhysicalDeviceFeatures2(): Attempted to call with an effective API version of 1.0.0 (0x00400000), which is the minimum of version requested in pApplicationInfo (1.0.0 (0x00400000)) and supported by this physical device (1.4.335 (0x0040414f)), but this API was not promoted until version 1.1.0 (0x00401000).
+validation layer: vkGetPhysicalDeviceFeatures2: Emulation found unrecognized structure type in pFeatures->pNext - this struct will be ignored
+validation layer: vkCreateDevice(): pCreateInfo->pNext chain includes a structure with unexpected VkStructureType VK_STRUCTURE_TYPE_APPLICATION_INFO.
+pNext -> [VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO] -> [VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO] -> [VkPhysicalDeviceFeatures2] -> [VkApplicationInfo]
+This error is based on the Valid Usage documentation for version 341 of the Vulkan header.  It is possible that you are using a struct from a private extension or an extension that was added to a later version of the Vulkan header, in which case the use of pCreateInfo->pNext is undefined and may not work correctly with validation enabled.
+The Vulkan spec states: Each pNext member of any structure (including this one) in the pNext chain must be either NULL or a pointer to a valid struct for extending VkDeviceCreateInfo (https://docs.vulkan.org/spec/latest/chapters/devsandqueues.html#VUID-VkDeviceCreateInfo-pNext-pNext)
+validation layer: vkCreateDevice(): pCreateInfo->pNext includes a VkPhysicalDeviceFeatures2 struct when pCreateInfo->pEnabledFeatures is not NULL.
+pNext chain: VkDeviceCreateInfo::pNext -> [VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO] -> [VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO] -> [VkPhysicalDeviceFeatures2] -> [VkApplicationInfo].
+The Vulkan spec states: If the pNext chain includes a VkPhysicalDeviceFeatures2 structure, then pEnabledFeatures must be NULL (https://docs.vulkan.org/spec/latest/chapters/devsandqueues.html#VUID-VkDeviceCreateInfo-pNext-00373)
+validation layer: vkCreateDescriptorPool(): pCreateInfo->flags has VkDescriptorPoolCreateFlagBits values (VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT|VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT) that requires the extensions VK_EXT_descriptor_indexing.
+The Vulkan spec states: flags must be a valid combination of VkDescriptorPoolCreateFlagBits values (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-VkDescriptorPoolCreateInfo-flags-parameter)
+validation layer: vkCreateDescriptorSetLayout(): pCreateInfo->flags has VkDescriptorSetLayoutCreateFlagBits values (VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT) that requires the extensions VK_EXT_descriptor_indexing.
+The Vulkan spec states: flags must be a valid combination of VkDescriptorSetLayoutCreateFlagBits values (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-VkDescriptorSetLayoutCreateInfo-flags-parameter)
+validation layer: vkCreateDescriptorSetLayout(): pCreateInfo->flags has VkDescriptorSetLayoutCreateFlagBits values (VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT) that requires the extensions VK_EXT_descriptor_indexing.
+The Vulkan spec states: flags must be a valid combination of VkDescriptorSetLayoutCreateFlagBits values (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-VkDescriptorSetLayoutCreateInfo-flags-parameter)
+Present mode: V-Sync
+validation layer: vkCreateImage(): pCreateInfo->initialLayout is VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, but must be UNDEFINED or PREINITIALIZED or ZERO_INITIALIZED.
+The Vulkan spec states: initialLayout must be VK_IMAGE_LAYOUT_UNDEFINED or VK_IMAGE_LAYOUT_ZERO_INITIALIZED_EXT or VK_IMAGE_LAYOUT_PREINITIALIZED (https://docs.vulkan.org/spec/latest/chapters/resources.html#VUID-VkImageCreateInfo-initialLayout-00993)
+validation layer: vkCreateImageView(): pCreateInfo->format VK_FORMAT_B8G8R8A8_SRGB is different from VkImage 0x270000000027 format (VK_FORMAT_R8G8B8A8_UNORM). Formats MUST be IDENTICAL unless VK_IMAGE_CREATE_MUTABLE_FORMAT BIT was set on image creation.
+The Vulkan spec states: If image was not created with the VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT flag, or if the format of the image is a multi-planar format and if subresourceRange.aspectMask is VK_IMAGE_ASPECT_COLOR_BIT, format must be identical to the format used to create image (https://docs.vulkan.org/spec/latest/chapters/resources.html#VUID-VkImageViewCreateInfo-image-01762)
+validation layer: vkCreateDescriptorSetLayout(): pCreateInfo->flags has VkDescriptorSetLayoutCreateFlagBits values (VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT) that requires the extensions VK_EXT_descriptor_indexing.
+The Vulkan spec states: flags must be a valid combination of VkDescriptorSetLayoutCreateFlagBits values (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-VkDescriptorSetLayoutCreateInfo-flags-parameter)
+validation layer: vkCmdPipelineBarrier(): pImageMemoryBarriers[0].newLayout (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) is not compatible with VkImage 0x3d000000003d usage flags VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT.
+The Vulkan spec states: If layouts are not ignored, oldLayout or newLayout is VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL then image must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/synchronization.html#VUID-VkImageMemoryBarrier-oldLayout-01212)
+validation layer: vkCmdBlitImage(): srcImage (VkImage 0x3d000000003d) was created with VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT but requires VK_IMAGE_USAGE_TRANSFER_SRC_BIT.
+The Vulkan spec states: srcImage must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/copies.html#VUID-vkCmdBlitImage-srcImage-00219)
+validation layer: vkCmdPipelineBarrier(): pImageMemoryBarriers[0].oldLayout (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) is not compatible with VkImage 0x3d000000003d usage flags VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT.
+The Vulkan spec states: If layouts are not ignored, oldLayout or newLayout is VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL then image must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/synchronization.html#VUID-VkImageMemoryBarrier-oldLayout-01212)
+validation layer: vkCmdPipelineBarrier(): pImageMemoryBarriers[0].newLayout (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) is not compatible with VkImage 0x3d000000003d usage flags VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT.
+The Vulkan spec states: If layouts are not ignored, oldLayout or newLayout is VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL then image must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/synchronization.html#VUID-VkImageMemoryBarrier-oldLayout-01212)
+validation layer: vkCmdBlitImage(): srcImage (VkImage 0x3d000000003d) was created with VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT but requires VK_IMAGE_USAGE_TRANSFER_SRC_BIT.
+The Vulkan spec states: srcImage must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/copies.html#VUID-vkCmdBlitImage-srcImage-00219)
+validation layer: vkCmdPipelineBarrier(): pImageMemoryBarriers[0].oldLayout (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) is not compatible with VkImage 0x3d000000003d usage flags VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT.
+The Vulkan spec states: If layouts are not ignored, oldLayout or newLayout is VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL then image must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/synchronization.html#VUID-VkImageMemoryBarrier-oldLayout-01212)
+validation layer: vkCmdPipelineBarrier(): pImageMemoryBarriers[0].newLayout (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) is not compatible with VkImage 0x3d000000003d usage flags VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT.
+The Vulkan spec states: If layouts are not ignored, oldLayout or newLayout is VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL then image must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/synchronization.html#VUID-VkImageMemoryBarrier-oldLayout-01212)
+validation layer: vkCmdBlitImage(): srcImage (VkImage 0x3d000000003d) was created with VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT but requires VK_IMAGE_USAGE_TRANSFER_SRC_BIT.
+The Vulkan spec states: srcImage must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/copies.html#VUID-vkCmdBlitImage-srcImage-00219)
+validation layer: vkCmdPipelineBarrier(): pImageMemoryBarriers[0].oldLayout (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) is not compatible with VkImage 0x3d000000003d usage flags VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT.
+The Vulkan spec states: If layouts are not ignored, oldLayout or newLayout is VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL then image must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/synchronization.html#VUID-VkImageMemoryBarrier-oldLayout-01212)
+validation layer: vkCmdPipelineBarrier(): pImageMemoryBarriers[0].newLayout (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) is not compatible with VkImage 0x3d000000003d usage flags VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT.
+The Vulkan spec states: If layouts are not ignored, oldLayout or newLayout is VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL then image must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/synchronization.html#VUID-VkImageMemoryBarrier-oldLayout-01212)
+validation layer: vkCmdBlitImage(): srcImage (VkImage 0x3d000000003d) was created with VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT but requires VK_IMAGE_USAGE_TRANSFER_SRC_BIT.
+The Vulkan spec states: srcImage must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/copies.html#VUID-vkCmdBlitImage-srcImage-00219)
+validation layer: vkCmdPipelineBarrier(): pImageMemoryBarriers[0].oldLayout (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) is not compatible with VkImage 0x3d000000003d usage flags VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT.
+The Vulkan spec states: If layouts are not ignored, oldLayout or newLayout is VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL then image must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/synchronization.html#VUID-VkImageMemoryBarrier-oldLayout-01212)
+validation layer: vkCmdPipelineBarrier(): pImageMemoryBarriers[0].newLayout (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) is not compatible with VkImage 0x3d000000003d usage flags VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT.
+The Vulkan spec states: If layouts are not ignored, oldLayout or newLayout is VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL then image must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/synchronization.html#VUID-VkImageMemoryBarrier-oldLayout-01212)
+validation layer: vkCmdBlitImage(): srcImage (VkImage 0x3d000000003d) was created with VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT but requires VK_IMAGE_USAGE_TRANSFER_SRC_BIT.
+The Vulkan spec states: srcImage must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/copies.html#VUID-vkCmdBlitImage-srcImage-00219)
+validation layer: (Warning - This VUID has now been reported 10 times, which is the duplicate_message_limit value, this will be the last time reporting it).
+vkCmdPipelineBarrier(): pImageMemoryBarriers[0].oldLayout (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL) is not compatible with VkImage 0x3d000000003d usage flags VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT.
+The Vulkan spec states: If layouts are not ignored, oldLayout or newLayout is VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL then image must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/synchronization.html#VUID-VkImageMemoryBarrier-oldLayout-01212)
+validation layer: vkCmdBlitImage(): srcImage (VkImage 0x3d000000003d) was created with VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT but requires VK_IMAGE_USAGE_TRANSFER_SRC_BIT.
+The Vulkan spec states: srcImage must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/copies.html#VUID-vkCmdBlitImage-srcImage-00219)
+validation layer: vkCmdBlitImage(): srcImage (VkImage 0x3d000000003d) was created with VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT but requires VK_IMAGE_USAGE_TRANSFER_SRC_BIT.
+The Vulkan spec states: srcImage must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/copies.html#VUID-vkCmdBlitImage-srcImage-00219)
+validation layer: vkCmdBlitImage(): srcImage (VkImage 0x3d000000003d) was created with VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT but requires VK_IMAGE_USAGE_TRANSFER_SRC_BIT.
+The Vulkan spec states: srcImage must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/copies.html#VUID-vkCmdBlitImage-srcImage-00219)
+validation layer: vkUpdateDescriptorSets(): pDescriptorWrites[3].pImageInfo[0].imageLayout is VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL but the imageView was created with color aspectMask (VK_IMAGE_ASPECT_COLOR_BIT).
+The Vulkan spec states: If imageLayout is VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL or VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, then the aspectMask used to create imageView must not include VK_IMAGE_ASPECT_COLOR_BIT (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-VkDescriptorImageInfo-imageLayout-09426)
+validation layer: vkUpdateDescriptorSets(): pDescriptorWrites[3].pImageInfo[0].imageView references an image which was not created with VK_IMAGE_USAGE_SAMPLED_BIT, but descriptorType is VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER.
+VkImage 0x270000000027 was created with VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT.
+The Vulkan spec states: If descriptorType is VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE or VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, the imageView member of each element of pImageInfo must have been created with the VK_IMAGE_USAGE_SAMPLED_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-VkWriteDescriptorSet-descriptorType-00337)
+validation layer: vkUpdateDescriptorSets(): pDescriptorWrites[3].pImageInfo[0].imageLayout is VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL but the imageView was created with color aspectMask (VK_IMAGE_ASPECT_COLOR_BIT).
+The Vulkan spec states: If imageLayout is VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL or VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, then the aspectMask used to create imageView must not include VK_IMAGE_ASPECT_COLOR_BIT (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-VkDescriptorImageInfo-imageLayout-09426)
+validation layer: vkUpdateDescriptorSets(): pDescriptorWrites[3].pImageInfo[0].imageView references an image which was not created with VK_IMAGE_USAGE_SAMPLED_BIT, but descriptorType is VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER.
+VkImage 0x270000000027 was created with VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT.
+The Vulkan spec states: If descriptorType is VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE or VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, the imageView member of each element of pImageInfo must have been created with the VK_IMAGE_USAGE_SAMPLED_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-VkWriteDescriptorSet-descriptorType-00337)
+validation layer: vkCmdBlitImage(): srcImage (VkImage 0x540000000054) was created with VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT but requires VK_IMAGE_USAGE_TRANSFER_SRC_BIT.
+The Vulkan spec states: srcImage must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/copies.html#VUID-vkCmdBlitImage-srcImage-00219)
+validation layer: (Warning - This VUID has now been reported 10 times, which is the duplicate_message_limit value, this will be the last time reporting it).
+vkCmdBlitImage(): srcImage (VkImage 0x540000000054) was created with VK_IMAGE_USAGE_TRANSFER_DST_BIT|VK_IMAGE_USAGE_SAMPLED_BIT but requires VK_IMAGE_USAGE_TRANSFER_SRC_BIT.
+The Vulkan spec states: srcImage must have been created with the VK_IMAGE_USAGE_TRANSFER_SRC_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/copies.html#VUID-vkCmdBlitImage-srcImage-00219)
+validation layer: vkCreateDescriptorSetLayout(): pCreateInfo->flags has VkDescriptorSetLayoutCreateFlagBits values (VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT) that requires the extensions VK_EXT_descriptor_indexing.
+The Vulkan spec states: flags must be a valid combination of VkDescriptorSetLayoutCreateFlagBits values (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-VkDescriptorSetLayoutCreateInfo-flags-parameter)
+check
+validation layer: vkCreateGraphicsPipelines(): pCreateInfos[0].pVertexInputState Vertex attribute at location 1 not consumed by vertex shader.
+validation layer: vkCreateGraphicsPipelines(): pCreateInfos[0].pVertexInputState Vertex attribute at location 2 not consumed by vertex shader.
+validation layer: vkCreateGraphicsPipelines(): pCreateInfos[0].pVertexInputState Vertex attribute at location 3 not consumed by vertex shader.
+validation layer: vkCreateGraphicsPipelines(): pCreateInfos[0] Inside the fragment shader, it writes to output Location 0 but there is no VkSubpassDescription::pColorAttachments[0] and this write is unused.
+Spec information at https://docs.vulkan.org/spec/latest/chapters/interfaces.html#interfaces-fragmentoutput
+validation layer: vkCreateGraphicsPipelines(): pCreateInfos[0].pVertexInputState Vertex attribute at location 1 not consumed by vertex shader.
+validation layer: vkCreateGraphicsPipelines(): pCreateInfos[0].pVertexInputState Vertex attribute at location 2 not consumed by vertex shader.
+validation layer: vkCreateGraphicsPipelines(): pCreateInfos[0].pVertexInputState Vertex attribute at location 3 not consumed by vertex shader.
+validation layer: vkCreateGraphicsPipelines(): pCreateInfos[0] Inside the fragment shader, it writes to output Location 0 but there is no VkSubpassDescription::pColorAttachments[0] and this write is unused.
+Spec information at https://docs.vulkan.org/spec/latest/chapters/interfaces.html#interfaces-fragmentoutput
+validation layer: vkCreatePipelineLayout(): pCreateInfo->pPushConstantRanges[0].size (0) is zero.
+The Vulkan spec states: size must be greater than 0 (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-VkPushConstantRange-size-00296)
+validation layer: vkCreateShaderModule(): SPIR-V Capability RuntimeDescriptorArray was declared, but one of the following requirements is required (VkPhysicalDeviceVulkan12Features::runtimeDescriptorArray).
+The Vulkan spec states: If pCode is a pointer to SPIR-V code, and pCode declares any of the capabilities listed in the SPIR-V Environment appendix, one of the corresponding requirements must be satisfied (https://docs.vulkan.org/spec/latest/chapters/shaders.html#VUID-VkShaderModuleCreateInfo-pCode-08740)
+validation layer: vkCreateShaderModule(): SPIR-V Extension SPV_EXT_descriptor_indexing was declared, but one of the following requirements is required (1.2.0 (0x00402000) or VK_EXT_descriptor_indexing).
+The Vulkan spec states: If pCode is a pointer to SPIR-V code, and pCode declares any of the SPIR-V extensions listed in the SPIR-V Environment appendix, one of the corresponding requirements must be satisfied (https://docs.vulkan.org/spec/latest/chapters/shaders.html#VUID-VkShaderModuleCreateInfo-pCode-08742)
+validation layer: vkCreateGraphicsPipelines(): pCreateInfos[0].pStages[1] SPIR-V (VK_SHADER_STAGE_FRAGMENT_BIT) has a push constant buffer Block with range [0, 136] which outside the VkPushConstantRange of [0, 132].
+The Vulkan spec states: If a push constant block is declared in a shader and layout is not VK_NULL_HANDLE, the block must be contained inside the push constant range in layout that matches the stage (https://docs.vulkan.org/spec/latest/chapters/pipelines.html#VUID-VkGraphicsPipelineCreateInfo-layout-10069)
+emplacing textures...
+emplaced!
+chosen!
+chosen!
+chosen!
+validation layer: vkUpdateDescriptorSets(): pDescriptorWrites[0].sType must be VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET.
+The Vulkan spec states: sType must be VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-VkWriteDescriptorSet-sType-sType)
+
+
+
+All loaded, rendering:
+
+
+
+
+
+
+validation layer: vkCmdBindDescriptorSets(): pDynamicOffsets is NULL.
+The Vulkan spec states: If dynamicOffsetCount is not 0, pDynamicOffsets must be a valid pointer to an array of dynamicOffsetCount uint32_t values (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-pDynamicOffsets-parameter)
+validation layer: vkCmdBindDescriptorSets(): Attempting to bind 1 descriptorSets with 0 dynamic descriptors, but dynamicOffsetCount is 2. It should exactly match the number of dynamic descriptors.
+The Vulkan spec states: dynamicOffsetCount must be equal to the total number of dynamic descriptors in pDescriptorSets (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-dynamicOffsetCount-00359)
+validation layer: vkCmdBindDescriptorSets(): pDynamicOffsets is NULL.
+The Vulkan spec states: If dynamicOffsetCount is not 0, pDynamicOffsets must be a valid pointer to an array of dynamicOffsetCount uint32_t values (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-pDynamicOffsets-parameter)
+validation layer: vkCmdBindDescriptorSets(): Attempting to bind 1 descriptorSets with 0 dynamic descriptors, but dynamicOffsetCount is 2. It should exactly match the number of dynamic descriptors.
+The Vulkan spec states: dynamicOffsetCount must be equal to the total number of dynamic descriptors in pDescriptorSets (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-dynamicOffsetCount-00359)
+validation layer: vkCmdBindDescriptorSets(): pDynamicOffsets is NULL.
+The Vulkan spec states: If dynamicOffsetCount is not 0, pDynamicOffsets must be a valid pointer to an array of dynamicOffsetCount uint32_t values (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-pDynamicOffsets-parameter)
+validation layer: vkCmdBindDescriptorSets(): Attempting to bind 1 descriptorSets with 0 dynamic descriptors, but dynamicOffsetCount is 2. It should exactly match the number of dynamic descriptors.
+The Vulkan spec states: dynamicOffsetCount must be equal to the total number of dynamic descriptors in pDescriptorSets (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-dynamicOffsetCount-00359)
+Present mode: V-Sync
+validation layer: vkCreateImage(): pCreateInfo->initialLayout is VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, but must be UNDEFINED or PREINITIALIZED or ZERO_INITIALIZED.
+The Vulkan spec states: initialLayout must be VK_IMAGE_LAYOUT_UNDEFINED or VK_IMAGE_LAYOUT_ZERO_INITIALIZED_EXT or VK_IMAGE_LAYOUT_PREINITIALIZED (https://docs.vulkan.org/spec/latest/chapters/resources.html#VUID-VkImageCreateInfo-initialLayout-00993)
+validation layer: vkCreateImageView(): pCreateInfo->format VK_FORMAT_B8G8R8A8_SRGB is different from VkImage 0xee00000000ee format (VK_FORMAT_R8G8B8A8_UNORM). Formats MUST be IDENTICAL unless VK_IMAGE_CREATE_MUTABLE_FORMAT BIT was set on image creation.
+The Vulkan spec states: If image was not created with the VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT flag, or if the format of the image is a multi-planar format and if subresourceRange.aspectMask is VK_IMAGE_ASPECT_COLOR_BIT, format must be identical to the format used to create image (https://docs.vulkan.org/spec/latest/chapters/resources.html#VUID-VkImageViewCreateInfo-image-01762)
+validation layer: vkUpdateDescriptorSets(): pDescriptorWrites[3].pImageInfo[0].imageLayout is VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL but the imageView was created with color aspectMask (VK_IMAGE_ASPECT_COLOR_BIT).
+The Vulkan spec states: If imageLayout is VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL or VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, then the aspectMask used to create imageView must not include VK_IMAGE_ASPECT_COLOR_BIT (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-VkDescriptorImageInfo-imageLayout-09426)
+validation layer: vkUpdateDescriptorSets(): pDescriptorWrites[3].pImageInfo[0].imageView references an image which was not created with VK_IMAGE_USAGE_SAMPLED_BIT, but descriptorType is VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER.
+VkImage 0xee00000000ee was created with VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT.
+The Vulkan spec states: If descriptorType is VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE or VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, the imageView member of each element of pImageInfo must have been created with the VK_IMAGE_USAGE_SAMPLED_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-VkWriteDescriptorSet-descriptorType-00337)
+validation layer: vkUpdateDescriptorSets(): pDescriptorWrites[3].pImageInfo[0].imageLayout is VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL but the imageView was created with color aspectMask (VK_IMAGE_ASPECT_COLOR_BIT).
+The Vulkan spec states: If imageLayout is VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL or VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, then the aspectMask used to create imageView must not include VK_IMAGE_ASPECT_COLOR_BIT (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-VkDescriptorImageInfo-imageLayout-09426)
+validation layer: vkUpdateDescriptorSets(): pDescriptorWrites[3].pImageInfo[0].imageView references an image which was not created with VK_IMAGE_USAGE_SAMPLED_BIT, but descriptorType is VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER.
+VkImage 0xee00000000ee was created with VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT.
+The Vulkan spec states: If descriptorType is VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE or VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, the imageView member of each element of pImageInfo must have been created with the VK_IMAGE_USAGE_SAMPLED_BIT usage flag set (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-VkWriteDescriptorSet-descriptorType-00337)
+validation layer: vkCmdBindDescriptorSets(): pDynamicOffsets is NULL.
+The Vulkan spec states: If dynamicOffsetCount is not 0, pDynamicOffsets must be a valid pointer to an array of dynamicOffsetCount uint32_t values (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-pDynamicOffsets-parameter)
+validation layer: vkCmdBindDescriptorSets(): Attempting to bind 1 descriptorSets with 0 dynamic descriptors, but dynamicOffsetCount is 2. It should exactly match the number of dynamic descriptors.
+The Vulkan spec states: dynamicOffsetCount must be equal to the total number of dynamic descriptors in pDescriptorSets (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-dynamicOffsetCount-00359)
+validation layer: vkCmdBindDescriptorSets(): pDynamicOffsets is NULL.
+The Vulkan spec states: If dynamicOffsetCount is not 0, pDynamicOffsets must be a valid pointer to an array of dynamicOffsetCount uint32_t values (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-pDynamicOffsets-parameter)
+validation layer: vkCmdBindDescriptorSets(): Attempting to bind 1 descriptorSets with 0 dynamic descriptors, but dynamicOffsetCount is 2. It should exactly match the number of dynamic descriptors.
+The Vulkan spec states: dynamicOffsetCount must be equal to the total number of dynamic descriptors in pDescriptorSets (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-dynamicOffsetCount-00359)
+validation layer: vkCmdBindDescriptorSets(): pDynamicOffsets is NULL.
+The Vulkan spec states: If dynamicOffsetCount is not 0, pDynamicOffsets must be a valid pointer to an array of dynamicOffsetCount uint32_t values (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-pDynamicOffsets-parameter)
+validation layer: vkCmdBindDescriptorSets(): Attempting to bind 1 descriptorSets with 0 dynamic descriptors, but dynamicOffsetCount is 2. It should exactly match the number of dynamic descriptors.
+The Vulkan spec states: dynamicOffsetCount must be equal to the total number of dynamic descriptors in pDescriptorSets (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-dynamicOffsetCount-00359)
+validation layer: vkQueueSubmit(): pSubmits[0].pSignalSemaphores[0] (VkSemaphore 0xf800000000f8) is being signaled by VkQueue 0x562c28df8200, but it may still be in use by VkSwapchainKHR 0xce00000000ce.
+Most recently acquired image indices: [0], 1, 2.
+(Brackets mark the last use of VkSemaphore 0xf800000000f8 in a presentation operation.)
+Swapchain image 0 was presented but was not re-acquired, so VkSemaphore 0xf800000000f8 may still be in use and cannot be safely reused with image index 2.
+Vulkan insight: See https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html for details on swapchain semaphore reuse. Examples of possible approaches:
+   a) Use a separate semaphore per swapchain image. Index these semaphores using the index of the acquired image.
+   b) Consider the VK_KHR_swapchain_maintenance1 extension. It allows using a VkFence with the presentation operation.
+The Vulkan spec states: Each binary semaphore element of the pSignalSemaphores member of any element of pSubmits must be unsignaled when the semaphore signal operation it defines is executed on the device (https://docs.vulkan.org/spec/latest/chapters/cmdbuffers.html#VUID-vkQueueSubmit-pSignalSemaphores-00067)
+validation layer: vkCmdBindDescriptorSets(): pDynamicOffsets is NULL.
+The Vulkan spec states: If dynamicOffsetCount is not 0, pDynamicOffsets must be a valid pointer to an array of dynamicOffsetCount uint32_t values (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-pDynamicOffsets-parameter)
+validation layer: vkCmdBindDescriptorSets(): Attempting to bind 1 descriptorSets with 0 dynamic descriptors, but dynamicOffsetCount is 2. It should exactly match the number of dynamic descriptors.
+The Vulkan spec states: dynamicOffsetCount must be equal to the total number of dynamic descriptors in pDescriptorSets (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-dynamicOffsetCount-00359)
+validation layer: vkQueueSubmit(): pSubmits[0].pSignalSemaphores[0] (VkSemaphore 0xfb00000000fb) is being signaled by VkQueue 0x562c28df8200, but it may still be in use by VkSwapchainKHR 0xce00000000ce.
+Most recently acquired image indices: 0, [1], 2, 3.
+(Brackets mark the last use of VkSemaphore 0xfb00000000fb in a presentation operation.)
+Swapchain image 1 was presented but was not re-acquired, so VkSemaphore 0xfb00000000fb may still be in use and cannot be safely reused with image index 3.
+Vulkan insight: See https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html for details on swapchain semaphore reuse. Examples of possible approaches:
+   a) Use a separate semaphore per swapchain image. Index these semaphores using the index of the acquired image.
+   b) Consider the VK_KHR_swapchain_maintenance1 extension. It allows using a VkFence with the presentation operation.
+The Vulkan spec states: Each binary semaphore element of the pSignalSemaphores member of any element of pSubmits must be unsignaled when the semaphore signal operation it defines is executed on the device (https://docs.vulkan.org/spec/latest/chapters/cmdbuffers.html#VUID-vkQueueSubmit-pSignalSemaphores-00067)
+validation layer: vkCmdBindDescriptorSets(): pDynamicOffsets is NULL.
+The Vulkan spec states: If dynamicOffsetCount is not 0, pDynamicOffsets must be a valid pointer to an array of dynamicOffsetCount uint32_t values (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-pDynamicOffsets-parameter)
+validation layer: vkCmdBindDescriptorSets(): Attempting to bind 1 descriptorSets with 0 dynamic descriptors, but dynamicOffsetCount is 2. It should exactly match the number of dynamic descriptors.
+The Vulkan spec states: dynamicOffsetCount must be equal to the total number of dynamic descriptors in pDescriptorSets (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-dynamicOffsetCount-00359)
+validation layer: vkCmdBindDescriptorSets(): pDynamicOffsets is NULL.
+The Vulkan spec states: If dynamicOffsetCount is not 0, pDynamicOffsets must be a valid pointer to an array of dynamicOffsetCount uint32_t values (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-pDynamicOffsets-parameter)
+validation layer: vkCmdBindDescriptorSets(): Attempting to bind 1 descriptorSets with 0 dynamic descriptors, but dynamicOffsetCount is 2. It should exactly match the number of dynamic descriptors.
+The Vulkan spec states: dynamicOffsetCount must be equal to the total number of dynamic descriptors in pDescriptorSets (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-dynamicOffsetCount-00359)
+validation layer: (Warning - This VUID has now been reported 10 times, which is the duplicate_message_limit value, this will be the last time reporting it).
+vkCmdBindDescriptorSets(): pDynamicOffsets is NULL.
+The Vulkan spec states: If dynamicOffsetCount is not 0, pDynamicOffsets must be a valid pointer to an array of dynamicOffsetCount uint32_t values (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-pDynamicOffsets-parameter)
+validation layer: (Warning - This VUID has now been reported 10 times, which is the duplicate_message_limit value, this will be the last time reporting it).
+vkCmdBindDescriptorSets(): Attempting to bind 1 descriptorSets with 0 dynamic descriptors, but dynamicOffsetCount is 2. It should exactly match the number of dynamic descriptors.
+The Vulkan spec states: dynamicOffsetCount must be equal to the total number of dynamic descriptors in pDescriptorSets (https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-dynamicOffsetCount-00359)
+radv/amdgpu: The CS has been cancelled because the context is lost. This context is guilty of a soft recovery.
+validation layer: vkQueueSubmit() failed (VK_ERROR_DEVICE_LOST)
+[Vulkan Loader] ERROR:          vkDestroyDescriptorPool: Invalid device [VUID-vkDestroyDescriptorPool-device-parameter]

@@ -131,6 +131,8 @@ namespace lve
               .overwrite(bindlessLayout);
         }
 
+        void testerholyFUCK();
+
         VkDescriptorSet getBindlessLayout() {return bindlessLayout;}
 	private:
 

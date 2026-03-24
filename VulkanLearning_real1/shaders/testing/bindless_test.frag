@@ -18,6 +18,7 @@ layout(push_constant) uniform Push
   mat4 modelMatrix;
   mat4 normalMatrix;
   uint RID;
+  uint fIndex;
 } push;
 
 struct PointLight
@@ -26,7 +27,7 @@ struct PointLight
 	vec4 color;
 };
 
-layout(set = 0, binding = 0) uniform GlobalUbo 
+layout(set = 1, binding = 0) uniform GlobalUbo 
 {
   mat4 projection;
   mat4 view;

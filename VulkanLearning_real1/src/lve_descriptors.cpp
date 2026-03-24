@@ -26,6 +26,17 @@ namespace lve {
         return *this;
     }
 
+    //TODO: remove this hacky piece of shit and make something neater
+    LveDescriptorSetLayout::Builder& LveDescriptorSetLayout::Builder::addBindingFlag(
+                     VkDescriptorBindingFlags bindingFlags,
+                     uint32_t count)
+    {
+        VkDescriptorBindingFlags flags{};
+        flags = bindingFlags;
+        this->bindingFlags.push_back(flags);
+
+        return *this;
+    }
 
     std::unique_ptr<LveDescriptorSetLayout> LveDescriptorSetLayout::Builder::build() const {
         return std::make_unique<LveDescriptorSetLayout>(lveDevice, bindings);
@@ -47,7 +58,16 @@ namespace lve {
         descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
         descriptorSetLayoutInfo.flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
 
-        //if (bindingFlags != nullptr) descriptorSetLayoutInfo.pNext = bindingFlags;
+        if (bindingFlags.size() > 0) 
+        {
+            VkDescriptorSetLayoutBindingFlagsCreateInfo flags{};
+            flags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
+            flags.pNext = nullptr;
+            flags.pBindingFlags = bindingFlags.data();
+            flags.bindingCount = bindingFlags.size();
+
+            descriptorSetLayoutInfo.pNext = &flags;
+        }
 
         if (vkCreateDescriptorSetLayout(
             lveDevice.device(),
@@ -221,6 +241,12 @@ namespace lve {
             write.dstSet = set;
         }
         vkUpdateDescriptorSets(pool.lveDevice.device(), writes.size(), writes.data(), 0, nullptr);
+    }
+
+    void LveDescriptorWriter::writeArrayElement(VkDescriptorSet& set)
+    {
+        writes[0].dstSet = set;
+        vkUpdateDescriptorSets(pool.lveDevice.device(), 1, writes.data(), 0, nullptr);
     }
 
 }  // namespace lve
