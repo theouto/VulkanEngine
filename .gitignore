@@ -19,6 +19,7 @@
 *.user
 *.mtlx
 *.usdc
+log
 
 # get it out
 *.ini
