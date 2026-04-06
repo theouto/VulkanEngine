@@ -51,5 +51,5 @@ void main()
 
   //vec3(LinearizeDepth(texture(storageSampler[push.RID], projCoords).r)/FAR
 
-  outColor = vec4(texture(storageSampler[push.RID], projCoords).rgb, 1.f);
+  outColor = vec4(texture(storageSampler[push.RID], fragUv).rgb, 1.f);
 }

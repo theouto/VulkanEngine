@@ -100,7 +100,7 @@ namespace lve
 
 
         sceneManager.load("scenes/test_scene.ths", *lveRenderer.globalPool);
-        lveRenderer.testerholyFUCK();
+        //lveRenderer.testerholyFUCK();
 
 	auto currentTime = std::chrono::high_resolution_clock::now();
 

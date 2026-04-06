@@ -22,7 +22,7 @@ LveRenderer::~LveRenderer() { freeCommandBuffers(); }
 void LveRenderer::createResources() //I got tired of having such a dogshit renderer header file
 {
     globalPool = LveDescriptorPool::Builder(lveDevice)
-            .setMaxSets(200)
+            .setMaxSets(10)
             .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 65536)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 65536)
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 65536)
@@ -37,13 +37,7 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
             .build();
 
     bindlessSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
-            /*
-            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS, 1000)
-            .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT, 1)
-            .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS, 1000)
-            .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT, 1)
-            */
-            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 5)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 0)
             .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT, 1)
             .build();
 }
@@ -54,6 +48,9 @@ void LveRenderer::generateDescriptors()
 
   auto nerd = LveMaterials::write_test(lveDevice);
   auto nerdInfo = nerd->getDescriptorInfo();
+
+  LveDescriptorWriter(*bindlessSetLayout, *globalPool)
+      .build(bindlessLayout);
 
   for(int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
   {
@@ -69,11 +66,6 @@ void LveRenderer::generateDescriptors()
       .writeImage(3, &normalSpecInfo)
       .build(globalSetLayouts[i]);
   }
-
-    LveDescriptorWriter(*bindlessSetLayout, *globalPool)
-      .build(bindlessLayout);
-
-    globalPool->allocateDescriptor(bindlessSetLayout->getDescriptorSetLayout(), bindlessLayout);
 }
 
 void LveRenderer::updateDescriptors()
