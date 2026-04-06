@@ -125,10 +125,13 @@ namespace lve
           std::shared_ptr<LveTextures> nerd = LveMaterials::write_test(lveDevice);
 
           auto nerdInfo = nerd->getDescriptorInfo();
-        
-          LveDescriptorWriter(*bindlessSetLayout, *globalPool)
+
+          for(int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+          {
+            LveDescriptorWriter(*bindlessSetLayout, *globalPool)
               .addImage(2, &nerdInfo)
               .overwrite(bindlessLayout);
+          }
         }
 
         void testerholyFUCK();

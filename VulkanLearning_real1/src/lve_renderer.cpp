@@ -22,7 +22,7 @@ LveRenderer::~LveRenderer() { freeCommandBuffers(); }
 void LveRenderer::createResources() //I got tired of having such a dogshit renderer header file
 {
     globalPool = LveDescriptorPool::Builder(lveDevice)
-            .setMaxSets(65536)
+            .setMaxSets(200)
             .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 65536)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 65536)
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 65536)
@@ -37,12 +37,14 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
             .build();
 
     bindlessSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
+            /*
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS, 1000)
-            .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT, 0)
+            .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT, 1)
             .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS, 1000)
             .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT, 1)
-            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS, 1000 )
-            .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT, 2)
+            */
+            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 5)
+            .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT, 1)
             .build();
 }
 
@@ -70,6 +72,8 @@ void LveRenderer::generateDescriptors()
 
     LveDescriptorWriter(*bindlessSetLayout, *globalPool)
       .build(bindlessLayout);
+
+    globalPool->allocateDescriptor(bindlessSetLayout->getDescriptorSetLayout(), bindlessLayout);
 }
 
 void LveRenderer::updateDescriptors()
@@ -325,9 +329,8 @@ void LveRenderer::beginNormalRenderPass(VkCommandBuffer commandBuffer)
     auto nerdInfo = nerd->getDescriptorInfo();
 
     LveDescriptorWriter(*bindlessSetLayout, *globalPool)
-          .addImage(2, &nerdInfo)
-          .overwrite(bindlessLayout);
-
+        .addImage(0, &nerdInfo)
+        .writeArrayElement(bindlessLayout);
   }
 
 }  // namespace lve

@@ -36,7 +36,7 @@ namespace lve {
 
         LveDescriptorSetLayout(
             LveDevice& lveDevice, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
-        ~LveDescriptorSetLayout();
+        ~LveDescriptorSetLayout(){}
         LveDescriptorSetLayout(const LveDescriptorSetLayout&) = delete;
         LveDescriptorSetLayout& operator=(const LveDescriptorSetLayout&) = delete;
 

@@ -187,7 +187,7 @@ namespace lve
                 //bindless_test
                 simpleBindlessSystem.renderGameObjects(frameInfo);
 
-                //Ambient Occlusion
+                //Ambient Occlusion, here for now for debugging purposes until I get it working right and make it its own image
                 //AOSystem.render(frameInfo);
 
                 //renders light dots

@@ -62,9 +62,8 @@ namespace lve {
         {
             VkDescriptorSetLayoutBindingFlagsCreateInfo flags{};
             flags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
-            flags.pNext = nullptr;
-            flags.pBindingFlags = bindingFlags.data();
-            flags.bindingCount = bindingFlags.size();
+            flags.pBindingFlags = &bindingFlags[0];
+            flags.bindingCount = 1;
 
             descriptorSetLayoutInfo.pNext = &flags;
         }
@@ -76,10 +75,6 @@ namespace lve {
             &descriptorSetLayout) != VK_SUCCESS) {
             throw std::runtime_error("failed to create descriptor set layout!");
         }
-    }
-
-    LveDescriptorSetLayout::~LveDescriptorSetLayout() {
-        vkDestroyDescriptorSetLayout(lveDevice.device(), descriptorSetLayout, nullptr);
     }
 
     // *************** Descriptor Pool Builder *********************
@@ -131,8 +126,17 @@ namespace lve {
 
     bool LveDescriptorPool::allocateDescriptor(
         const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const {
+
+        uint32_t variableDescCount{ static_cast<uint32_t>(1000) };
+        VkDescriptorSetVariableDescriptorCountAllocateInfo variableDescCountAI{
+        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT,
+        .descriptorSetCount = 1,
+        .pDescriptorCounts = &variableDescCount
+        };
+
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocInfo.pNext = &variableDescCountAI;
         allocInfo.descriptorPool = descriptorPool;
         allocInfo.pSetLayouts = &descriptorSetLayout;
         allocInfo.descriptorSetCount = 1;
@@ -217,11 +221,12 @@ namespace lve {
         */
 
         VkWriteDescriptorSet write{};
-        write.descriptorType = bindingDescription.descriptorType;
+        write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         write.dstArrayElement = binding + 2;
         write.dstBinding = binding;
         write.pImageInfo = imageInfo;
         write.descriptorCount = 1;
+        write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 
         writes.push_back(write);
         return *this;

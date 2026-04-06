@@ -52,6 +52,6 @@ materials/wet_rock.thmat
 AOI
 models/cube.obj
 materials/wet_rock.thmat
-0 -1 -1
-0.061 -1.022 1
-0 -0.578 0
+2 -1 0
+1.433 -0.517 0.278
+3.899 -0.361 -0.072
