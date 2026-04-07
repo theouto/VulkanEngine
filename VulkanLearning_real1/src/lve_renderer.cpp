@@ -21,12 +21,19 @@ LveRenderer::~LveRenderer() { freeCommandBuffers(); }
 
 void LveRenderer::createResources() //I got tired of having such a dogshit renderer header file
 {
+    testerholyFUCK();
+
     globalPool = LveDescriptorPool::Builder(lveDevice)
-            .setMaxSets(10)
+            .setMaxSets(20)
             .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 65536)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 65536)
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 65536)
             .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT | VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
+            .build();
+
+    descriptorPool = LveDescriptorPool::Builder(lveDevice)
+            .setMaxSets(1)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, static_cast<uint32_t>(textures.size()))
             .build();
 
     globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
@@ -37,20 +44,22 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
             .build();
 
     bindlessSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 0)
-            .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT, 1)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, static_cast<uint32_t>(textures.size()))
+            .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT)
             .build();
 }
 
 void LveRenderer::generateDescriptors()
 {
   globalSetLayouts.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
+  auto nerdInfo = textures[0]->getDescriptorInfo();
 
-  auto nerd = LveMaterials::write_test(lveDevice);
-  auto nerdInfo = nerd->getDescriptorInfo();
+  descriptorPool->allocateDescriptor(bindlessSetLayout->getDescriptorSetLayout(), 
+                                     bindlessLayout);
 
-  LveDescriptorWriter(*bindlessSetLayout, *globalPool)
-      .build(bindlessLayout);
+  LveDescriptorWriter(*bindlessSetLayout, *descriptorPool)
+      .writeImage(0, &nerdInfo)
+      .overwrite(bindlessLayout);
 
   for(int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
   {
@@ -317,12 +326,7 @@ void LveRenderer::beginNormalRenderPass(VkCommandBuffer commandBuffer)
   void LveRenderer::testerholyFUCK()
   {
     std::shared_ptr<LveTextures> nerd = LveMaterials::write_test(lveDevice);
-
-    auto nerdInfo = nerd->getDescriptorInfo();
-
-    LveDescriptorWriter(*bindlessSetLayout, *globalPool)
-        .addImage(0, &nerdInfo)
-        .writeArrayElement(bindlessLayout);
+    textures.push_back(nerd);
   }
 
 }  // namespace lve

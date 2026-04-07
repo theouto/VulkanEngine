@@ -110,7 +110,8 @@ namespace lve
         void beginDepthRenderPass(VkCommandBuffer commandBuffer);
 		void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
 
-        std::unique_ptr<LveDescriptorPool> globalPool = nullptr; 
+        std::unique_ptr<LveDescriptorPool> globalPool = nullptr;
+        std::unique_ptr<LveDescriptorPool> descriptorPool = nullptr;
         std::unique_ptr<LveDescriptorSetLayout> globalSetLayout = nullptr;
         std::unique_ptr<LveDescriptorSetLayout> bindlessSetLayout = nullptr;
 
@@ -148,6 +149,7 @@ namespace lve
 		LveWindow& lveWindow;
         LveDevice& lveDevice;
         std::vector<VkDescriptorBufferInfo> uboInfo;
+        std::vector<std::shared_ptr<LveTextures>> textures;
 
         std::vector<VkDescriptorSet> globalSetLayouts;
         VkDescriptorSet bindlessLayout;

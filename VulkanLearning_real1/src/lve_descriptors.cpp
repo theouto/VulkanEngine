@@ -126,17 +126,8 @@ namespace lve {
 
     bool LveDescriptorPool::allocateDescriptor(
         const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const {
-
-        uint32_t variableDescCount{ static_cast<uint32_t>(1000) };
-        VkDescriptorSetVariableDescriptorCountAllocateInfo variableDescCountAI{
-        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT,
-        .descriptorSetCount = 1,
-        .pDescriptorCounts = &variableDescCount
-        };
-
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        allocInfo.pNext = &variableDescCountAI;
         allocInfo.descriptorPool = descriptorPool;
         allocInfo.pSetLayouts = &descriptorSetLayout;
         allocInfo.descriptorSetCount = 1;
@@ -222,7 +213,7 @@ namespace lve {
 
         VkWriteDescriptorSet write{};
         write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        write.dstArrayElement = binding + 2;
+        write.dstArrayElement = binding;
         write.dstBinding = binding;
         write.pImageInfo = imageInfo;
         write.descriptorCount = 1;
