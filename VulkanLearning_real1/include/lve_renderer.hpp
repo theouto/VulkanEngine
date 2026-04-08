@@ -120,21 +120,6 @@ namespace lve
         
         void generateDescriptors();
         void updateDescriptors();
-
-        void bindlessImage()
-        {
-          std::shared_ptr<LveTextures> nerd = LveMaterials::write_test(lveDevice);
-
-          auto nerdInfo = nerd->getDescriptorInfo();
-
-          for(int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
-          {
-            LveDescriptorWriter(*bindlessSetLayout, *globalPool)
-              .addImage(2, &nerdInfo)
-              .overwrite(bindlessLayout);
-          }
-        }
-
         void testerholyFUCK();
 
         VkDescriptorSet getBindlessLayout() {return bindlessLayout;}

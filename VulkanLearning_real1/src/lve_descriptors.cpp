@@ -200,20 +200,18 @@ namespace lve {
     }
 
     LveDescriptorWriter& LveDescriptorWriter::addImage(
-        uint32_t binding, VkDescriptorImageInfo* imageInfo) {
+        uint32_t binding, VkDescriptorImageInfo* imageInfo, uint32_t index) {
         assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
         auto& bindingDescription = setLayout.bindings[binding];
 
-        /*
         assert(
             bindingDescription.descriptorCount == 1 &&
             "Binding single descriptor info, but binding expects multiple"); 
-        */
 
         VkWriteDescriptorSet write{};
         write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        write.dstArrayElement = binding;
+        write.dstArrayElement = index;
         write.dstBinding = binding;
         write.pImageInfo = imageInfo;
         write.descriptorCount = 1;

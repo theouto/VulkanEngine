@@ -8,7 +8,6 @@ while IFS= read -r line; do
 done < <(rg --files)
 
 IFS='/'
-count=0
 for val in "${shaderfiles[@]}"; do
 
   [[ $val == "shadercompile.sh" ]] && continue

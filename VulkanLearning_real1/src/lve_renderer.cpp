@@ -58,7 +58,7 @@ void LveRenderer::generateDescriptors()
                                      bindlessLayout);
 
   LveDescriptorWriter(*bindlessSetLayout, *descriptorPool)
-      .writeImage(0, &nerdInfo)
+      .addImage(0, &nerdInfo, textures.size()-1)
       .overwrite(bindlessLayout);
 
   for(int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
@@ -75,6 +75,10 @@ void LveRenderer::generateDescriptors()
       .writeImage(3, &normalSpecInfo)
       .build(globalSetLayouts[i]);
   }
+
+  testerholyFUCK();
+  
+
 }
 
 void LveRenderer::updateDescriptors()

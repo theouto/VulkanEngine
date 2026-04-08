@@ -19,10 +19,10 @@
 *.user
 *.mtlx
 *.usdc
-log
-
-# get it out
 *.ini
+*.d
+*.o
+*.spv
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
