@@ -44,7 +44,7 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
             .build();
 
     bindlessSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, static_cast<uint32_t>(textures.size()))
+            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1000)
             .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT)
             .build();
 }
@@ -58,7 +58,7 @@ void LveRenderer::generateDescriptors()
                                      bindlessLayout);
 
   LveDescriptorWriter(*bindlessSetLayout, *descriptorPool)
-      .addImage(0, &nerdInfo, textures.size()-1)
+      .addImage(0, &nerdInfo, 0)
       .overwrite(bindlessLayout);
 
   for(int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
@@ -75,10 +75,6 @@ void LveRenderer::generateDescriptors()
       .writeImage(3, &normalSpecInfo)
       .build(globalSetLayouts[i]);
   }
-
-  testerholyFUCK();
-  
-
 }
 
 void LveRenderer::updateDescriptors()

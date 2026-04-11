@@ -98,9 +98,7 @@ namespace lve
         double mouseX = 0.f;
         double mouseY = 0.f;
 
-
         sceneManager.load("scenes/test_scene.ths", *lveRenderer.globalPool);
-        //lveRenderer.testerholyFUCK();
 
 	auto currentTime = std::chrono::high_resolution_clock::now();
 

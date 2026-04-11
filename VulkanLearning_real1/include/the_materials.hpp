@@ -3,6 +3,7 @@
 #include "lve_textures.hpp"
 #include "lve_device.hpp"
 
+#include <unordered_map>
 #include <vector>
 #include <map>
 #include <string>
@@ -30,8 +31,11 @@ namespace lve
     private:
 
     LveDevice &lveDevice;
-    std::unordered_map<unsigned int, 
-                       std::pair<VkDescriptorSet, 
+    std::unordered_map<unsigned int,
+                       std::pair<VkDescriptorSet,
                        std::vector<std::shared_ptr<LveTextures>>>> loadedMaterials;
+
+    std::unordered_map<unsigned int, 
+                       std::vector<uint32_t>> bindlessTextureSet;
   };
 }

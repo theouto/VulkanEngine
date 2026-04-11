@@ -11,6 +11,10 @@ layout(location = 3) in vec2 fragUv;
 
 layout(location = 0) out vec4 outColor;
 
+layout(set = 0, binding = 1) uniform sampler2D shadowMap;
+layout(set = 0, binding = 2) uniform sampler2D depthMap;
+layout(set = 0, binding = 3) uniform sampler2D normalSpec;
+
 layout(set = 1, binding = 0) uniform sampler2D storageSampler[];
 
 layout(push_constant) uniform Push 
@@ -49,7 +53,5 @@ void main()
 {
   vec2 projCoords = vec2(gl_FragCoord.x/ubo.width, gl_FragCoord.y/ubo.height);
 
-  //vec3(LinearizeDepth(texture(storageSampler[push.RID], projCoords).r)/FAR
-
-  outColor = vec4(texture(storageSampler[push.RID], projCoords).rgb, 1.f);
+  outColor = vec4(texture(storageSampler[push.RID], fragUv).xyz, 1.f);
 }

@@ -77,6 +77,6 @@ namespace lve
 
     std::shared_ptr<LveTextures> LveMaterials::write_test(LveDevice& lveDevice)
     {
-      return std::make_shared<LveTextures>(lveDevice, "textures/NEEERDDDD.png",LveTextures::COLOR);
+      return std::make_shared<LveTextures>(lveDevice, "textures/NA.png",LveTextures::COLOR);
     }
 }

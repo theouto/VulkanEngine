@@ -1,5 +1,9 @@
 #!/bin/bash
 
+cd ./shaders/
+
+[ ! -d ./compiled ] && mkdir ./compiled
+
 shaderfiles=()
 while IFS= read -r line; do
   if [[ "${line:0:8}" != "compiled" ]]; then
@@ -10,8 +14,6 @@ done < <(rg --files)
 IFS='/'
 for val in "${shaderfiles[@]}"; do
 
-  [[ $val == "shadercompile.sh" ]] && continue
-
   read -ra isolated <<<"$val"
   comp="compiled/"${isolated[1]}".spv"
 
@@ -21,3 +23,5 @@ for val in "${shaderfiles[@]}"; do
   fi
 
 done
+
+cd ..

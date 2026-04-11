@@ -66,6 +66,7 @@ namespace lve {
         private:
             LveDevice& lveDevice;
             std::vector<VkDescriptorPoolSize> poolSizes{};
+            std::vector<std::pair<VkDescriptorType, uint32_t>> placehold;
             uint32_t maxSets = 1000;
             VkDescriptorPoolCreateFlags poolFlags = 0;
         };
@@ -74,21 +75,26 @@ namespace lve {
             LveDevice& lveDevice,
             uint32_t maxSets,
             VkDescriptorPoolCreateFlags poolFlags,
-            const std::vector<VkDescriptorPoolSize>& poolSizes);
+            const std::vector<VkDescriptorPoolSize>& poolSizes,
+            std::vector<std::pair<VkDescriptorType, uint32_t>> placehold);
         ~LveDescriptorPool();
         LveDescriptorPool(const LveDescriptorPool&) = delete;
         LveDescriptorPool& operator=(const LveDescriptorPool&) = delete;
 
         bool allocateDescriptor(
-            const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const;
+            const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor);
 
         void freeDescriptors(std::vector<VkDescriptorSet>& descriptors) const;
+        bool expandPool(const VkDescriptorPoolCreateInfo &poolInfo);
         VkDescriptorPool getDescriptorPool() {return descriptorPool;}
         void resetPool();
 
     private:
         LveDevice& lveDevice;
         VkDescriptorPool descriptorPool;
+        uint32_t maxSets;
+        VkDescriptorPoolCreateFlags poolFlags;
+        std::vector<std::pair<VkDescriptorType, uint32_t>> sizes;
 
         friend class LveDescriptorWriter;
     };
@@ -103,7 +109,6 @@ namespace lve {
 
         bool build(VkDescriptorSet& set);
         void overwrite(VkDescriptorSet& set);
-        void writeArrayElement(VkDescriptorSet& set);
 
     private:
         LveDescriptorSetLayout& setLayout;

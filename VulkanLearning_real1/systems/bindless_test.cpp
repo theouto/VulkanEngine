@@ -82,12 +82,8 @@ namespace lve
         VkDescriptorSet sets[] = {frameInfo.globalDescriptorSet, frameInfo.bindlessSet};
 
         vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-			0, 2, sets, 0, nullptr);
-        
-        //vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,  pipelineLayout,
-		//	1, 1, &frameInfo.bindlessSet, 0, nullptr);
-	
-        
+			0, 2, sets, 0, nullptr);	
+
         for (auto& kv : frameInfo.gameObjects)
 		{
 			auto& obj = kv.second;
