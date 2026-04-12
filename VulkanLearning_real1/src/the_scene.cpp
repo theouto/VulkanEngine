@@ -11,7 +11,7 @@
 namespace lve
 {
 
-  LveScene::LveScene(LveDevice &device, LveGameObject::Map& objects) : lveDevice{device}, gameObjects{objects}
+  LveScene::LveScene(LveDevice &device, LveGameObject::Map& objects, LveRenderer& renderer) : lveDevice{device}, gameObjects{objects}, lveRenderer{renderer}
   {
     materialHandler = std::make_unique<LveMaterials>(lveDevice);
   }
@@ -36,9 +36,15 @@ namespace lve
     scene.close();
   }
 
-  void LveScene::loadModel(LveGameObject& object, LveDescriptorPool& pool, const char* path)
+  void LveScene::loadModel(LveGameObject& object, LveDescriptorPool& pool, 
+                           LveDescriptorPool& bindlessPool, 
+                           LveDescriptorSetLayout& bindlessLayout, 
+                           VkDescriptorSet& bindlessSet,
+                           const char* path)
   {
     object.descriptorSet = materialHandler->retrieveMaterial(path, *matLayout, pool);
+    std::vector<uint32_t> arr = materialHandler->retrieveBindless(path, bindlessLayout, bindlessPool, bindlessSet);
+    for (int i = 0; i < 6; i++) {object.textures[i] = arr[i];}
     gameObjects.emplace(object.getId(), std::move(object));
   }
 
@@ -105,6 +111,12 @@ namespace lve
     object.matName = material;
     object.modelName = model;
     object.descriptorSet = materialHandler->retrieveMaterial(material, *matLayout, pool);
+
+    std::cout << "\n\n\nbefore\n\n\n";
+
+    std::vector<uint32_t> arr = materialHandler->retrieveBindless(material, *lveRenderer.bindlessSetLayout, 
+                        *lveRenderer.descriptorPool, lveRenderer.bindlessLayout);
+    for (int i = 0; i < 6; i++) {object.textures[i] = arr[i];}
     object.transform.translation = translation;
     object.transform.rotation = rotation;
     object.transform.scale = scale;

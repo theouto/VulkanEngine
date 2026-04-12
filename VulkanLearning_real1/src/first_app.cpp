@@ -98,7 +98,7 @@ namespace lve
         double mouseX = 0.f;
         double mouseY = 0.f;
 
-        sceneManager.load("scenes/test_scene.ths", *lveRenderer.globalPool);
+        sceneManager.load("scenes/test_scene.ths", *lveRenderer.descriptorPool);
 
 	auto currentTime = std::chrono::high_resolution_clock::now();
 
@@ -154,8 +154,8 @@ namespace lve
                 uboBuffers[frameIndex]->flush();
 
                 glm::mat4 projMat = DirectionalLightSystem::lightViewProjection(
-                  rot, 
-                  frameInfo.camera.getPosition() + offset, 
+                  rot,
+                  frameInfo.camera.getPosition() + offset,
                   radius);
 
                 //render shadowmap

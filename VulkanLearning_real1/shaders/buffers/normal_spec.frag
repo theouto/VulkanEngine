@@ -80,9 +80,9 @@ void main()
     vec3 cameraPosWorld = ubo.invView[3].xyz;
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld);
 
-    surfaceNormal = perturb_normal(surfaceNormal, viewDirection, UVs);
+    //surfaceNormal = perturb_normal(surfaceNormal, viewDirection, UVs);
 
-    float spec = texture(specular, UVs).r;
+    //float spec = texture(specular, UVs).r;
 
-    outColor = vec4(surfaceNormal, spec);
+    outColor = vec4(surfaceNormal, 1.f);
 }

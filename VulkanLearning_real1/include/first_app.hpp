@@ -40,6 +40,6 @@ namespace lve
         std::unique_ptr<LveDescriptorSetLayout> normalLayout;
 
 		LveGameObject::Map gameObjects;
-        LveScene sceneManager{ lveDevice, gameObjects};
+        LveScene sceneManager{lveDevice, gameObjects, lveRenderer};
 	};
 }

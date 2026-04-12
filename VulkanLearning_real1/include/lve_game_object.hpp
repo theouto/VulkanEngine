@@ -63,8 +63,7 @@ namespace lve {
         std::string matName = "";
         std::string modelName = "";
         int RID = 0;
-        //std::vector<std::shared_ptr<LveTextures>> textures;
-
+        uint32_t textures[6];
         std::unique_ptr<PointLightComponent> pointLight = nullptr;
 
     private:

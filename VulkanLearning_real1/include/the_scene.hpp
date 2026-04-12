@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "lve_renderer.hpp"
 #include "lve_descriptors.hpp"
 #include "lve_game_object.hpp"
 #include "lve_device.hpp"
@@ -13,14 +14,19 @@ namespace lve
   {
     public:
 
-      LveScene(LveDevice &device, LveGameObject::Map& objects);
+      LveScene(LveDevice &device, LveGameObject::Map& objects, LveRenderer& renderer);
 
       void load(std::string file, LveDescriptorPool& pool);
       void saveScene();
 
       void createPointLightHelper(std::ifstream& scene);
       void createObjectHelper(std::ifstream& scene, LveDescriptorPool& pool);
-      void loadModel(LveGameObject& object, LveDescriptorPool& pool, const char* path);
+      void loadModel(LveGameObject& object, LveDescriptorPool& pool, 
+                           LveDescriptorPool& bindlessPool, 
+                           LveDescriptorSetLayout& bindlessLayout, 
+                           VkDescriptorSet& bindlessSet,
+                           const char* path);
+
       LveMaterials& handler() {return *materialHandler;}
       LveDescriptorSetLayout& mattLayout(){return *matLayout;}
 
@@ -46,5 +52,6 @@ namespace lve
       std::unique_ptr<LveMaterials> materialHandler;
       std::vector<LveGameObject> objArr;
       LveGameObject::Map& gameObjects;
+      LveRenderer& lveRenderer;
     };
 }

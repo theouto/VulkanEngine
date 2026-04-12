@@ -123,6 +123,7 @@ namespace lve
         void testerholyFUCK();
 
         VkDescriptorSet getBindlessLayout() {return bindlessLayout;}
+        VkDescriptorSet bindlessLayout;
 	private:
 
         void createResources();
@@ -137,7 +138,6 @@ namespace lve
         std::vector<std::shared_ptr<LveTextures>> textures;
 
         std::vector<VkDescriptorSet> globalSetLayouts;
-        VkDescriptorSet bindlessLayout;
 
         std::unique_ptr<LveSwapChain> lveSwapChain;
 		std::vector<VkCommandBuffer> commandBuffers;

@@ -17,7 +17,7 @@ namespace lve
 	{
 		glm::mat4 modelMatrix{ 1.f };
 		glm::mat4 normalMatrix{ 1.f };
-        uint RID;
+        uint RID[8];
 	};
 
 	SimpleBindlessSystem::SimpleBindlessSystem(LveDevice& device, VkRenderPass renderPass, 
@@ -91,7 +91,10 @@ namespace lve
 			SimplePushConstantData push{};
 			push.modelMatrix = obj.transform.mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
-            push.RID = obj.RID;
+            for (int i = 0; i < 6; i++)
+            {
+              push.RID[i] = obj.textures[i];
+            }
 
 			vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 				0, sizeof(SimplePushConstantData), &push);

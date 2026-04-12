@@ -54,7 +54,7 @@ void LveRenderer::generateDescriptors()
   globalSetLayouts.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
   auto nerdInfo = textures[0]->getDescriptorInfo();
 
-  descriptorPool->allocateDescriptor(bindlessSetLayout->getDescriptorSetLayout(), 
+  descriptorPool->allocateDescriptor(bindlessSetLayout->getDescriptorSetLayout(),
                                      bindlessLayout);
 
   LveDescriptorWriter(*bindlessSetLayout, *descriptorPool)
@@ -69,7 +69,7 @@ void LveRenderer::generateDescriptors()
     auto normalSpecInfo = getNormalInfo();
 
     LveDescriptorWriter(*globalSetLayout, *globalPool)
-      .writeBuffer(0, &bufferInfo) 
+      .writeBuffer(0, &bufferInfo)
       .writeImage(1, &shadowInfo)
       .writeImage(2, &depthInfo)
       .writeImage(3, &normalSpecInfo)

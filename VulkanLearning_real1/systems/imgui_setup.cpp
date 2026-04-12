@@ -128,7 +128,7 @@ namespace lve
     ImGui::SliderFloat("Z-scale", &gameObjects.at(object).transform.scale.z, -10.f, 10.f);
 
     ImGui::LabelText("\nRID", "");
-    ImGui::InputInt("Int", &gameObjects.at(object).RID, 1, 10);
+    ImGui::InputScalar("Int", ImGuiDataType_U32, &gameObjects.at(object).textures[0], (const void *)1, (const void *)10);
   }
 
   void Imgui_LVE::performance()
@@ -176,7 +176,11 @@ namespace lve
         object.modelName = modelFile;
         object.matName = materialFile;
         object.type = -1;
-        sceneManager.loadModel(object, *lveRenderer.globalPool, materialFile);
+        sceneManager.loadModel(object, *lveRenderer.globalPool, 
+                                       *lveRenderer.descriptorPool, 
+                                       *lveRenderer.bindlessSetLayout,
+                                       lveRenderer.bindlessLayout,
+                                        materialFile);
 
         scale = {1.f, 1.f, 1.f};
         rot = {0.f, 0.f, 0.f};

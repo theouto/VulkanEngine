@@ -140,7 +140,6 @@ namespace lve {
         //update pool until descriptor count is correct
         while (vkAllocateDescriptorSets(lveDevice.device(), &allocInfo, &descriptor) != VK_SUCCESS) 
         {
-
           //Get rid of the old, small, puny pool
           vkDestroyDescriptorPool(lveDevice.device(), descriptorPool, nullptr);
           std::vector<VkDescriptorPoolSize> newSizes{};  //Not too happy with how I do this, buuuuuuuut so long as it works I am willing to let it exist, for now
