@@ -124,12 +124,14 @@ namespace lve
     {
       auto texInfo = textures[i]->getDescriptorInfo();
 
+      std::cout << bindlessSet << '\n';
+
       LveDescriptorWriter(descLayout, descPool)
                 .addImage(0, &texInfo, currArr - (textures.size() - i - 1))
                 .overwrite(bindlessSet);
-    }
 
-    std::cout << "\n\n\noverwritten\n\n\n";
+      std::cout << "overwritten\n";
+    }
   }
 
   std::shared_ptr<LveTextures> LveMaterials::write_test(LveDevice& lveDevice)

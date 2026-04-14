@@ -1,6 +1,7 @@
 #include "../include/lve_renderer.hpp"
 
 // std
+#include <iostream>
 #include <array>
 #include <cassert>
 #include <stdexcept>
@@ -32,8 +33,8 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
             .build();
 
     descriptorPool = LveDescriptorPool::Builder(lveDevice)
-            .setMaxSets(1)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, static_cast<uint32_t>(textures.size()))
+            .setMaxSets(100)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000)
             .build();
 
     globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
@@ -60,6 +61,8 @@ void LveRenderer::generateDescriptors()
   LveDescriptorWriter(*bindlessSetLayout, *descriptorPool)
       .addImage(0, &nerdInfo, 0)
       .overwrite(bindlessLayout);
+
+  std::cout << bindlessLayout << '\n';
 
   for(int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
   {

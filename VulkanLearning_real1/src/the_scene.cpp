@@ -112,7 +112,7 @@ namespace lve
     object.modelName = model;
     object.descriptorSet = materialHandler->retrieveMaterial(material, *matLayout, pool);
 
-    std::cout << "\n\n\nbefore\n\n\n";
+    //std::cout << "\n\n\nbefore\n\n\n";
 
     std::vector<uint32_t> arr = materialHandler->retrieveBindless(material, *lveRenderer.bindlessSetLayout, 
                         *lveRenderer.descriptorPool, lveRenderer.bindlessLayout);

@@ -38,8 +38,9 @@ namespace lve
 
         std::unique_ptr<LveDescriptorSetLayout> matLayout;
         std::unique_ptr<LveDescriptorSetLayout> normalLayout;
+        std::unique_ptr<LveScene> sceneManager;
+        std::vector<std::shared_ptr<LveBuffer>> uboBuffers;
 
 		LveGameObject::Map gameObjects;
-        LveScene sceneManager{lveDevice, gameObjects, lveRenderer};
 	};
 }
