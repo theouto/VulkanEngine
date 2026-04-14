@@ -11,7 +11,8 @@
 namespace lve
 {
 
-  LveScene::LveScene(LveDevice &device, LveGameObject::Map& objects, LveRenderer& renderer) : lveDevice{device}, gameObjects{objects}, lveRenderer{renderer}
+  LveScene::LveScene(LveDevice &device, LveGameObject::Map& objects, LveRenderer& renderer)
+  : lveDevice{device}, gameObjects{objects}, lveRenderer{renderer}
   {
     materialHandler = std::make_unique<LveMaterials>(lveDevice);
   }
@@ -111,11 +112,8 @@ namespace lve
     object.matName = material;
     object.modelName = model;
     object.descriptorSet = materialHandler->retrieveMaterial(material, *matLayout, pool);
-
-    //std::cout << "\n\n\nbefore\n\n\n";
-
     std::vector<uint32_t> arr = materialHandler->retrieveBindless(material, *lveRenderer.bindlessSetLayout, 
-                        *lveRenderer.descriptorPool, lveRenderer.bindlessLayout);
+                        *lveRenderer.descriptorPool, lveRenderer.getBindlessLayout());
     for (int i = 0; i < 6; i++) {object.textures[i] = arr[i];}
     object.transform.translation = translation;
     object.transform.rotation = rotation;

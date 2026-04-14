@@ -21,7 +21,8 @@ layout(push_constant) uniform Push
 {
   mat4 modelMatrix;
   mat4 normalMatrix;
-  uint RID[8];
+  uint RIDo;
+  uint RID[7];
 } push;
 
 struct PointLight
@@ -52,5 +53,5 @@ void main()
 {
   vec2 projCoords = vec2(gl_FragCoord.x/ubo.width, gl_FragCoord.y/ubo.height);
 
-  outColor = vec4(texture(storageSampler[1], fragUv).xyz, 1.f);
+  outColor = vec4(texture(storageSampler[push.RID[push.RIDo]], fragUv).xyz, 1.f);
 }

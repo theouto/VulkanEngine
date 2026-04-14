@@ -35,10 +35,10 @@ namespace lve
 
 		LveDevice lveDevice{ lveWindow };
 		LveRenderer lveRenderer{ lveWindow, lveDevice };
+        LveScene sceneManager{ lveDevice, gameObjects, lveRenderer};
 
         std::unique_ptr<LveDescriptorSetLayout> matLayout;
         std::unique_ptr<LveDescriptorSetLayout> normalLayout;
-        std::unique_ptr<LveScene> sceneManager;
         std::vector<std::shared_ptr<LveBuffer>> uboBuffers;
 
 		LveGameObject::Map gameObjects;

@@ -74,7 +74,10 @@ namespace lve
           if (i == 0) format = LveTextures::COLOR;
           else if (i == 2) format = LveTextures::NORMAL;
 
-          toWrite.push_back(std::make_shared<LveTextures>(lveDevice, dummy, format));
+          auto tex = std::make_shared<LveTextures>(lveDevice, dummy, format);
+
+          toWrite.push_back(tex);
+          totalTextures.push_back(tex);
           load.push_back(currArr++);
         }
       }

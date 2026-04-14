@@ -42,6 +42,8 @@ namespace lve
 
     uint32_t currArr = 1;
 
+    std::vector<std::shared_ptr<LveTextures>> totalTextures;
+
     LveDevice &lveDevice;
     std::unordered_map<unsigned int,
                        std::pair<VkDescriptorSet,

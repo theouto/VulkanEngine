@@ -122,9 +122,9 @@ namespace lve
         void updateDescriptors();
         void testerholyFUCK();
 
-        VkDescriptorSet getBindlessLayout() {return bindlessLayout;}
-        VkDescriptorSet bindlessLayout;
+        VkDescriptorSet& getBindlessLayout() {return bindlessLayout;}
 	private:
+        VkDescriptorSet bindlessLayout;
 
         void createResources();
 		void createCommandBuffers();

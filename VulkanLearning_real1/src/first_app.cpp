@@ -35,9 +35,13 @@
 
 namespace lve
 {
-	FirstApp::FirstApp()
-    {
-        uboBuffers.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
+	FirstApp::FirstApp() {}
+
+	FirstApp::~FirstApp() {}
+
+	void FirstApp::run()
+	{ 
+         uboBuffers.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
         {
             uboBuffers[i] = std::make_unique<LveBuffer>(
@@ -53,17 +57,9 @@ namespace lve
         lveRenderer.loadUboInfo(uboBuffers);
         lveRenderer.generateDescriptors();
 
-        sceneManager = std::make_unique<LveScene>(lveDevice, gameObjects, lveRenderer);
-    }
-
-	FirstApp::~FirstApp() {}
-
-
-	void FirstApp::run()
-	{ 
         std::vector<VkDescriptorSetLayout> setLayouts = {
             lveRenderer.getGlobalLayout(),
-            sceneManager->mattLayout().getDescriptorSetLayout()};
+            sceneManager.mattLayout().getDescriptorSetLayout()};
 
         SimpleRenderSystem simpleRenderSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), setLayouts};
         PointLightSystem pointLightSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), lveRenderer.getGlobalLayout() };
@@ -78,7 +74,7 @@ namespace lve
         SimpleBindlessSystem simpleBindlessSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), 
                              {lveRenderer.getGlobalLayout(), lveRenderer.bindlessSetLayout->getDescriptorSetLayout()}};
 
-        Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow, gameObjects, *sceneManager};
+        Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow, gameObjects, sceneManager};
 
         LveCamera camera{};
  
@@ -98,7 +94,7 @@ namespace lve
         double mouseX = 0.f;
         double mouseY = 0.f;
 
-        sceneManager->load("scenes/test_scene.ths", *lveRenderer.descriptorPool);
+        sceneManager.load("scenes/test_scene.ths", *lveRenderer.globalPool);
 
 	auto currentTime = std::chrono::high_resolution_clock::now();
 

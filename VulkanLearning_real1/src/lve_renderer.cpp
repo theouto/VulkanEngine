@@ -33,8 +33,8 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
             .build();
 
     descriptorPool = LveDescriptorPool::Builder(lveDevice)
-            .setMaxSets(100)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000)
+            .setMaxSets(1)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1001)
             .build();
 
     globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
