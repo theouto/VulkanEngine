@@ -40,7 +40,7 @@ namespace lve
 
     private:
 
-    uint32_t currArr = 1;
+    uint32_t currArr = 0;
 
     std::vector<std::shared_ptr<LveTextures>> totalTextures;
 

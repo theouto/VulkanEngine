@@ -92,12 +92,11 @@ namespace lve
 			SimplePushConstantData push{};
 			push.modelMatrix = obj.transform.mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
-            
+
             for (int i = 0; i < 6; i++)
             {
               push.RID[i] = obj.textures[i];
             }
-            
 
             push.RIDo = obj.RID;
 

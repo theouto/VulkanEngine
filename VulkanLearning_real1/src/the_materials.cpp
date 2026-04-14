@@ -78,12 +78,18 @@ namespace lve
 
           toWrite.push_back(tex);
           totalTextures.push_back(tex);
-          load.push_back(currArr++);
+          load[i] = currArr++;
         }
       }
 
       writeBindless(toWrite, descLayout, descPool, bindlessSet);
-      std::cout << "emplacing textures...\n";
+
+      for(int i = 0; i < load.size(); i++)
+      {
+        std::cout << '\n' << load[i] << '\n';
+      }
+
+      std::cout << "emplacing bindless texture set...\n";
 
       bindlessTextureSet.emplace(hash, load);
 
@@ -127,13 +133,9 @@ namespace lve
     {
       auto texInfo = textures[i]->getDescriptorInfo();
 
-      std::cout << bindlessSet << '\n';
-
       LveDescriptorWriter(descLayout, descPool)
                 .addImage(0, &texInfo, currArr - (textures.size() - i - 1))
                 .overwrite(bindlessSet);
-
-      std::cout << "overwritten\n";
     }
   }
 
