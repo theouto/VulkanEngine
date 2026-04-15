@@ -12,7 +12,13 @@
 
 namespace lve
 {
-  LveMaterials::LveMaterials(LveDevice& device) : lveDevice{device} {}
+  LveMaterials::LveMaterials(LveDevice& device) : lveDevice{device} 
+  {
+    std::string path = "textures/NA.png";
+    textures.emplace(XXH32(path.c_str(), path.length(), 0), 0);
+    path = "textures/NAM.png";
+    textures.emplace(XXH32(path.c_str(), path.length(), 0), 1);
+  }
 
   VkDescriptorSet LveMaterials::retrieveMaterial(const std::string path, 
                                                  LveDescriptorSetLayout& descLayout,
@@ -68,7 +74,8 @@ namespace lve
       for (int i = 0; i < 6; i++)
       {
         getline(material, dummy);
-        try {load.push_back(textures.at(XXH32(dummy.c_str(), dummy.length(), 0)));} catch (std::out_of_range e)
+        XXH32_hash_t texHash = XXH32(dummy.c_str(), dummy.length(), 0);
+        try {load[i] = textures.at(texHash);} catch (std::out_of_range e)
         {
           LveTextures::texType format = LveTextures::SINGLE_UNORM;
           if (i == 0) format = LveTextures::COLOR;
@@ -79,6 +86,7 @@ namespace lve
           toWrite.push_back(tex);
           totalTextures.push_back(tex);
           load[i] = ++currArr;
+          textures.emplace(texHash, currArr);
         }
       }
 
@@ -124,25 +132,23 @@ namespace lve
     return descriptor;
   }
 
-  void LveMaterials::writeBindless(std::vector<std::shared_ptr<LveTextures>> textures,
+  void LveMaterials::writeBindless(std::vector<std::shared_ptr<LveTextures>> tex,
                                     LveDescriptorSetLayout& descLayout, 
                                     LveDescriptorPool& descPool,
                                     VkDescriptorSet& bindlessSet)
   {
-    for (int i = 0; i < textures.size(); i++)
+    for (int i = 0; i < tex.size(); i++)
     {
-      auto texInfo = textures[i]->getDescriptorInfo();
+      auto texInfo = tex[i]->getDescriptorInfo();
 
       LveDescriptorWriter(descLayout, descPool)
-                .addImage(0, &texInfo, currArr - (textures.size() - i - 1))
+                .addImage(0, &texInfo, currArr - (tex.size() - i - 1))
                 .overwrite(bindlessSet);
-
-      std::cout << currArr - textures.size() - i - 1 << '\n';
     }
   }
 
-  std::shared_ptr<LveTextures> LveMaterials::write_test(LveDevice& lveDevice)
+  std::vector<std::shared_ptr<LveTextures>> LveMaterials::write_test(LveDevice& lveDevice)
   {
-    return std::make_shared<LveTextures>(lveDevice, "textures/NA.png",LveTextures::COLOR);
+    return {std::make_shared<LveTextures>(lveDevice, "textures/NA.png",LveTextures::COLOR), std::make_shared<LveTextures>(lveDevice, "textures/NAM.png", LveTextures::COLOR)};
   }
 }

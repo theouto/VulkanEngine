@@ -53,15 +53,18 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
 
 void LveRenderer::generateDescriptors()
 {
-  globalSetLayouts.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
-  auto nerdInfo = textures[0]->getDescriptorInfo();
+  globalSetLayouts.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);  
+
+  auto nerd1 = textures[0]->getDescriptorInfo();
+  auto nerd2 = textures[1]->getDescriptorInfo();
 
   descriptorPool->allocateDescriptor(bindlessSetLayout->getDescriptorSetLayout(),
                                      bindlessLayout);
 
   LveDescriptorWriter(*bindlessSetLayout, *descriptorPool)
-      .addImage(0, &nerdInfo, 0)
-      .overwrite(bindlessLayout);
+    .addImage(0, &nerd1, 0)
+    .addImage(0, &nerd2, 1)
+    .overwrite(bindlessLayout);
 
   std::cout << bindlessLayout << '\n';
 
@@ -329,8 +332,9 @@ void LveRenderer::beginNormalRenderPass(VkCommandBuffer commandBuffer)
 
   void LveRenderer::testerholyFUCK()
   {
-    std::shared_ptr<LveTextures> nerd = LveMaterials::write_test(lveDevice);
-    textures.push_back(nerd);
+    auto nerd = LveMaterials::write_test(lveDevice);
+    textures.push_back(nerd[0]);
+    textures.push_back(nerd[1]);
   }
 
 }  // namespace lve

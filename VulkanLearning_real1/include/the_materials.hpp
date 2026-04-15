@@ -37,11 +37,11 @@ namespace lve
 
     //this will be removed once the bindless descriptors stop being an experiment, but for nowwwww yeahhhhhhhhh
     //Update: I lied lol this stays here
-    static std::shared_ptr<LveTextures> write_test(LveDevice& lveDevice);
+    static std::vector<std::shared_ptr<LveTextures>> write_test(LveDevice& lveDevice);
 
     private:
 
-    uint32_t currArr = 0;
+    uint32_t currArr = 2;
 
     std::vector<std::shared_ptr<LveTextures>> totalTextures;
 

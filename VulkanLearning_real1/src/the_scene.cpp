@@ -54,6 +54,7 @@ namespace lve
                                 VkDescriptorSet& bindlessSet,
                                 const char* path)
   {
+    object.matName = path;
     std::vector<uint32_t> arr = materialHandler->retrieveBindless(path, bindlessLayout, bindlessPool, bindlessSet);
     for (int i = 0; i < arr.size(); i++) {object.textures[i] = arr[i];}
   }
