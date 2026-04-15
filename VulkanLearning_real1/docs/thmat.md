@@ -1,7 +1,5 @@
 The material layout follows:
 
-ID (CRC-16)
-
 Color
 
 Roughness

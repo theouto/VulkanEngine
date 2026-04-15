@@ -179,7 +179,7 @@ namespace lve
                 //simpleRenderSystem.renderGameObjects(frameInfo, projMat, rot);
 
                 //bindless_test
-                simpleBindlessSystem.renderGameObjects(frameInfo);
+                simpleBindlessSystem.renderGameObjects(frameInfo, projMat, rot);
 
                 //Ambient Occlusion, here for now for debugging purposes until I get it working right and make it its own image
                 //AOSystem.render(frameInfo);

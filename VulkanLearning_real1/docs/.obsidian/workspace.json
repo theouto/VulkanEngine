@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "ths.md",
+                "file": "thmat.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "ths"
+              "title": "thmat"
             }
           }
         ]
@@ -185,9 +185,9 @@
   },
   "active": "c96199d1f7a02a62",
   "lastOpenFiles": [
+    "ths.md",
     "scene_conventions.md",
     "thmat.md",
-    "ths.md",
     "ths.md~",
     "thmat.md~"
   ]

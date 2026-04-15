@@ -9,6 +9,8 @@ layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec3 fragPosWorld;
 layout(location = 2) out vec3 fragNormalWorld;
 layout(location = 3) out vec2 fragUv;
+layout(location = 4) out vec4 FragPosLightSpace;
+layout(location = 5) out vec3 lightPos;
 
 struct PointLight
 {
@@ -31,7 +33,11 @@ layout(push_constant) uniform Push
 {
   mat4 modelMatrix;
   mat4 normalMatrix;
-  uint RID;
+  uint RIDo;
+  uint RID[7];
+  mat4 lightSpaceMatrix;
+  vec3 lightPos;
+  int padding;
 } push;
 
 void main() 
@@ -43,4 +49,6 @@ void main()
   fragPosWorld = positionWorld.xyz;
   fragColor = color;
   fragUv = uv;
+  FragPosLightSpace = push.lightSpaceMatrix * push.modelMatrix * vec4(position, 1.f);
+  lightPos = push.lightPos;
 }

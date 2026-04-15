@@ -11,7 +11,6 @@ layout(location = 2) out vec3 fragNormalWorld;
 layout(location = 3) out vec2 fragUv;
 layout(location = 4) out vec4 FragPosLightSpace;
 layout(location = 5) out vec3 lightPos;
-layout(location = 6) out mat3 TBN;
 
 /*
 layout(set = 1, binding = 1) uniform sampler2D texSampler;

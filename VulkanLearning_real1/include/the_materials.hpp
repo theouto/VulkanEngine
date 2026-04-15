@@ -36,6 +36,7 @@ namespace lve
                                VkDescriptorSet& bindlessSet);
 
     //this will be removed once the bindless descriptors stop being an experiment, but for nowwwww yeahhhhhhhhh
+    //Update: I lied lol this stays here
     static std::shared_ptr<LveTextures> write_test(LveDevice& lveDevice);
 
     private:
