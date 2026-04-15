@@ -130,9 +130,9 @@ namespace lve
     ImGui::LabelText("\nMaterial", "");
     ImGui::InputText("materialFile: ", materialFile, 1024);
     if(ImGui::Button("change material", ImVec2(100.f, 20.f))) materialChange();
-    
 
-    //ImGui::InputInt("RID", &gameObjects.at(object).RID, 1, 10);
+    ImGui::LabelText("\nDEBUG: Texture", "");
+    ImGui::InputInt("RID", &gameObjects.at(object).RID, 1, 10);
 
     //ImGui::InputScalar("Int", ImGuiDataType_U32, &gameObjects.at(object).textures[0], (const void *)1, (const void *)10);
   }

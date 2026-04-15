@@ -55,7 +55,7 @@ namespace lve
                                 const char* path)
   {
     std::vector<uint32_t> arr = materialHandler->retrieveBindless(path, bindlessLayout, bindlessPool, bindlessSet);
-    for (int i = 0; i < 6; i++) {object.textures[i] = arr[i];}
+    for (int i = 0; i < arr.size(); i++) {object.textures[i] = arr[i];}
   }
 
   void LveScene::saveScene()
@@ -123,7 +123,7 @@ namespace lve
     object.descriptorSet = materialHandler->retrieveMaterial(material, *matLayout, pool);
     std::vector<uint32_t> arr = materialHandler->retrieveBindless(material, *lveRenderer.bindlessSetLayout, 
                         *lveRenderer.descriptorPool, lveRenderer.getBindlessLayout());
-    for (int i = 0; i < 6; i++) {object.textures[i] = arr[i];}
+    for (int i = 0; i < arr.size(); i++) {object.textures[i] = arr[i];}
     object.transform.translation = translation;
     object.transform.rotation = rotation;
     object.transform.scale = scale;

@@ -78,7 +78,7 @@ namespace lve
 
           toWrite.push_back(tex);
           totalTextures.push_back(tex);
-          load[i] = currArr++;
+          load[i] = ++currArr;
         }
       }
 
@@ -136,6 +136,8 @@ namespace lve
       LveDescriptorWriter(descLayout, descPool)
                 .addImage(0, &texInfo, currArr - (textures.size() - i - 1))
                 .overwrite(bindlessSet);
+
+      std::cout << currArr - textures.size() - i - 1 << '\n';
     }
   }
 
