@@ -37,6 +37,7 @@ namespace lve
     void assetLoading();
     void objectLoader();
     void scene();
+    void materialChange();
 
     private:
 

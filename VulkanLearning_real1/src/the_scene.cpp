@@ -44,9 +44,18 @@ namespace lve
                            const char* path)
   {
     object.descriptorSet = materialHandler->retrieveMaterial(path, *matLayout, pool);
+    changeMaterial(object, bindlessPool, bindlessLayout, bindlessSet, path);
+    gameObjects.emplace(object.getId(), std::move(object));
+  }
+
+  void LveScene::changeMaterial(LveGameObject& object,
+                                LveDescriptorPool& bindlessPool, 
+                                LveDescriptorSetLayout& bindlessLayout, 
+                                VkDescriptorSet& bindlessSet,
+                                const char* path)
+  {
     std::vector<uint32_t> arr = materialHandler->retrieveBindless(path, bindlessLayout, bindlessPool, bindlessSet);
     for (int i = 0; i < 6; i++) {object.textures[i] = arr[i];}
-    gameObjects.emplace(object.getId(), std::move(object));
   }
 
   void LveScene::saveScene()

@@ -21,11 +21,18 @@ namespace lve
 
       void createPointLightHelper(std::ifstream& scene);
       void createObjectHelper(std::ifstream& scene, LveDescriptorPool& pool);
+
       void loadModel(LveGameObject& object, LveDescriptorPool& pool, 
                            LveDescriptorPool& bindlessPool, 
                            LveDescriptorSetLayout& bindlessLayout, 
                            VkDescriptorSet& bindlessSet,
                            const char* path);
+
+      void changeMaterial(LveGameObject& object,
+                                LveDescriptorPool& bindlessPool, 
+                                LveDescriptorSetLayout& bindlessLayout, 
+                                VkDescriptorSet& bindlessSet,
+                                const char* path);
 
       LveMaterials& handler() {return *materialHandler;}
       LveDescriptorSetLayout& mattLayout(){return *matLayout;}

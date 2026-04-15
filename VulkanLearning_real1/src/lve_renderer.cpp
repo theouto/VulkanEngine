@@ -35,6 +35,7 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
     descriptorPool = LveDescriptorPool::Builder(lveDevice)
             .setMaxSets(1)
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1001)
+            .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT | VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
             .build();
 
     globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
@@ -46,7 +47,7 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
 
     bindlessSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1000)
-            .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT)
+            .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT)
             .build();
 }
 

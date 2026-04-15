@@ -127,8 +127,12 @@ namespace lve
     ImGui::SliderFloat("Y-scale", &gameObjects.at(object).transform.scale.y, -10.f, 10.f);
     ImGui::SliderFloat("Z-scale", &gameObjects.at(object).transform.scale.z, -10.f, 10.f);
 
-    ImGui::LabelText("\nRID", "");
-    ImGui::InputInt("RID", &gameObjects.at(object).RID, 1, 10);
+    ImGui::LabelText("\nMaterial", "");
+    ImGui::InputText("materialFile: ", materialFile, 1024);
+    if(ImGui::Button("change material", ImVec2(100.f, 20.f))) materialChange();
+    
+
+    //ImGui::InputInt("RID", &gameObjects.at(object).RID, 1, 10);
 
     //ImGui::InputScalar("Int", ImGuiDataType_U32, &gameObjects.at(object).textures[0], (const void *)1, (const void *)10);
   }
@@ -164,7 +168,16 @@ namespace lve
     ImGui::InputText("materialFile: ", materialFile, 1024);
 
     if(ImGui::Button("LOAD NOW!!!", ImVec2(100.f, 20.f))) objectLoader();
-}
+  }
+
+  void Imgui_LVE::materialChange()
+  {
+    sceneManager.changeMaterial(gameObjects.at(object), 
+                                *lveRenderer.descriptorPool,
+                                *lveRenderer.bindlessSetLayout, 
+                                lveRenderer.getBindlessLayout(),
+                                materialFile);
+  }
 
   void Imgui_LVE::objectLoader()
   {
