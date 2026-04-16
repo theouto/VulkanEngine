@@ -63,13 +63,7 @@ float randf(int x, int y) {
 //https://cybereality.com/screen-space-indirect-lighting-with-visibility-bitmask-improvement-to-gtao-ssao-real-time-ambient-occlusion-algorithm-glsl-shader-implementation/
 void main() 
 {
-
-  vec2 projCoords = vec2(gl_FragCoord.x/ubo.width, gl_FragCoord.y/ubo.height);
-
-  outColor = vec4(texture(normalSpec, projCoords).rgb, 1.f);
-
-  return;
-  //discard;
+  discard;
   uint indirect = 0u;
   uint occlusion = 0u;
 

@@ -61,7 +61,7 @@ namespace lve
             lveRenderer.getGlobalLayout(),
             sceneManager.mattLayout().getDescriptorSetLayout()};
 
-        SimpleRenderSystem simpleRenderSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), setLayouts};
+        //SimpleRenderSystem simpleRenderSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), setLayouts};
         PointLightSystem pointLightSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), lveRenderer.getGlobalLayout() };
         SkyboxSystem skybox{lveDevice, lveRenderer.getSwapChainRenderPass(), lveRenderer.getGlobalLayout(), *lveRenderer.globalPool};
 
