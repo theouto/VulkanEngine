@@ -9,12 +9,13 @@ namespace lve
 	{
 		glm::mat4 modelMatrix{ 1.f };
         glm::mat4 normalMatrix{1.f};
+        uint relevantRid[4];
 	};
 
-	NormalSpecPass::NormalSpecPass(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout, VkDescriptorSetLayout normalLayout) 
-        : lveDevice{device}, layout{normalLayout}
+	NormalSpecPass::NormalSpecPass(LveDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> globalSetLayout) 
+        : lveDevice{device}, setLayouts{globalSetLayout}
 	{
-        createPipeLineLayout(globalSetLayout);
+        createPipeLineLayout();
 		createPipeline(renderPass);
 	}
 
@@ -24,19 +25,17 @@ namespace lve
 
 	}
 
-	void NormalSpecPass::createPipeLineLayout(VkDescriptorSetLayout globalSetLayout)
+	void NormalSpecPass::createPipeLineLayout()
 	{
 		VkPushConstantRange pushConstantRange{};
 		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 		pushConstantRange.offset = 0;
 		pushConstantRange.size = sizeof(SimplePushConstantData);
 
-		std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout, layout };
-
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-		pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(setLayouts.size());
+		pipelineLayoutInfo.pSetLayouts = setLayouts.data();
 		pipelineLayoutInfo.pushConstantRangeCount = 1;
 		pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
@@ -71,8 +70,10 @@ namespace lve
 	{
 		lvePipeline->bind(frameInfo.commandBuffer);
 
+        VkDescriptorSet arr[] = {frameInfo.globalDescriptorSet, frameInfo.bindlessSet};
+
 		vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-			0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
+			0, 2, arr, 0, nullptr);
 
 		for (auto& kv : frameInfo.gameObjects)
 		{
@@ -81,15 +82,9 @@ namespace lve
 			SimplePushConstantData push{};
 			push.modelMatrix = obj.transform.mat4();
             push.normalMatrix = obj.transform.normalMatrix();
+            push.relevantRid[0] = obj.textures[1];
+            push.relevantRid[1] = obj.textures[2];
 
-            vkCmdBindDescriptorSets(frameInfo.commandBuffer,
-                VK_PIPELINE_BIND_POINT_GRAPHICS,
-                pipelineLayout,
-                1,
-                1,
-                &obj.descriptorSet,
-                0,
-                nullptr);
 			vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 				0, sizeof(SimplePushConstantData), &push);
 			obj.model->bind(frameInfo.commandBuffer);

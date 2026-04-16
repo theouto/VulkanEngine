@@ -1,4 +1,5 @@
 #version 450
+#extension GL_EXT_nonuniform_qualifier : enable
 #define NEAR 0.1
 #define FAR 30.f
 
@@ -7,8 +8,8 @@ layout(location = 1) in vec3 fragPosWorld;
 layout(location = 2) in vec3 fragNormalWorld;
 layout(location = 3) in vec2 fragUv;
 
-layout(set = 1, binding = 3) uniform sampler2D normals;
-layout(set = 1, binding = 2) uniform sampler2D specular;
+layout(set = 1, binding = 0) uniform sampler2D textures[];
+
 layout(set = 0, binding = 2) uniform sampler2D depthMap;
 
 layout (location = 0) out vec4 outColor;
@@ -31,6 +32,13 @@ layout(set = 0, binding = 0) uniform GlobalUbo
   int width;
   int height;
 } ubo;
+
+layout(push_constant) uniform Push
+{
+  mat4 modelMatrix;
+  mat4 normalMatrix;
+  uint relevantRid[4];
+}push;
 
 float LinearizeDepth(float depth) 
 {
@@ -59,7 +67,7 @@ mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
 vec3 perturb_normal( vec3 N, vec3 V, vec2 texcoord ) 
 { 
   // assume N, the interpolated vertex normal and // V, the view vector (vertex to eye) 
-  vec3 map = texture( normals, texcoord ).rgb; 
+  vec3 map = texture( textures[push.relevantRid[1]], texcoord ).rgb; 
   map = map * 255./127. - 128./127.;
   mat3 TBN = cotangent_frame( N, V, texcoord ); 
   return normalize( TBN * map ); 
@@ -80,9 +88,9 @@ void main()
     vec3 cameraPosWorld = ubo.invView[3].xyz;
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld);
 
-    //surfaceNormal = perturb_normal(surfaceNormal, viewDirection, UVs);
+    surfaceNormal = perturb_normal(surfaceNormal, viewDirection, UVs);
 
-    //float spec = texture(specular, UVs).r;
+    float spec = texture(textures[push.relevantRid[0]], UVs).r;
 
-    outColor = vec4(surfaceNormal, 1.f);
+    outColor = vec4(surfaceNormal, spec);
 }
