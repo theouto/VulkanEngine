@@ -27,6 +27,11 @@ layout(set = 0, binding = 0) uniform GlobalUbo
   vec4 ambientLightColor; // w is intensity
   PointLight pointLights[10];
   int numLights;
+  int width;
+  int height;
+  int padding;
+  mat4 lightSpaceMatrix;
+  vec3 lightPos;
 } ubo;
 
 layout(push_constant) uniform Push 
@@ -35,8 +40,6 @@ layout(push_constant) uniform Push
   mat4 normalMatrix;
   uint RIDo;
   uint RID[7];
-  mat4 lightSpaceMatrix;
-  vec3 lightPos;
   int padding;
 } push;
 
@@ -49,6 +52,5 @@ void main()
   fragPosWorld = positionWorld.xyz;
   fragColor = color;
   fragUv = uv;
-  FragPosLightSpace = push.lightSpaceMatrix * push.modelMatrix * vec4(position, 1.f);
-  lightPos = push.lightPos;
+  FragPosLightSpace = ubo.lightSpaceMatrix * push.modelMatrix * vec4(position, 1.f);
 }

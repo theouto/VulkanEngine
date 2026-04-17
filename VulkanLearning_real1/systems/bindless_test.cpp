@@ -19,8 +19,8 @@ namespace lve
 		glm::mat4 normalMatrix{ 1.f };
         uint RIDo;
         uint RID[7];
-        glm::mat4 lightSpaceMatrix{1.f};
-        glm::vec3 lightPos{-1.f, 2.f, -1.f};
+        //glm::mat4 lightSpaceMatrix{1.f};
+        //glm::vec3 lightPos{-1.f, 2.f, -1.f};
         int padding = 1;
 	};
 
@@ -95,8 +95,8 @@ namespace lve
 			push.normalMatrix = obj.transform.normalMatrix();
             for (int i = 0; i < 6; i++) { push.RID[i] = obj.textures[i];}
             push.RIDo = obj.RID;
-            push.lightPos = lightPos;
-            push.lightSpaceMatrix = matrix;
+            //push.lightPos = lightPos;
+            //push.lightSpaceMatrix = matrix;
 
 			vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 				0, sizeof(SimplePushConstantData), &push);

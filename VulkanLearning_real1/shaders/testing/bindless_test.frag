@@ -25,8 +25,6 @@ layout(push_constant) uniform Push
   mat4 normalMatrix;
   uint RIDo;
   uint RID[7];
-  mat4 lightSpaceMatrix;
-  vec3 lightPos;
   int padding;
 } push;
 
@@ -53,6 +51,9 @@ layout(set = 0, binding = 0) uniform GlobalUbo
   int numLights;
   int width;
   int height;
+  int padding;
+  mat4 lightSpaceMatrix; //this is ugly
+  vec3 lightPos;
 } ubo;
 
 const float M_PI = 3.1415926538;
@@ -297,8 +298,6 @@ void main()
     vec2 projCoords = vec2(gl_FragCoord.x/ubo.width, gl_FragCoord.y/ubo.height);
     float currDepth = gl_FragCoord.z;
 
-    //if (1.f + rand(fragUv) > currDepth) discard;
-
     float prePassDepth = texture(depthMap, projCoords).r;
     
     if (prePassDepth < currDepth) discard;
@@ -313,7 +312,7 @@ void main()
 	vec3 specularLight = vec3(0.0);
 
     DirectionalLight sun;
-    sun.direction = lightPos;
+    sun.direction = ubo.lightPos;
     sun.color = vec4(1.f, 1.f, 0.7f, 1.5f);
 
     //vec2 boxuv = SampleSphericalMap(normalize(viewDirection));

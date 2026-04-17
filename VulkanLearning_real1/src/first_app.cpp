@@ -57,10 +57,6 @@ namespace lve
         lveRenderer.loadUboInfo(uboBuffers);
         lveRenderer.generateDescriptors();
 
-        std::vector<VkDescriptorSetLayout> setLayouts = {
-            lveRenderer.getGlobalLayout(),
-            sceneManager.mattLayout().getDescriptorSetLayout()};
-
         //SimpleRenderSystem simpleRenderSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), setLayouts};
         PointLightSystem pointLightSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), lveRenderer.getGlobalLayout() };
         SkyboxSystem skybox{lveDevice, lveRenderer.getSwapChainRenderPass(), lveRenderer.getGlobalLayout(), *lveRenderer.globalPool};
@@ -68,7 +64,7 @@ namespace lve
         DirectionalLightSystem shadowSystem{lveDevice, lveRenderer.getSwapChainShadowPass(),lveRenderer.getGlobalLayout()};
         NormalSpecPass normalSpecPass{lveDevice, lveRenderer.getSwapChainNormalPass(), 
                                      {lveRenderer.getGlobalLayout(), lveRenderer.bindlessSetLayout->getDescriptorSetLayout()}};
-
+ 
         DepthBuffer depthBuffer{lveDevice, lveRenderer.getSwapChainDepthPass(), lveRenderer.getGlobalLayout()};
         AOSystem AOSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), *lveRenderer.globalPool, lveRenderer.getGlobalLayout()};
 
@@ -138,6 +134,11 @@ namespace lve
                 frameInfo.globalDescriptorSet = lveRenderer.getLayout(frameIndex);
                 frameInfo.bindlessSet = lveRenderer.getBindlessLayout();
 		
+                glm::mat4 projMat = DirectionalLightSystem::lightViewProjection(
+                  rot,
+                  frameInfo.camera.getPosition() + offset,
+                  radius);
+
                 //update               
                 GlobalUbo ubo{};
                 ubo.projection = camera.getProjection();
@@ -146,14 +147,11 @@ namespace lve
                 ubo.inverseView = camera.getInverseView();
                 ubo.width = lveWindow.getExtent().width;
                 ubo.height = lveWindow.getExtent().height;
+                ubo.lightPos = rot;
+                ubo.lightSpaceMatrix = projMat;
                 pointLightSystem.update(frameInfo, ubo);
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
-                uboBuffers[frameIndex]->flush();
-
-                glm::mat4 projMat = DirectionalLightSystem::lightViewProjection(
-                  rot,
-                  frameInfo.camera.getPosition() + offset,
-                  radius);
+                uboBuffers[frameIndex]->flush(); 
 
                 //render shadowmap
 		        lveRenderer.beginShadowRenderPass(commandBuffer);
