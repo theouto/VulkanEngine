@@ -101,6 +101,8 @@ namespace lve
               << kv.second.pointLight->lightIntensity << '\n';
       }
     }
+
+    scene.close();
   }
 
   void LveScene::createObjectHelper(std::ifstream& scene, LveDescriptorPool& pool)
@@ -132,7 +134,6 @@ namespace lve
     gameObjects.emplace(object.getId(), std::move(object));
 
     getline(scene, line); //clear the line
-
   }
 
   void LveScene::createPointLightHelper(std::ifstream& scene)
