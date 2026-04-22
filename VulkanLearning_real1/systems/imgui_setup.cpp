@@ -10,7 +10,7 @@
 namespace lve 
 {
   Imgui_LVE::Imgui_LVE(LveDevice &device, LveRenderer &render, LveWindow &window, LveGameObject::Map& map, LveScene& scene) 
-      : lveDevice{device}, lveWindow{window}, lveRenderer{render}, gameObjects{map}, sceneManager{scene}, modifiers{sceneManager.handler().patchwork()}
+      : lveDevice{device}, lveWindow{window}, lveRenderer{render}, gameObjects{map}, sceneManager{scene}
   {
     init();
   }
@@ -18,6 +18,7 @@ namespace lve
   void Imgui_LVE::init()
   {
     keys = sceneManager.handler().keys();
+    key = keys[0];
 
     // Initialize ImGui context
     IMGUI_CHECKVERSION();
@@ -70,7 +71,7 @@ namespace lve
     ImGui::Begin("lala");
     ImGui::BeginTabBar("other tabs");
     if (ImGui::TabItemButton("Entities")) {for (int i = 0; i < tabs.size(); i++) {tabbi[i] = i == 0 ? true : false;}}
-    else if (ImGui::TabItemButton("Asset Loading")) {for (int i = 0; i < tabs.size(); i++) {tabbi[i] = i == 1 ? true : false;}}
+    else if (ImGui::TabItemButton("Material select")) {for (int i = 0; i < tabs.size(); i++) {tabbi[i] = i == 1 ? true : false;}}
     
     if (tabbi[0]) entityControl();
     else if (tabbi[1]) materialControl();
@@ -112,7 +113,7 @@ namespace lve
     for (int i = 0; i < keys.size(); i++)
     {
       std::string hold_it = std::format("placehold{}", i); 
-      if (ImGui::Button(hold_it.c_str(), ImVec2())) modifiers = sceneManager.handler().modi(keys[i]);
+      if (ImGui::Button(hold_it.c_str(), ImVec2())) key = keys[i];
       ImGui::Spacing();
     }
   }
@@ -186,10 +187,10 @@ namespace lve
   void Imgui_LVE::materialControl()
   {
     ImGui::LabelText("\nMaterial properties", "");
-    ImGui::SliderFloat("roughness", &modifiers[0], 0, 1);
-    ImGui::SliderFloat("specular", &modifiers[1], 0, 1);
-    ImGui::SliderFloat("ao", &modifiers[2], 0, 1);
-    ImGui::SliderFloat("metal", &modifiers[3], 0, 1);
+    ImGui::SliderFloat("roughness", &sceneManager.handler().modi(key)[0], 0, 1);
+    ImGui::SliderFloat("specular", &sceneManager.handler().modi(key)[1], 0, 1);
+    ImGui::SliderFloat("ao", &sceneManager.handler().modi(key)[2], 0, 1);
+    ImGui::SliderFloat("metal", &sceneManager.handler().modi(key)[3], 0, 1);
   }
 
   void Imgui_LVE::materialChange()

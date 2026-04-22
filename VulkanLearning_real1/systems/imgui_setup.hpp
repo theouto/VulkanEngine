@@ -66,8 +66,6 @@ namespace lve
     LveRenderer& lveRenderer;
     LveWindow& lveWindow;
     VkDescriptorPool pool;
-
-     std::vector<float>& modifiers;
   };
 
 }
