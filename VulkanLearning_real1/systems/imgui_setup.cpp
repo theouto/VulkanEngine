@@ -71,7 +71,7 @@ namespace lve
     ImGui::Begin("lala");
     ImGui::BeginTabBar("other tabs");
     if (ImGui::TabItemButton("Entities")) {for (int i = 0; i < tabs.size(); i++) {tabbi[i] = i == 0 ? true : false;}}
-    else if (ImGui::TabItemButton("Material select")) {for (int i = 0; i < tabs.size(); i++) {tabbi[i] = i == 1 ? true : false;}}
+    else if (ImGui::TabItemButton("Material Control")) {for (int i = 0; i < tabs.size(); i++) {tabbi[i] = i == 1 ? true : false;}}
     
     if (tabbi[0]) entityControl();
     else if (tabbi[1]) materialControl();
@@ -83,7 +83,7 @@ namespace lve
 
     if (ImGui::TabItemButton("Entities")) {for (int i = 0; i < tabs.size(); i++) {tabs[i] = i == 0 ? true : false;}}
     else if (ImGui::TabItemButton("Asset Loading")) {for (int i = 0; i < tabs.size(); i++) {tabs[i] = i == 1 ? true : false;}}
-    else if (ImGui::TabItemButton("Material control")) {for (int i = 0; i < tabs.size(); i++) {tabs[i] = i == 2 ? true : false;}}
+    else if (ImGui::TabItemButton("Material Selection")) {for (int i = 0; i < tabs.size(); i++) {tabs[i] = i == 2 ? true : false;}}
 
     if (tabs[0]) scene();
     else if (tabs[1]) assetLoading();
@@ -111,9 +111,8 @@ namespace lve
   void Imgui_LVE::materials()
   {
     for (int i = 0; i < keys.size(); i++)
-    {
-      std::string hold_it = std::format("placehold{}", i); 
-      if (ImGui::Button(hold_it.c_str(), ImVec2())) key = keys[i];
+    { 
+      if (ImGui::Button(sceneManager.handler().name(keys[i]).c_str(), ImVec2())) key = keys[i];
       ImGui::Spacing();
     }
   }

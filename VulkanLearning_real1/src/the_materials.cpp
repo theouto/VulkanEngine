@@ -74,6 +74,7 @@ namespace lve
     try {load = bindlessTextureSet.at(hash);
          loader = modifiers.at(hash);} catch (std::out_of_range e)
     {
+      names.emplace(hash, path);
       _keys.push_back(hash);
       std::vector<std::shared_ptr<LveTextures>> toWrite;
       std::string mat_id = dummy;

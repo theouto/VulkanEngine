@@ -40,8 +40,7 @@ namespace lve
     void pushValues(uint* RID, float* modified, LveGameObject& object);
     std::vector<uint32_t>& keys() {return _keys;}
     std::vector<float>& modi(uint32_t hash) {return modifiers.at(hash);}
-    std::vector<float>& patchwork() {return modifiers.at(_keys[0]);} //bear with me here, this will be fixed, but for now I want a system working
-                                                                        //I know it's bad, but unlike the thing below I wlil eventually fix it
+    std::string name(uint32_t hash){return names.at(hash);}
 
     //this will be removed once the bindless descriptors stop being an experiment, but for nowwwww yeahhhhhhhhh
     //Update: I lied lol this stays here
@@ -55,6 +54,8 @@ namespace lve
     std::vector<std::shared_ptr<LveTextures>> totalTextures;
 
     LveDevice &lveDevice;
+
+    //Deprecated, to be removed soon
     std::unordered_map<unsigned int,
                        std::pair<VkDescriptorSet,
                        std::vector<std::shared_ptr<LveTextures>>>> loadedMaterials;
@@ -67,5 +68,7 @@ namespace lve
                        uint32_t> textures;
 
     std::unordered_map<uint32_t, std::vector<float>> modifiers;
+
+    std::unordered_map<uint32_t, std::string> names;
   };
 }
