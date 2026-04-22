@@ -55,7 +55,7 @@ namespace lve
                                 const char* path)
   {
     object.matName = path;
-    std::vector<uint32_t> arr = materialHandler->retrieveBindless(path, bindlessLayout, bindlessPool, bindlessSet);
+    std::vector<uint32_t> arr = materialHandler->retrieveBindless(path, bindlessLayout, bindlessPool, bindlessSet, object);
     for (int i = 0; i < arr.size(); i++) {object.textures[i] = arr[i];}
   }
 
@@ -121,9 +121,9 @@ namespace lve
     object.model = lveModel;
     object.matName = material;
     object.modelName = model;
-    //object.descriptorSet = materialHandler->retrieveMaterial(material, *matLayout, pool);
     std::vector<uint32_t> arr = materialHandler->retrieveBindless(material, *lveRenderer.bindlessSetLayout, 
-                        *lveRenderer.descriptorPool, lveRenderer.getBindlessLayout());
+                        *lveRenderer.descriptorPool, lveRenderer.getBindlessLayout(),
+                                    object);
     for (int i = 0; i < arr.size(); i++) {object.textures[i] = arr[i];}
     object.transform.translation = translation;
     object.transform.rotation = rotation;

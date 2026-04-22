@@ -2,6 +2,7 @@
 
 #include "lve_camera.hpp"
 #include "lve_game_object.hpp"
+#include "the_scene.hpp"
 
 #include <vulkan/vulkan.h>
 
@@ -40,5 +41,6 @@ namespace lve
 		VkDescriptorSet globalDescriptorSet;
         VkDescriptorSet bindlessSet;
 		LveGameObject::Map &gameObjects;
+        LveMaterials materials;
 	};
 }

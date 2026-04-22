@@ -71,8 +71,6 @@ namespace lve
         SimpleBindlessSystem simpleBindlessSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), 
                              {lveRenderer.getGlobalLayout(), lveRenderer.bindlessSetLayout->getDescriptorSetLayout()}};
 
-        Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow, gameObjects, sceneManager};
-
         LveCamera camera{};
  
         auto viewerObject = LveGameObject::createGameObject();
@@ -92,6 +90,8 @@ namespace lve
         double mouseY = 0.f;
 
         sceneManager.load("scenes/test_scene.ths", *lveRenderer.globalPool);
+        Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow, gameObjects, sceneManager};
+
 
 	auto currentTime = std::chrono::high_resolution_clock::now();
 
@@ -127,7 +127,8 @@ namespace lve
                   camera,
                   nullptr,
                   nullptr,
-                  gameObjects
+                  gameObjects,
+                  sceneManager.handler()
                 };
 
                 //patchwork until I figure out what the fuck is happening

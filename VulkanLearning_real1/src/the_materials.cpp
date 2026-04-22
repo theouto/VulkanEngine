@@ -59,16 +59,22 @@ namespace lve
   std::vector<uint32_t> LveMaterials::retrieveBindless(const std::string path,
                                                        LveDescriptorSetLayout& descLayout,
                                                        LveDescriptorPool& descPool,
-                                                       VkDescriptorSet& bindlessSet)
+                                                       VkDescriptorSet& bindlessSet,
+                                                       LveGameObject& object)
   {
     std::ifstream material(path);
     if (!material.is_open()) {throw std::runtime_error("Failed to open material file!");}
     XXH32_hash_t hash = XXH32(path.c_str(), path.length(), 0);
 
+    object.hash = hash;
+
     std::string dummy;
+    std::vector<float> loader;
     std::vector<uint32_t> load(6, 0);
-    try {load = bindlessTextureSet.at(hash);} catch (std::out_of_range e)
+    try {load = bindlessTextureSet.at(hash);
+         loader = modifiers.at(hash);} catch (std::out_of_range e)
     {
+      _keys.push_back(hash);
       std::vector<std::shared_ptr<LveTextures>> toWrite;
       std::string mat_id = dummy;
       for (int i = 0; i < 6; i++)
@@ -97,13 +103,25 @@ namespace lve
         std::cout << '\n' << load[i] << '\n';
       }
 
+       for (int i = 0; i < 4; i++)
+      {
+        int placehold;
+        material >> placehold;
+        loader.push_back(placehold);
+      }
+
       std::cout << "emplacing bindless texture set...\n";
 
       bindlessTextureSet.emplace(hash, load);
+      modifiers.emplace(hash, loader);
 
       std::cout << "emplaced!\n";
+
     };
 
+    for (int i = 0; i < 4; i++) {object.modifiers[i] = loader[i];}
+
+    material.close();
     return load;
   }
 
@@ -144,6 +162,18 @@ namespace lve
       LveDescriptorWriter(descLayout, descPool)
                 .addImage(0, &texInfo, currArr - (tex.size() - i - 1))
                 .overwrite(bindlessSet);
+    }
+  }
+
+  void LveMaterials::pushValues(uint* RID, float* modified, LveGameObject& object)
+  {
+    auto tex = bindlessTextureSet.at(object.hash);
+    auto mod = modifiers.at(object.hash);
+
+    for (int i = 0; i < 6; i++) 
+    {
+        RID[i] = tex[i];
+        if (i < 4) {modified[i] = mod[i];}
     }
   }
 

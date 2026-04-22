@@ -25,7 +25,7 @@ layout(push_constant) uniform Push
   mat4 normalMatrix;
   uint RIDo;
   uint RID[7];
-  int padding;
+  float modifiers[4];
 } push;
 
 struct PointLight
@@ -203,15 +203,15 @@ vec3 calculateSunLight(DirectionalLight sun, vec3 surfaceNormal, vec2 UVs, vec3 
 
     vec3 fres = fresnelSchlick(clamp(dot(halfAngle, viewDirection), 0.f, 1.f), F0);
  
-    float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(storageSampler[push.RID[1]], UVs).r);
+    float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(storageSampler[push.RID[1]], UVs).r * push.modifiers[0]);
 
-    float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(storageSampler[push.RID[1]], UVs).x, 0.001f, 1.f));
+    float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(storageSampler[push.RID[1]], UVs).x, 0.001f, 1.f) * push.modifiers[1]);
 
     vec3 numerator = specular * diff * fres;
     float denominator = 4.0 * max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0) + 0.0001;
     vec3 spec = numerator / denominator;
 
-    vec3 kD = metallic(fres, texture(storageSampler[push.RID[1]], UVs).r);
+    vec3 kD = metallic(fres, texture(storageSampler[push.RID[5]], UVs).r * push.modifiers[3]);
 
     float NdotL = max(dot(surfaceNormal, directionToLight), 0.f);
    
@@ -237,7 +237,7 @@ vec3 calculateLights(vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
 
         vec3 fres = fresnelSchlick(clamp(dot(halfAngle, viewDirection), 0.f, 1.f), F0);
         
-        float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(storageSampler[push.RID[1]], UVs).r);
+        float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(storageSampler[push.RID[1]], UVs).r * push.modifiers[0]);
 
         /*
         vec3 diff = BurleyDiffuse(
@@ -249,13 +249,13 @@ vec3 calculateLights(vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
         //diffcont += diff;
         */
 
-        float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(storageSampler[push.RID[1]], UVs).x, 0.001f, 1.f));
-        
+        float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(storageSampler[push.RID[1]], UVs).x, 0.001f, 1.f) * push.modifiers[1]);
+
         vec3 numerator = specular * diff * fres;
         float denominator = 4.0 * max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0) + 0.0001;
         vec3 spec = numerator / denominator;
 
-        vec3 kD = metallic(fres, texture(storageSampler[push.RID[5]], UVs).r);
+        vec3 kD = metallic(fres, texture(storageSampler[push.RID[5]], UVs).r * push.modifiers[3]);
 
         float NdotL = max(dot(surfaceNormal, directionToLight), 0.f);
 
@@ -273,7 +273,7 @@ vec3 calculateDiffuse(vec3 fragNormal, vec3 surfaceNormal, vec2 UVs, vec3 viewDi
 
     vec3 fres = fresnelSchlick(clamp(dot(halfAngle, viewDirection), 0.f, 1.f), F0);
  
-    float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(storageSampler[push.RID[1]], UVs).r);
+    float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(storageSampler[push.RID[1]], UVs).r * push.modifiers[0]);
 
     float specular = 1.f;//DistributionGGX(surfaceNormal, halfAngle, clamp(texture(specular, UVs).x, 0.001f, 1.f));
 
@@ -281,7 +281,7 @@ vec3 calculateDiffuse(vec3 fragNormal, vec3 surfaceNormal, vec2 UVs, vec3 viewDi
     float denominator = 4.0 * max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0) + 0.0001;
     vec3 spec = numerator / denominator;
 
-    vec3 kD = metallic(fres, texture(storageSampler[push.RID[5]], UVs).r);
+    vec3 kD = metallic(fres, texture(storageSampler[push.RID[5]], UVs).r * push.modifiers[3]);
 
     float NdotL = max(dot(surfaceNormal, directionToLight), 0.f);
 
@@ -330,7 +330,7 @@ void main()
 
     vec3 F0 = vec3(0.04);
     float halfView = dot(normalize(viewDirection + surfaceNormal), surfaceNormal); 
-    F0 = mix(F0, texture(storageSampler[push.RID[0]], UVs).rgb, texture(storageSampler[push.RID[5]], UVs).r);
+    F0 = mix(F0, texture(storageSampler[push.RID[0]], UVs).rgb, texture(storageSampler[push.RID[5]], UVs).r * push.modifiers[3]);
 
     vec3 Lo = vec3(0.f);
 
@@ -341,7 +341,7 @@ void main()
     //https://www.youtube.com/watch?v=BFld4EBO2RE great video!
     vec3 lambda = exp(-0.0005f * currDepth * vec3(.5f, 1.f, 4.f));
 
-    vec4 diffuse = texture(storageSampler[push.RID[0]], UVs) * (vec4(diffuseLight, 0.0) * texture(storageSampler[push.RID[5]], UVs).r + 
+    vec4 diffuse = texture(storageSampler[push.RID[0]], UVs) * (vec4(diffuseLight, 0.0) * texture(storageSampler[push.RID[4]], UVs).r * push.modifiers[2] + 
                     vec4(0.01f, 0.01f, 0.02f, 0.f));
 
     diffuse = vec4(lambda, 0.f) * diffuse + vec4((1 - lambda), 0.f) * vec4(0.1f, 0.1f, 0.1f, 0.f);

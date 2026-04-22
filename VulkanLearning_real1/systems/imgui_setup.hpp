@@ -38,6 +38,8 @@ namespace lve
     void objectLoader();
     void scene();
     void materialChange();
+    void materials();
+    void materialControl();
 
     private:
 
@@ -48,11 +50,15 @@ namespace lve
     char a[1024];
     char b[1024];
     char placeholder[1024] = {""};
+ 
+    std::vector<uint32_t> keys;
+    uint32_t key;
 
     char* modelFile = a;
     char* materialFile = b;
 
-    std::vector<bool> tabs = {true, false};
+    std::vector<bool> tabbi = {true, false};
+    std::vector<bool> tabs = {true, false, false};
     int object = 1;
     LveScene& sceneManager;
     LveGameObject::Map& gameObjects;
@@ -60,6 +66,8 @@ namespace lve
     LveRenderer& lveRenderer;
     LveWindow& lveWindow;
     VkDescriptorPool pool;
+
+     std::vector<float>& modifiers;
   };
 
 }

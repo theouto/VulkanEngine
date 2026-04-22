@@ -10,13 +10,15 @@
 namespace lve 
 {
   Imgui_LVE::Imgui_LVE(LveDevice &device, LveRenderer &render, LveWindow &window, LveGameObject::Map& map, LveScene& scene) 
-      : lveDevice{device}, lveWindow{window}, lveRenderer{render}, gameObjects{map}, sceneManager{scene}
+      : lveDevice{device}, lveWindow{window}, lveRenderer{render}, gameObjects{map}, sceneManager{scene}, modifiers{sceneManager.handler().patchwork()}
   {
     init();
   }
 
   void Imgui_LVE::init()
   {
+    keys = sceneManager.handler().keys();
+
     // Initialize ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -66,22 +68,26 @@ namespace lve
     performance();
 
     ImGui::Begin("lala");
-
-    entityControl();
-
+    ImGui::BeginTabBar("other tabs");
+    if (ImGui::TabItemButton("Entities")) {for (int i = 0; i < tabs.size(); i++) {tabbi[i] = i == 0 ? true : false;}}
+    else if (ImGui::TabItemButton("Asset Loading")) {for (int i = 0; i < tabs.size(); i++) {tabbi[i] = i == 1 ? true : false;}}
+    
+    if (tabbi[0]) entityControl();
+    else if (tabbi[1]) materialControl();
+    ImGui::EndTabBar();
     ImGui::End();
 
     ImGui::Begin("pleasework");
     ImGui::BeginTabBar("tabs");
 
-    //if (ImGui::TabItemButton("EntityControl"))
-    //{
-      if (ImGui::TabItemButton("Entities")) {tabs[0] = true; tabs[1] = false;}
-      else if (ImGui::TabItemButton("Asset Loading")) {tabs[1] = true; tabs[0] = false;}
-      
-      if (tabs[0]) scene();
-      else if (tabs[1]) assetLoading();
-    
+    if (ImGui::TabItemButton("Entities")) {for (int i = 0; i < tabs.size(); i++) {tabs[i] = i == 0 ? true : false;}}
+    else if (ImGui::TabItemButton("Asset Loading")) {for (int i = 0; i < tabs.size(); i++) {tabs[i] = i == 1 ? true : false;}}
+    else if (ImGui::TabItemButton("Material control")) {for (int i = 0; i < tabs.size(); i++) {tabs[i] = i == 2 ? true : false;}}
+
+    if (tabs[0]) scene();
+    else if (tabs[1]) assetLoading();
+    else if (tabs[2]) materials();
+
     ImGui::EndTabBar();
     ImGui::End();
 
@@ -99,6 +105,16 @@ namespace lve
     }
 
     if (ImGui::Button("Save to file: ", ImVec2())) sceneManager.saveScene();
+  }
+
+  void Imgui_LVE::materials()
+  {
+    for (int i = 0; i < keys.size(); i++)
+    {
+      std::string hold_it = std::format("placehold{}", i); 
+      if (ImGui::Button(hold_it.c_str(), ImVec2())) modifiers = sceneManager.handler().modi(keys[i]);
+      ImGui::Spacing();
+    }
   }
 
   void Imgui_LVE::entityControl()
@@ -129,10 +145,7 @@ namespace lve
 
     ImGui::LabelText("\nMaterial", "");
     ImGui::InputText("materialFile: ", materialFile, 1024);
-    if(ImGui::Button("change material", ImVec2(100.f, 20.f))) materialChange();
-
-    ImGui::LabelText("\nDEBUG: Texture", "");
-    ImGui::InputInt("RID", &gameObjects.at(object).RID, 1, 10);
+    if(ImGui::Button("change material", ImVec2(100.f, 20.f))) materialChange();   
 
     //ImGui::InputScalar("Int", ImGuiDataType_U32, &gameObjects.at(object).textures[0], (const void *)1, (const void *)10);
   }
@@ -170,6 +183,15 @@ namespace lve
     if(ImGui::Button("LOAD NOW!!!", ImVec2(100.f, 20.f))) objectLoader();
   }
 
+  void Imgui_LVE::materialControl()
+  {
+    ImGui::LabelText("\nMaterial properties", "");
+    ImGui::SliderFloat("roughness", &modifiers[0], 0, 1);
+    ImGui::SliderFloat("specular", &modifiers[1], 0, 1);
+    ImGui::SliderFloat("ao", &modifiers[2], 0, 1);
+    ImGui::SliderFloat("metal", &modifiers[3], 0, 1);
+  }
+
   void Imgui_LVE::materialChange()
   {
     sceneManager.changeMaterial(gameObjects.at(object), 
@@ -177,6 +199,8 @@ namespace lve
                                 *lveRenderer.bindlessSetLayout, 
                                 lveRenderer.getBindlessLayout(),
                                 materialFile);
+
+    keys = sceneManager.handler().keys();
   }
 
   void Imgui_LVE::objectLoader()
@@ -196,6 +220,8 @@ namespace lve
                                        *lveRenderer.bindlessSetLayout,
                                        lveRenderer.getBindlessLayout(),
                                         materialFile);
+
+        keys = sceneManager.handler().keys();
 
         scale = {1.f, 1.f, 1.f};
         rot = {0.f, 0.f, 0.f};
