@@ -86,7 +86,7 @@ namespace lve
                                                         const glm::vec3 &cameraPosition, float sceneRadius)
   {
       float zNear = 0.01f;
-      float zFar = 100.f;
+      float zFar = 400.f;
       float lightSize = sceneRadius * 2.f;
       glm::vec3 lightTarget = cameraPosition;
       glm::vec3 lightPosition = lightTarget - dirLightPos * sceneRadius;
