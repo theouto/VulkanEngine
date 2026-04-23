@@ -195,6 +195,7 @@ namespace lve
         this->files[i] = buf;
         ImGui::InputText(std::format("texture {}", i).c_str(), this->files[i], 1024);
         files[i] = this->files[i];
+        delete[] buf;
     }
 
 
