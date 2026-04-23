@@ -19,6 +19,7 @@ namespace lve
   {
     keys = sceneManager.handler().keys();
     key = keys[0];
+    files.resize(6);
 
     // Initialize ImGui context
     IMGUI_CHECKVERSION();
@@ -185,11 +186,34 @@ namespace lve
 
   void Imgui_LVE::materialControl()
   {
+    std::vector<std::string>& files = sceneManager.handler().texFiles(key);
+    ImGui::LabelText("\nMaterial textures", "");
+    for (int i = 0; i < 6; i++) 
+    {
+        char *buf = new char[files[i].size()+1];
+        strcpy(buf, files[i].c_str( ));
+        this->files[i] = buf;
+        ImGui::InputText(std::format("texture {}", i).c_str(), this->files[i], 1024);
+        files[i] = this->files[i];
+    }
+
+
     ImGui::LabelText("\nMaterial properties", "");
     ImGui::SliderFloat("roughness", &sceneManager.handler().modi(key)[0], 0, 1);
     ImGui::SliderFloat("specular", &sceneManager.handler().modi(key)[1], 0, 1);
     ImGui::SliderFloat("ao", &sceneManager.handler().modi(key)[2], 0, 1);
     ImGui::SliderFloat("metal", &sceneManager.handler().modi(key)[3], 0, 1);
+
+    if(ImGui::Button("Save material", ImVec2(100.f, 20.f))) sceneManager.handler().saveMaterial(key);
+    if(ImGui::Button("Reload material", ImVec2(100.f, 20.f))) reloadMaterial();
+  }
+
+  void Imgui_LVE::reloadMaterial()
+  {
+    sceneManager.handler().reloadMaterial(key,
+                                          *lveRenderer.bindlessSetLayout,
+                                          *lveRenderer.descriptorPool,
+                                          lveRenderer.getBindlessLayout());
   }
 
   void Imgui_LVE::materialChange()

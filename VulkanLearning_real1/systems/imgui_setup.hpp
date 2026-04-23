@@ -40,6 +40,7 @@ namespace lve
     void materialChange();
     void materials();
     void materialControl();
+    void reloadMaterial();
 
     private:
 
@@ -50,7 +51,9 @@ namespace lve
     char a[1024];
     char b[1024];
     char placeholder[1024] = {""};
- 
+
+    std::vector<char*> files;
+
     std::vector<uint32_t> keys;
     uint32_t key;
 

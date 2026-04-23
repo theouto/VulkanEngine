@@ -69,7 +69,7 @@ namespace lve
     object.hash = hash;
 
     std::string dummy;
-    std::vector<float> loader;
+    std::vector<float> loader(4);
     std::vector<uint32_t> load(6, 0);
     try {load = bindlessTextureSet.at(hash);
          loader = modifiers.at(hash);} catch (std::out_of_range e)
@@ -78,9 +78,11 @@ namespace lve
       _keys.push_back(hash);
       std::vector<std::shared_ptr<LveTextures>> toWrite;
       std::string mat_id = dummy;
+      std::vector<std::string> filepaths;
       for (int i = 0; i < 6; i++)
       {
         getline(material, dummy);
+        filepaths.push_back(dummy);
         XXH32_hash_t texHash = XXH32(dummy.c_str(), dummy.length(), 0);
         try {load[i] = textures.at(texHash);} catch (std::out_of_range e)
         {
@@ -104,17 +106,13 @@ namespace lve
         std::cout << '\n' << load[i] << '\n';
       }
 
-       for (int i = 0; i < 4; i++)
-      {
-        int placehold;
-        material >> placehold;
-        loader.push_back(placehold);
-      }
+      for (int i = 0; i < 4; i++) {material >> loader[i];}
 
       std::cout << "emplacing bindless texture set...\n";
 
       bindlessTextureSet.emplace(hash, load);
       modifiers.emplace(hash, loader);
+      files.emplace(hash, filepaths);
 
       std::cout << "emplaced!\n";
 
@@ -149,6 +147,47 @@ namespace lve
               .build(descriptor);
 
     return descriptor;
+  }
+
+  void LveMaterials::reloadMaterial(uint32_t hash,
+                                    LveDescriptorSetLayout& descLayout,
+                                    LveDescriptorPool& descPool,
+                                    VkDescriptorSet& bindlessSet)
+  {
+      std::string dummy;
+      std::vector<std::shared_ptr<LveTextures>> toWrite;
+      for (int i = 0; i < 6; i++)
+      {
+        dummy = files.at(hash)[i];
+        XXH32_hash_t texHash = XXH32(dummy.c_str(), dummy.length(), 0);
+        try {bindlessTextureSet.at(hash)[i] = textures.at(texHash);} catch (std::out_of_range e)
+        {
+          LveTextures::texType format = LveTextures::SINGLE_UNORM;
+          if (i == 0) format = LveTextures::COLOR;
+          else if (i == 2) format = LveTextures::NORMAL;
+
+          auto tex = std::make_shared<LveTextures>(lveDevice, dummy, format);
+
+          toWrite.push_back(tex);
+          totalTextures.push_back(tex);
+          bindlessTextureSet.at(hash)[i] = ++currArr;
+          textures.emplace(texHash, currArr);
+        }
+      }
+
+      writeBindless(toWrite, descLayout, descPool, bindlessSet);
+  }
+
+  void LveMaterials::saveMaterial(uint32_t hash)
+  {
+    std::ofstream material(names.at(hash));
+    if (!material.is_open()) {throw std::runtime_error("Failed to open material file! - SAVING");}
+
+    auto named = files.at(hash);
+    for (auto c : named) material << c << '\n';
+
+    auto modi = modifiers.at(hash);
+    for (auto c : modi) material << c << " ";
   }
 
   void LveMaterials::writeBindless(std::vector<std::shared_ptr<LveTextures>> tex,
