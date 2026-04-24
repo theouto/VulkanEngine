@@ -33,6 +33,7 @@ namespace lve
 	{
 	public:
 		LvePipeline(LveDevice &device, std::vector<std::string> filePaths, const PipelineConfigInfo& configInfo);
+        LvePipeline(LveDevice &device, std::string filePath, const PipelineConfigInfo& configInfo);
 		~LvePipeline();
 
 		LvePipeline(const LvePipeline&) = delete;
