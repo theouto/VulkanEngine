@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <cassert>
+#include <vulkan/vulkan_core.h>
 
 
 namespace lve
@@ -13,14 +14,20 @@ namespace lve
 	LvePipeline::LvePipeline(LveDevice& device, std::vector<std::string> filePaths, 
 		const PipelineConfigInfo& configInfo) : lveDevice{device}
 	{
-			createGraphicsPipeline(filePaths[0], filePaths[1], configInfo);
-		
+	  createGraphicsPipeline(filePaths[0], filePaths[1], configInfo);	
 	}
+
+    LvePipeline::LvePipeline(LveDevice& device, std::string filePath,
+                             const PipelineConfigInfo& configInfo) : lveDevice{device}
+    {
+      //createGraphicsPipeline(filePath, configInfo);
+    }
 
 	LvePipeline::~LvePipeline()
 	{
 		vkDestroyShaderModule(lveDevice.device(), vertShaderModule, nullptr);
 		vkDestroyShaderModule(lveDevice.device(), fragShaderModule, nullptr);
+        vkDestroyShaderModule(lveDevice.device(), computeModule, nullptr);
 		vkDestroyPipeline(lveDevice.device(), graphicsPipeline, nullptr);
 	}
 
@@ -110,6 +117,28 @@ namespace lve
 			throw std::runtime_error("failed to create graphics pipeline");
 		}
 	}
+
+    void LvePipeline::createGraphcisPipeline(const std::string& filePath, const PipelineConfigInfo& configInfo)
+    {
+        assert(configInfo.pipelineLayout != VK_NULL_HANDLE &&
+			"Cannot create graphics pipeline:: no pipelineLayout provided in configInfo");
+		assert(configInfo.renderPass != VK_NULL_HANDLE &&
+			"Cannot create graphics pipeline:: no renderPass provided in configInfo");
+		auto compCode = readFile(filePath);
+
+        createShaderModule(compCode, &computeModule);
+
+        VkPipelineShaderStageCreateInfo shaderStage;
+        shaderStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        shaderStage.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+        shaderStage.module = computeModule;
+        shaderStage.pName = "main";
+        shaderStage.flags = 0;
+        shaderStage.pNext = nullptr;
+        shaderStage.pSpecializationInfo = nullptr;
+
+
+    }
 
 	void LvePipeline::createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule)
 	{

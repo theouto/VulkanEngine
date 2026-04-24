@@ -82,6 +82,8 @@ class LveSwapChain {
         //The hallmarks of bad programming are not reusing code, so of course I'm not doing it
         //Though I do eventually plan on making a generic setup process for framebuffers that configures
         //everything based on enums, but that's a worry for later
+        //-------------------------------------------------------
+        //I fear that day is nearing...
         void createDepthPrepass();
         void createDepthImages();
         void createDepthBuffer();

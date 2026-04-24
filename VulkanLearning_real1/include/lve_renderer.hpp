@@ -49,30 +49,29 @@ namespace lve
         VkRenderPass getSwapChainShadowPass() const {return lveSwapChain->getShadowPass();}
         VkDescriptorImageInfo getShadowInfo()
         {
-            VkSampler sampler;
-            LveTextures::createTextureSampler(lveDevice, sampler);
-            VkDescriptorImageInfo descriptorInfo{};
-
-			descriptorInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-			descriptorInfo.imageView = lveSwapChain->getShadowView();
-			descriptorInfo.sampler = sampler;
-
-			return descriptorInfo; 
+          return descriptorImageInfoHelper(lveSwapChain->getShadowView());
         }
 
         VkRenderPass getSwapChainNormalPass() const {return lveSwapChain->getNormalPass();}
         VkDescriptorImageInfo getNormalInfo()
         {
+          return descriptorImageInfoHelper(lveSwapChain->getNormalView());
+        }
+
+        VkDescriptorImageInfo getImageInfo(uint32_t index)
+        {
+          return descriptorImageInfoHelper(lveSwapChain->getImageView(index));
+        }
+
+        VkDescriptorImageInfo descriptorImageInfoHelper(VkImageView imageView)
+        {
           VkSampler sampler;
           LveTextures::createTextureSampler(lveDevice, sampler);
-
           VkDescriptorImageInfo descriptorInfo{};
-
-		  descriptorInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-		  descriptorInfo.imageView = lveSwapChain->getNormalView();
-		  descriptorInfo.sampler = sampler;
-
-		  return descriptorInfo;
+          descriptorInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+          descriptorInfo.imageView = imageView;
+          descriptorInfo.sampler = sampler;
+          return descriptorInfo;
         }
 
         void loadUboInfo(std::vector<std::shared_ptr<LveBuffer>> ubos)
@@ -112,6 +111,8 @@ namespace lve
 
         std::unique_ptr<LveDescriptorPool> globalPool = nullptr;
         std::unique_ptr<LveDescriptorPool> descriptorPool = nullptr;
+        std::unique_ptr<LveDescriptorPool> computePool = nullptr;
+        std::unique_ptr<LveDescriptorSetLayout> computeSetLayout = nullptr;
         std::unique_ptr<LveDescriptorSetLayout> globalSetLayout = nullptr;
         std::unique_ptr<LveDescriptorSetLayout> bindlessSetLayout = nullptr;
 
@@ -125,6 +126,7 @@ namespace lve
         VkDescriptorSet& getBindlessLayout() {return bindlessLayout;}
 	private:
         VkDescriptorSet bindlessLayout;
+        VkDescriptorSet computeSet;
 
         void createResources();
 		void createCommandBuffers();

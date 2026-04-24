@@ -38,6 +38,11 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
             .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT | VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
             .build();
 
+    computePool = LveDescriptorPool::Builder(lveDevice)
+            .setMaxSets(1)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
+            .build();
+
     globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)            
             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
@@ -49,6 +54,11 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
             .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1000)
             .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT)
             .build();
+
+    computeSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_COMPUTE_BIT)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_COMPUTE_BIT)
+            .build(); //somewhat hacky...
 }
 
 void LveRenderer::generateDescriptors()
@@ -60,6 +70,9 @@ void LveRenderer::generateDescriptors()
 
   descriptorPool->allocateDescriptor(bindlessSetLayout->getDescriptorSetLayout(),
                                      bindlessLayout);
+
+  computePool->allocateDescriptor(computeSetLayout->getDescriptorSetLayout(),
+                                  computeSet);
 
   LveDescriptorWriter(*bindlessSetLayout, *descriptorPool)
     .addImage(0, &nerd1, 0)
@@ -75,12 +88,18 @@ void LveRenderer::generateDescriptors()
     auto depthInfo = getDepthInfo();
     auto normalSpecInfo = getNormalInfo();
 
+    auto renderInfo = getImageInfo(i);
+
     LveDescriptorWriter(*globalSetLayout, *globalPool)
       .writeBuffer(0, &bufferInfo)
       .writeImage(1, &shadowInfo)
       .writeImage(2, &depthInfo)
       .writeImage(3, &normalSpecInfo)
       .build(globalSetLayouts[i]);
+
+    LveDescriptorWriter(*computeSetLayout, *computePool)
+      .writeImage(i, &renderInfo)
+      .overwrite(computeSet);
   }
 }
 
