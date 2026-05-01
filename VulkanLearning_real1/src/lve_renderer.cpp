@@ -39,7 +39,7 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
             .build();
 
     computePool = LveDescriptorPool::Builder(lveDevice)
-            .setMaxSets(1)
+            .setMaxSets(2)
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
 
@@ -57,22 +57,19 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
 
     computeSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_COMPUTE_BIT)
-            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_COMPUTE_BIT)
             .build(); //somewhat hacky...
 }
 
 void LveRenderer::generateDescriptors()
 {
-  globalSetLayouts.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);  
+  globalSetLayouts.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
+  computeSets.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
 
   auto nerd1 = textures[0]->getDescriptorInfo();
   auto nerd2 = textures[1]->getDescriptorInfo();
 
   descriptorPool->allocateDescriptor(bindlessSetLayout->getDescriptorSetLayout(),
                                      bindlessLayout);
-
-  computePool->allocateDescriptor(computeSetLayout->getDescriptorSetLayout(),
-                                  computeSet);
 
   LveDescriptorWriter(*bindlessSetLayout, *descriptorPool)
     .addImage(0, &nerd1, 0)
@@ -98,8 +95,8 @@ void LveRenderer::generateDescriptors()
       .build(globalSetLayouts[i]);
 
     LveDescriptorWriter(*computeSetLayout, *computePool)
-      .writeImage(i, &renderInfo)
-      .overwrite(computeSet);
+      .writeImage(0, &renderInfo)
+      .build(computeSets[i]);
   }
 }
 
@@ -112,17 +109,23 @@ void LveRenderer::updateDescriptors()
       auto depthInfo = getDepthInfo();
       auto normalSpecInfo = getNormalInfo();
 
+      auto renderInfo = getImageInfo(i);
+
       LveDescriptorWriter(*globalSetLayout, *globalPool)
         .writeBuffer(0, &bufferInfo) 
         .writeImage(1, &shadowInfo)
         .writeImage(2, &depthInfo)
         .writeImage(3, &normalSpecInfo)
         .overwrite(globalSetLayouts[i]);
+
+      LveDescriptorWriter(*computeSetLayout, *computePool)
+        .writeImage(0, &renderInfo)
+        .overwrite(computeSets[i]);
     }
   }
 
 void LveRenderer::recreateSwapChain() {
-  
+
   if (!skip)
   {
     extent = lveWindow.getExtent();  

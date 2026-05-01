@@ -21,6 +21,7 @@ namespace lve
 		VkPipelineColorBlendAttachmentState colorBlendAttachment;
 		VkPipelineColorBlendStateCreateInfo colorBlendInfo;
 		VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
+        VkComputePipelineCreateInfo computeInfo;
 		std::vector<VkDynamicState> dynamicStateEnables;
 		VkPipelineDynamicStateCreateInfo dynamicStateInfo;
 		VkPipelineLayout pipelineLayout = nullptr;
@@ -40,6 +41,7 @@ namespace lve
 		LvePipeline& operator=(const LvePipeline&) = delete;
 
 		void bind(VkCommandBuffer commandBuffer);
+        void bindCompute(VkCommandBuffer commandBuffer);
 		
 		static void enableMSAA(PipelineConfigInfo& configInfo);
 		static void defaultPipelineConfigInfo(PipelineConfigInfo& configInfo);
@@ -52,7 +54,7 @@ namespace lve
 		void createGraphicsPipeline(const std::string& vertFilePath, const std::string& fragFilePath,
 			const PipelineConfigInfo& configInfo);
 
-        void createGraphcisPipeline(const std::string& filePath, const PipelineConfigInfo& configInfo);
+        void createComputePipeline(const std::string& filePath, const PipelineConfigInfo& configInfo);
 
 		void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
 

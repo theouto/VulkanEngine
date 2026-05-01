@@ -118,6 +118,7 @@ namespace lve
 
         VkDescriptorSetLayout getGlobalLayout() {return globalSetLayout->getDescriptorSetLayout();}
         VkDescriptorSet getLayout(uint32_t index) {return globalSetLayouts[index];}
+        VkDescriptorSet getComputeSet(uint32_t index) {return computeSets[index];}
         
         void generateDescriptors();
         void updateDescriptors();
@@ -126,7 +127,8 @@ namespace lve
         VkDescriptorSet& getBindlessLayout() {return bindlessLayout;}
 	private:
         VkDescriptorSet bindlessLayout;
-        VkDescriptorSet computeSet;
+
+        std::vector<VkDescriptorSet> computeSets;
 
         void createResources();
 		void createCommandBuffers();

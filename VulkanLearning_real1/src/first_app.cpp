@@ -7,7 +7,6 @@
 
 
 #include "../systems/point_light_system.hpp"
-#include "../systems/simple_render_system.hpp"
 #include "../systems/skybox_system.hpp"
 #include "../systems/shadow_system.hpp"
 #include "../systems/normal_spec.hpp"
@@ -15,6 +14,7 @@
 #include "../systems/depth_buffer.hpp"
 #include "../systems/imgui_setup.hpp"
 #include "../systems/bindless_test.hpp"
+#include "../systems/compute_system.hpp"
 
 
 #include <GLFW/glfw3.h>
@@ -70,6 +70,8 @@ namespace lve
 
         SimpleBindlessSystem simpleBindlessSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), 
                              {lveRenderer.getGlobalLayout(), lveRenderer.bindlessSetLayout->getDescriptorSetLayout()}};
+
+        ComputeSystem computeSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), lveRenderer.computeSetLayout->getDescriptorSetLayout()};
 
         LveCamera camera{};
  
@@ -127,6 +129,7 @@ namespace lve
                   camera,
                   nullptr,
                   nullptr,
+                  nullptr,
                   gameObjects,
                   sceneManager.handler()
                 };
@@ -134,6 +137,7 @@ namespace lve
                 //patchwork until I figure out what the fuck is happening
                 frameInfo.globalDescriptorSet = lveRenderer.getLayout(frameIndex);
                 frameInfo.bindlessSet = lveRenderer.getBindlessLayout();
+                frameInfo.computeSet = lveRenderer.getComputeSet(frameIndex);
 		
                 glm::mat4 projMat = DirectionalLightSystem::lightViewProjection(
                   rot,
@@ -171,12 +175,9 @@ namespace lve
  
                 //render 
                 lveRenderer.beginSwapChainRenderPass(commandBuffer);
-                
+
                 //skybox
                 skybox.render(frameInfo);
-
-                //geometry pass excl. skybox
-                //simpleRenderSystem.renderGameObjects(frameInfo, projMat, rot);
 
                 //bindless_test
                 simpleBindlessSystem.renderGameObjects(frameInfo, projMat, rot);
@@ -187,8 +188,11 @@ namespace lve
                 //renders light dots
                 pointLightSystem.render(frameInfo);
 
+                //compute pipeline
+                computeSystem.compute(frameInfo, lveWindow.getExtent().width, lveWindow.getExtent().height);
+
                 imgui.draw(commandBuffer, &rot);
-                
+
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
 				lveRenderer.endFrame();
 			}

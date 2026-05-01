@@ -20,7 +20,7 @@ namespace lve
     LvePipeline::LvePipeline(LveDevice& device, std::string filePath,
                              const PipelineConfigInfo& configInfo) : lveDevice{device}
     {
-      //createGraphicsPipeline(filePath, configInfo);
+      createComputePipeline(filePath, configInfo);
     }
 
 	LvePipeline::~LvePipeline()
@@ -118,7 +118,7 @@ namespace lve
 		}
 	}
 
-    void LvePipeline::createGraphcisPipeline(const std::string& filePath, const PipelineConfigInfo& configInfo)
+    void LvePipeline::createComputePipeline(const std::string& filePath, const PipelineConfigInfo& configInfo)
     {
         assert(configInfo.pipelineLayout != VK_NULL_HANDLE &&
 			"Cannot create graphics pipeline:: no pipelineLayout provided in configInfo");
@@ -137,7 +137,17 @@ namespace lve
         shaderStage.pNext = nullptr;
         shaderStage.pSpecializationInfo = nullptr;
 
+        VkComputePipelineCreateInfo computePipelineCreateInfo{};
+	    computePipelineCreateInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+	    computePipelineCreateInfo.pNext = nullptr;
+	    computePipelineCreateInfo.layout = configInfo.pipelineLayout;
+	    computePipelineCreateInfo.stage = shaderStage;
 
+        if (vkCreateComputePipelines(lveDevice.device(), VK_NULL_HANDLE, 1, &computePipelineCreateInfo, nullptr, 
+                                     &graphicsPipeline) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create compute pipeline!");
+        }
     }
 
 	void LvePipeline::createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule)
@@ -157,6 +167,11 @@ namespace lve
 	{
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 	}
+
+    void LvePipeline::bindCompute(VkCommandBuffer commandBuffer)
+    {
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, graphicsPipeline);
+    }
 
 	void LvePipeline::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo)
 	{
