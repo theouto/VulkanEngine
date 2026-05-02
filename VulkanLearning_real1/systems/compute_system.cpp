@@ -1,5 +1,7 @@
 #include "compute_system.hpp"
 
+#include <iostream>
+
 namespace lve
 {
   struct computeConstants
@@ -22,20 +24,13 @@ namespace lve
 
   void ComputeSystem::createPipeLineLayout(VkDescriptorSetLayout &globalSetLayout)
   {
-    /*
-    VkPushConstantRange pushConstantRange{};
-	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-	pushConstantRange.offset = 0;
-	pushConstantRange.size = sizeof(computeConstants);
-    */
 	std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout };
 
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
 	pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
-	//pipelineLayoutInfo.pushConstantRangeCount = 1;
-	//pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
+    pipelineLayoutInfo.pNext = nullptr;
 
 	if (vkCreatePipelineLayout(lveDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
 	{
@@ -48,7 +43,7 @@ namespace lve
     assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 
 		PipelineConfigInfo pipelineConfig{};
-		LvePipeline::defaultPipelineConfigInfo(pipelineConfig);
+		//LvePipeline::defaultPipelineConfigInfo(pipelineConfig);
 		
 		pipelineConfig.renderPass = renderPass;
 		pipelineConfig.pipelineLayout = pipelineLayout;
@@ -62,14 +57,7 @@ namespace lve
     vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout,
 			0, 1, &frameInfo.computeSet, 0, nullptr);
  
-    /*
-    computeConstants push{frameInfo.frameIndex};
-
-    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
-				VK_SHADER_STAGE_COMPUTE_BIT,
-				0, sizeof(computeConstants), &push);
-    */
-    vkCmdDispatch(frameInfo.commandBuffer, std::ceil(width / 16.0), 
-                  std::ceil(height / 16.0), 1);
+    vkCmdDispatch(frameInfo.commandBuffer, std::ceil(width / 24.0),
+                  std::ceil(height / 24.0), 1);
   }
 };

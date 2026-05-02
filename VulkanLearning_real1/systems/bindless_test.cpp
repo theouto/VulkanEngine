@@ -93,8 +93,6 @@ namespace lve
 			push.normalMatrix = obj.transform.normalMatrix();
             frameInfo.materials.pushValues(push.RID, push.modifiers, obj);
 
-            //for (int i = 0; i < 6; i++) { push.RID[i] = obj.textures[i];}
-            //for (int i = 0; i < 4; i++) { push.modifiers[i] = obj.modifiers[i];}
             push.RIDo = obj.RID;
 
 			vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,

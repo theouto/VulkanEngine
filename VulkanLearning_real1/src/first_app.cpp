@@ -106,20 +106,19 @@ namespace lve
 
             auto newTime = std::chrono::high_resolution_clock::now();
             float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
-            //std::cout << "Framerate: " << 1 / frameTime << '\n';
             currentTime = newTime;
-            
+
             cameraController.moveInPlaneXZ(lveWindow.getGLFWwindow(), frameTime, viewerObject, mouseX, mouseY);
             glfwGetCursorPos(lveWindow.getGLFWwindow(), &mouseX, &mouseY);
             camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 	
 
             float aspect = lveRenderer.getAspectRatio();
-            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.01f, 50.f);	
+            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.01f, 50.f);
 
             glm::vec3 offset = {-radius, radius, -2.f};
 		if (auto commandBuffer = lveRenderer.beginFrame())
-		{		
+		{
 			int frameIndex = lveRenderer.getFrameIndex();
                 FrameInfo frameInfo
                 {
@@ -134,7 +133,6 @@ namespace lve
                   sceneManager.handler()
                 };
 
-                //patchwork until I figure out what the fuck is happening
                 frameInfo.globalDescriptorSet = lveRenderer.getLayout(frameIndex);
                 frameInfo.bindlessSet = lveRenderer.getBindlessLayout();
                 frameInfo.computeSet = lveRenderer.getComputeSet(frameIndex);
@@ -144,7 +142,7 @@ namespace lve
                   frameInfo.camera.getPosition() + offset,
                   radius);
 
-                //update               
+                //update
                 GlobalUbo ubo{};
                 ubo.projection = camera.getProjection();
                 ubo.view = camera.getView();
@@ -156,7 +154,7 @@ namespace lve
                 ubo.lightSpaceMatrix = projMat;
                 pointLightSystem.update(frameInfo, ubo);
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
-                uboBuffers[frameIndex]->flush(); 
+                uboBuffers[frameIndex]->flush();
 
                 //render shadowmap
 		        lveRenderer.beginShadowRenderPass(commandBuffer);
@@ -173,7 +171,7 @@ namespace lve
                 normalSpecPass.drawDepth(frameInfo);
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
  
-                //render 
+                //render
                 lveRenderer.beginSwapChainRenderPass(commandBuffer);
 
                 //skybox
@@ -188,13 +186,15 @@ namespace lve
                 //renders light dots
                 pointLightSystem.render(frameInfo);
 
-                //compute pipeline
-                computeSystem.compute(frameInfo, lveWindow.getExtent().width, lveWindow.getExtent().height);
-
                 imgui.draw(commandBuffer, &rot);
 
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
-				lveRenderer.endFrame();
+				
+                //compute pipeline
+                computeSystem.compute(frameInfo, lveWindow.getExtent().width, lveWindow.getExtent().height);
+
+
+                lveRenderer.endFrame();
 			}
 		}
 

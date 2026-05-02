@@ -1,12 +1,12 @@
 #version 450
+#extension GL_EXT_shader_image_load_formatted : require
 
 //test shader taken from: https://vkguide.dev/docs/new_chapter_2/vulkan_shader_code/
 
 //size of a workgroup for compute
-layout (local_size_x = 16, local_size_y = 16) in;
+layout (local_size_x = 24, local_size_y = 24) in;
 
-//The two different frames in flight
-layout(rgba16f,set = 0, binding = 0) uniform image2D image;
+layout(set = 0, binding = 0) uniform image2D image;
 
 void main() 
 {
@@ -17,12 +17,9 @@ void main()
     {
         vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
-        if(gl_LocalInvocationID.x != 0 && gl_LocalInvocationID.y != 0)
-        {
-            color.x = float(texelCoord.x)/(size.x);
-            color.y = float(texelCoord.y)/(size.y);	
-        }
-    
+        color.x = float(texelCoord.x)/(size.x);
+        color.y = float(texelCoord.y)/(size.y);
+
         imageStore(image, texelCoord, color);
     }
 }

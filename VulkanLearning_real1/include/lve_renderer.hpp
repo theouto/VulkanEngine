@@ -63,12 +63,21 @@ namespace lve
           return descriptorImageInfoHelper(lveSwapChain->getImageView(index));
         }
 
+        VkDescriptorImageInfo getImages(uint32_t index)
+        {
+          VkDescriptorImageInfo descriptorInfo{};
+          descriptorInfo.imageLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+          descriptorInfo.imageView = lveSwapChain->getImageView(index);
+
+          return descriptorInfo;
+        }
+
         VkDescriptorImageInfo descriptorImageInfoHelper(VkImageView imageView)
         {
           VkSampler sampler;
           LveTextures::createTextureSampler(lveDevice, sampler);
           VkDescriptorImageInfo descriptorInfo{};
-          descriptorInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+          descriptorInfo.imageLayout = VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
           descriptorInfo.imageView = imageView;
           descriptorInfo.sampler = sampler;
           return descriptorInfo;
