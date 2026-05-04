@@ -39,8 +39,8 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
             .build();
 
     computePool = LveDescriptorPool::Builder(lveDevice)
-            .setMaxSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, LveSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
+            .setMaxSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, LveSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
             .build();
 
     globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
@@ -106,7 +106,7 @@ void LveRenderer::updateDescriptors()
       auto depthInfo = getDepthInfo();
       auto normalSpecInfo = getNormalInfo();
 
-      auto renderInfo = getImageInfo(i);
+      auto renderInfo = getImages(i);
 
       LveDescriptorWriter(*globalSetLayout, *globalPool)
         .writeBuffer(0, &bufferInfo) 

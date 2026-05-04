@@ -195,7 +195,7 @@ namespace lve {
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
         createInfo.imageExtent = extent;
         createInfo.imageArrayLayers = 1;
-        createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_STORAGE_BIT;
 
         QueueFamilyIndices indices = device.findPhysicalQueueFamilies();
         uint32_t queueFamilyIndices[] = { indices.graphicsFamily, indices.presentFamily };
@@ -593,10 +593,10 @@ namespace lve {
       imageInfo.extent = {windowExtent.width, windowExtent.height, 1};
       imageInfo.mipLevels = 1;
       imageInfo.arrayLayers = 1;
-      imageInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+      imageInfo.format = VK_FORMAT_B8G8R8A8_UNORM;
       imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
       imageInfo.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // Ensure initial layout is set.
-      imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+      imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
       imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
       imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // Explicitly set sharing mode.
 
@@ -818,7 +818,7 @@ namespace lve {
     VkSurfaceFormatKHR LveSwapChain::chooseSwapSurfaceFormat(
         const std::vector<VkSurfaceFormatKHR>& availableFormats) {
         for (const auto& availableFormat : availableFormats) {
-            if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
+            if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM &&//R8G8B8A8_SRGB && //
                 availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
                 return availableFormat;
             }

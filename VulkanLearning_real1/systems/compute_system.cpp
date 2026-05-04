@@ -71,7 +71,11 @@ namespace lve
     vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, 
                        VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(computeConstants), &placehold);
 
+    //vkCmdBeginPerTileExecutionQCOM(frameInfo.commandBuffer, nullptr);
+
     vkCmdDispatch(frameInfo.commandBuffer, std::ceil(width / 24.0),
                   std::ceil(height / 24.0), 1);
+
+    //vkCmdEndPerTileExecutionQCOM(frameInfo.commandBuffer, nullptr);
   }
 };

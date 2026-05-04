@@ -66,7 +66,7 @@ namespace lve
         VkDescriptorImageInfo getImages(uint32_t index)
         {
           VkDescriptorImageInfo descriptorInfo{};
-          descriptorInfo.imageLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+          descriptorInfo.imageLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; //VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
           descriptorInfo.imageView = lveSwapChain->getImageView(index);
 
           return descriptorInfo;

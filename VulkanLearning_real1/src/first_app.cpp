@@ -193,7 +193,6 @@ namespace lve
                 //compute pipeline
                 computeSystem.compute(frameInfo, lveWindow.getExtent().width, lveWindow.getExtent().height);
 
-
                 lveRenderer.endFrame();
 			}
 		}
