@@ -615,7 +615,7 @@ namespace lve {
 
       if (vkAllocateMemory(device.device(), &allocInfo, nullptr, &normalMemory) != VK_SUCCESS)
       {
-        throw std::runtime_error("failed to allocate memory for shadow image!");
+        throw std::runtime_error("failed to allocate memory for normal image!");
       }
 
       vkBindImageMemory(device.device(), normalImage, normalMemory, 0);
@@ -639,8 +639,8 @@ namespace lve {
 
     void LveSwapChain::createNormalBuffers()
     {
-      assert(normalPass != VK_NULL_HANDLE && "depthPass is invalid!");
-      assert(normalView != VK_NULL_HANDLE && "depthView is invalid!");
+      assert(normalPass != VK_NULL_HANDLE && "normalPass is invalid!");
+      assert(normalView != VK_NULL_HANDLE && "normalView is invalid!");
 
       std::array<VkImageView, 2> attachments = { normalView, depthImageViews[0] };
 
@@ -772,8 +772,8 @@ namespace lve {
     
     void LveSwapChain::createDepthBuffer()
     {
-      assert(depthPass != VK_NULL_HANDLE && "shadowRenderPass is invalid!");
-      assert(depthView != VK_NULL_HANDLE && "shadowDepthImageView is invalid!");
+      assert(depthPass != VK_NULL_HANDLE && "depthPass is invalid!");
+      assert(depthView != VK_NULL_HANDLE && "depthImageView is invalid!");
 
       VkFramebufferCreateInfo framebufferInfo = {};
       framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;

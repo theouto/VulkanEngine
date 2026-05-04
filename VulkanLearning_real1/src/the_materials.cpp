@@ -100,12 +100,6 @@ namespace lve
       }
 
       writeBindless(toWrite, descLayout, descPool, bindlessSet);
-
-      for(int i = 0; i < load.size(); i++)
-      {
-        std::cout << '\n' << load[i] << '\n';
-      }
-
       for (int i = 0; i < 4; i++) {material >> loader[i];}
 
       std::cout << "emplacing bindless texture set...\n";
@@ -210,7 +204,7 @@ namespace lve
     auto tex = bindlessTextureSet.at(object.hash);
     auto mod = modifiers.at(object.hash);
 
-    for (int i = 0; i < 6; i++) 
+    for (int i = 0; i < 6; i++)
     {
         RID[i] = tex[i];
         if (i < 4) {modified[i] = mod[i];}

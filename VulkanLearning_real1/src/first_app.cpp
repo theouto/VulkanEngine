@@ -191,7 +191,7 @@ namespace lve
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
 				
                 //compute pipeline
-                //computeSystem.compute(frameInfo, lveWindow.getExtent().width, lveWindow.getExtent().height);
+                computeSystem.compute(frameInfo, lveWindow.getExtent().width, lveWindow.getExtent().height);
 
 
                 lveRenderer.endFrame();

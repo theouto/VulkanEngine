@@ -68,13 +68,10 @@ void LveRenderer::generateDescriptors()
   auto nerd1 = textures[0]->getDescriptorInfo();
   auto nerd2 = textures[1]->getDescriptorInfo();
 
-  descriptorPool->allocateDescriptor(bindlessSetLayout->getDescriptorSetLayout(),
-                                     bindlessLayout);
-
   LveDescriptorWriter(*bindlessSetLayout, *descriptorPool)
     .addImage(0, &nerd1, 0)
     .addImage(0, &nerd2, 1)
-    .overwrite(bindlessLayout);
+    .build(bindlessLayout);
 
   std::cout << bindlessLayout << '\n';
 
