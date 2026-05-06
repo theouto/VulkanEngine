@@ -47,9 +47,9 @@ namespace lve
 		}
 
         VkRenderPass getSwapChainShadowPass() const {return lveSwapChain->getShadowPass();}
-        VkDescriptorImageInfo getShadowInfo()
+        VkDescriptorImageInfo getShadowInfo(int index)
         {
-          return descriptorImageInfoHelper(lveSwapChain->getShadowView());
+          return descriptorImageInfoHelper(lveSwapChain->getShadowView(index));
         }
 
         VkRenderPass getSwapChainNormalPass() const {return lveSwapChain->getNormalPass();}
@@ -113,21 +113,21 @@ namespace lve
 		VkCommandBuffer beginFrame();
 		void endFrame();
 		void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
-        void beginShadowRenderPass(VkCommandBuffer commandBuffer);
+        void beginShadowRenderPass(VkCommandBuffer commandBuffer, int index);
         void beginNormalRenderPass(VkCommandBuffer commandBuffer);
         void beginDepthRenderPass(VkCommandBuffer commandBuffer);
 		void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
 
         std::unique_ptr<LveDescriptorPool> globalPool = nullptr;
         std::unique_ptr<LveDescriptorPool> descriptorPool = nullptr;
-        std::unique_ptr<LveDescriptorPool> computePool = nullptr;
-        std::unique_ptr<LveDescriptorSetLayout> computeSetLayout = nullptr;
+        std::unique_ptr<LveDescriptorPool> shadowPool = nullptr;
+        std::unique_ptr<LveDescriptorSetLayout> shadowSetLayout = nullptr;
         std::unique_ptr<LveDescriptorSetLayout> globalSetLayout = nullptr;
         std::unique_ptr<LveDescriptorSetLayout> bindlessSetLayout = nullptr;
 
         VkDescriptorSetLayout getGlobalLayout() {return globalSetLayout->getDescriptorSetLayout();}
         VkDescriptorSet getLayout(uint32_t index) {return globalSetLayouts[index];}
-        VkDescriptorSet getComputeSet(uint32_t index) {return computeSets[index];}
+        VkDescriptorSet shadowSet() {return _shadowSet;}
         
         void generateDescriptors();
         void updateDescriptors();
@@ -136,8 +136,7 @@ namespace lve
         VkDescriptorSet& getBindlessLayout() {return bindlessLayout;}
 	private:
         VkDescriptorSet bindlessLayout;
-
-        std::vector<VkDescriptorSet> computeSets;
+        VkDescriptorSet _shadowSet;
 
         void createResources();
 		void createCommandBuffers();

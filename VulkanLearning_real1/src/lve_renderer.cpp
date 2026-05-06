@@ -38,9 +38,9 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
             .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT | VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
             .build();
 
-    computePool = LveDescriptorPool::Builder(lveDevice)
-            .setMaxSets(LveSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, LveSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
+    shadowPool = LveDescriptorPool::Builder(lveDevice)
+            .setMaxSets(1)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 4)
             .build();
 
     globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
@@ -55,15 +55,15 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
             .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT)
             .build();
 
-    computeSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_COMPUTE_BIT)
+    shadowSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 4)
+            .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT)
             .build(); 
 }
 
 void LveRenderer::generateDescriptors()
 {
   globalSetLayouts.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
-  computeSets.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
 
   auto nerd1 = textures[0]->getDescriptorInfo();
   auto nerd2 = textures[1]->getDescriptorInfo();
@@ -73,12 +73,24 @@ void LveRenderer::generateDescriptors()
     .addImage(0, &nerd2, 1)
     .build(bindlessLayout);
 
-  std::cout << bindlessLayout << '\n';
+  auto shadow = getShadowInfo(0);
+
+  LveDescriptorWriter(*shadowSetLayout, *shadowPool)
+      .addImage(0, &shadow, 0)
+      .build(_shadowSet);
+
+  for (int i = 1; i < LveSwapChain::SHADOW_CASCADES; i++)
+  {
+    shadow = getShadowInfo(i);
+
+    LveDescriptorWriter(*shadowSetLayout, *shadowPool)
+      .addImage(0, &shadow, i)
+      .overwrite(_shadowSet);
+  }
 
   for(int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
   {
     auto bufferInfo = getUboInfo(i);
-    auto shadowInfo = getShadowInfo();
     auto depthInfo = getDepthInfo();
     auto normalSpecInfo = getNormalInfo();
 
@@ -86,14 +98,9 @@ void LveRenderer::generateDescriptors()
 
     LveDescriptorWriter(*globalSetLayout, *globalPool)
       .writeBuffer(0, &bufferInfo)
-      .writeImage(1, &shadowInfo)
       .writeImage(2, &depthInfo)
       .writeImage(3, &normalSpecInfo)
       .build(globalSetLayouts[i]);
-
-    LveDescriptorWriter(*computeSetLayout, *computePool)
-      .writeImage(0, &renderInfo)
-      .build(computeSets[i]);
   }
 }
 
@@ -102,22 +109,25 @@ void LveRenderer::updateDescriptors()
     for(int i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++)
     {
       auto bufferInfo = getUboInfo(i);
-      auto shadowInfo = getShadowInfo();
       auto depthInfo = getDepthInfo();
       auto normalSpecInfo = getNormalInfo();
 
       auto renderInfo = getImages(i);
 
       LveDescriptorWriter(*globalSetLayout, *globalPool)
-        .writeBuffer(0, &bufferInfo) 
-        .writeImage(1, &shadowInfo)
+        .writeBuffer(0, &bufferInfo)
         .writeImage(2, &depthInfo)
         .writeImage(3, &normalSpecInfo)
         .overwrite(globalSetLayouts[i]);
+    }
 
-      LveDescriptorWriter(*computeSetLayout, *computePool)
-        .writeImage(0, &renderInfo)
-        .overwrite(computeSets[i]);
+    for (int i = 0; i < LveSwapChain::SHADOW_CASCADES; i++)
+    {
+      auto shadowInfo = getShadowInfo(i);
+
+      LveDescriptorWriter(*shadowSetLayout, *shadowPool)
+        .addImage(0, &shadowInfo, i)
+        .overwrite(_shadowSet);
     }
   }
 
@@ -249,7 +259,7 @@ void LveRenderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
   vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 }
 
-void LveRenderer::beginShadowRenderPass(VkCommandBuffer commandBuffer)
+void LveRenderer::beginShadowRenderPass(VkCommandBuffer commandBuffer, int index)
 {
   std::array<VkClearValue, 1> clearValues{};
   clearValues[0].depthStencil = {1.0f, 0};
@@ -257,7 +267,7 @@ void LveRenderer::beginShadowRenderPass(VkCommandBuffer commandBuffer)
   VkRenderPassBeginInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
   renderPassInfo.renderPass = lveSwapChain->getShadowPass();
-  renderPassInfo.framebuffer = lveSwapChain->getShadowBuffer();
+  renderPassInfo.framebuffer = lveSwapChain->getShadowBuffer(index);
 
   renderPassInfo.renderArea.offset = {0, 0};
   renderPassInfo.renderArea.extent = lveSwapChain->getShadowExtent();

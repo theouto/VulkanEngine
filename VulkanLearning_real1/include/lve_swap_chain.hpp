@@ -16,6 +16,7 @@ namespace lve {
 class LveSwapChain {
     public:
         static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+        static constexpr int SHADOW_CASCADES = 4;
         
         LveSwapChain(LveDevice &deviceRef, VkExtent2D windowExtent);
         LveSwapChain(LveDevice& deviceRef, VkExtent2D windowExtent, std::shared_ptr<LveSwapChain> previous);
@@ -25,7 +26,7 @@ class LveSwapChain {
         LveSwapChain &operator=(const LveSwapChain &) = delete;
         
         VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
-        VkFramebuffer getShadowBuffer() {return shadowBuffer;}
+        VkFramebuffer getShadowBuffer(int index) {return shadowBuffer[index];}
         VkFramebuffer getNormalBuffer() {return normalBuffer;}
         VkFramebuffer getDepthBuffer() {return depthBuffer;}
 
@@ -35,7 +36,7 @@ class LveSwapChain {
         VkRenderPass getDepthPass() {return depthPass;}
  
         VkImageView getImageView(int index) { return swapChainImageViews[index]; }
-        VkImageView getShadowView() {return shadowDepthView;}
+        VkImageView getShadowView(int index) {return shadowDepthView[index];}
         VkImageView getNormalView() {return normalView;}
         VkImageView getDepthView() {return depthView;}
 
@@ -115,12 +116,12 @@ class LveSwapChain {
         // if it ever happens lol
  
         //shadow resources
-        VkFramebuffer shadowBuffer;
+        std::vector<VkFramebuffer> shadowBuffer;
         VkRenderPass shadowPass;
-        VkDeviceMemory shadowMemory;
-        VkImage shadowImage;
-        VkImageView shadowDepthView;
-        VkExtent2D shadowExtent = {1024 * 4, 1024 * 4};
+        std::vector<VkDeviceMemory> shadowMemory;
+        std::vector<VkImage> shadowImage;
+        std::vector<VkImageView> shadowDepthView;
+        VkExtent2D shadowExtent = {1024, 1024};
 
         LveDevice &device;
         VkExtent2D windowExtent;

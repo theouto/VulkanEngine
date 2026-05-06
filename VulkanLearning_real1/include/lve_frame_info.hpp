@@ -40,7 +40,7 @@ namespace lve
 		LveCamera& camera;
 		VkDescriptorSet globalDescriptorSet;
         VkDescriptorSet bindlessSet;
-        VkDescriptorSet computeSet;
+        VkDescriptorSet shadowSet;
 		LveGameObject::Map &gameObjects;
         LveMaterials materials;
 	};

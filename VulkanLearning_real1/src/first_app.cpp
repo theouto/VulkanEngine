@@ -69,9 +69,10 @@ namespace lve
         AOSystem AOSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), *lveRenderer.globalPool, lveRenderer.getGlobalLayout()};
 
         SimpleBindlessSystem simpleBindlessSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), 
-                             {lveRenderer.getGlobalLayout(), lveRenderer.bindlessSetLayout->getDescriptorSetLayout()}};
+                             {lveRenderer.getGlobalLayout(), lveRenderer.bindlessSetLayout->getDescriptorSetLayout()
+                             , lveRenderer.shadowSetLayout->getDescriptorSetLayout()}};
 
-        ComputeSystem computeSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), lveRenderer.computeSetLayout->getDescriptorSetLayout()};
+        //ComputeSystem computeSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), lveRenderer.computeSetLayout->getDescriptorSetLayout()};
 
         LveCamera camera{};
  
@@ -99,7 +100,7 @@ namespace lve
 
     glm::vec3 rot = {1.f, 5.f, 0.f};
     std::cout << "\n\n\nAll loaded, rendering:\n\n\n\n\n\n\n";
-    float radius = 15.f;
+    float radius = 2.f;
 	while (!lveWindow.shouldClose())
 	{
 	    glfwPollEvents();
@@ -135,7 +136,7 @@ namespace lve
 
                 frameInfo.globalDescriptorSet = lveRenderer.getLayout(frameIndex);
                 frameInfo.bindlessSet = lveRenderer.getBindlessLayout();
-                frameInfo.computeSet = lveRenderer.getComputeSet(frameIndex);
+                frameInfo.shadowSet = lveRenderer.shadowSet();
 		
                 glm::mat4 projMat = DirectionalLightSystem::lightViewProjection(
                   rot,
@@ -156,10 +157,15 @@ namespace lve
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
 
-                //render shadowmap
-		        lveRenderer.beginShadowRenderPass(commandBuffer);
-                shadowSystem.drawDepth(frameInfo, projMat, rot);
-                lveRenderer.endSwapChainRenderPass(commandBuffer);
+                //render shadowmap cascades
+                for (int i = 0; i < LveSwapChain::SHADOW_CASCADES; i++)
+                {
+
+
+                  lveRenderer.beginShadowRenderPass(commandBuffer, i);
+                  shadowSystem.drawDepth(frameInfo, projMat, rot);
+                  lveRenderer.endSwapChainRenderPass(commandBuffer);
+                }
 
                 //Depth Prepass
                 lveRenderer.beginDepthRenderPass(commandBuffer);
@@ -191,7 +197,7 @@ namespace lve
                 lveRenderer.endSwapChainRenderPass(commandBuffer);
 				
                 //compute pipeline
-                computeSystem.compute(frameInfo, lveWindow.getExtent().width, lveWindow.getExtent().height);
+                //computeSystem.compute(frameInfo, lveWindow.getExtent().width, lveWindow.getExtent().height);
 
                 lveRenderer.endFrame();
 			}

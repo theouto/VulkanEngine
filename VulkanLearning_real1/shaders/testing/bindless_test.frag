@@ -13,11 +13,12 @@ layout(location = 5) in vec3 lightPos;
 
 layout(location = 0) out vec4 outColor;
 
-layout(set = 0, binding = 1) uniform sampler2D shadowMap;
+//layout(set = 0, binding = 1) uniform sampler2D shadowMap;
 layout(set = 0, binding = 2) uniform sampler2D depthMap;
 layout(set = 0, binding = 3) uniform sampler2D normalSpec;
 
 layout(set = 1, binding = 0) uniform sampler2D storageSampler[];
+layout(set = 2, binding = 0) uniform sampler2D shadowStorage[];
 
 layout(push_constant) uniform Push 
 {
@@ -152,12 +153,12 @@ float rand(vec2 co) {
     return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
-float calculateRandPCF(float currentDepth, vec2 uv)
+float calculateRandPCF(float currentDepth, vec2 uv, int image)
 {
     float shadow = 0.f;
     
     int steps = 2;
-    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    vec2 texelSize = 1.0 / textureSize(shadowStorage[image], 0);
     float bias = 0.00009f;
     for(int x = -steps; x <= steps; ++x)
     {
@@ -165,7 +166,7 @@ float calculateRandPCF(float currentDepth, vec2 uv)
        {
             vec2 randomOffset = vec2(rand(uv + vec2(x, y)), rand(uv - vec2(x, y))) * texelSize;
 
-            float pcfDepth = texture(shadowMap, uv + vec2(float(x)/steps, float(y)/steps) * texelSize + randomOffset*4).r; 
+            float pcfDepth = texture(shadowStorage[image], uv + vec2(float(x)/steps, float(y)/steps) * texelSize + randomOffset*4).r; 
            shadow += currentDepth - bias < pcfDepth ? 1.0 : 0.0;        
        }    
     }
@@ -182,7 +183,15 @@ float ShadowCalculation(vec3 lightDir, vec3 normal, vec3 pos)
     float currentDepth = projCoords.z ;
     //projCoords = projCoords * 0.5 + 0.5;
 
-    float shadow = calculateRandPCF(currentDepth, uv);
+    //hell is here
+    int image;
+    if (gl_FragCoord.z <= 10.f) image = 0;
+    else if (gl_FragCoord.z > 10.f && gl_FragCoord.z <= 25.f) image = 1;
+    else if (gl_FragCoord.z > 25.f && gl_FragCoord.z <= 50.f) image = 2;
+    else image = 3;
+
+
+    float shadow = calculateRandPCF(currentDepth, uv, image);
     //float shadow = PCSS_DirectionalLight(vec3(uv, projCoords.z), 1.5f, pos);
 
     return clamp(shadow, 0.f, 1.f);
@@ -266,7 +275,8 @@ vec3 calculateLights(vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
 }
 
 vec3 calculateDiffuse(vec3 fragNormal, vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
-{    vec3 directionToLight = vec3(0.f, -1.f, 0.f);
+{
+    vec3 directionToLight = vec3(0.f, -1.f, 0.f);
     vec3 intensity = (ubo.ambientLightColor.xyz * vec3(0.8, 0.8f, 1.2f)) * ubo.ambientLightColor.w * 80;
 
     vec3 halfAngle = normalize(directionToLight + viewDirection);

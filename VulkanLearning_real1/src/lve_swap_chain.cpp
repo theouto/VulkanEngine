@@ -78,10 +78,13 @@ namespace lve {
         //and reuse code
 
         //shadow
-        vkDestroyImage(device.device(), shadowImage, nullptr);
-        vkDestroyImageView(device.device(), shadowDepthView, nullptr);
-        vkFreeMemory(device.device(), shadowMemory, nullptr);
-        vkDestroyFramebuffer(device.device(), shadowBuffer, nullptr);
+        for (int i = 0; i < SHADOW_CASCADES; i++)
+        {
+        vkDestroyImage(device.device(), shadowImage[i], nullptr);
+        vkDestroyImageView(device.device(), shadowDepthView[i], nullptr);
+        vkFreeMemory(device.device(), shadowMemory[i], nullptr);
+        vkDestroyFramebuffer(device.device(), shadowBuffer[i], nullptr);
+        }
         vkDestroyRenderPass(device.device(), shadowPass, nullptr);
 
         //depth
@@ -195,7 +198,7 @@ namespace lve {
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
         createInfo.imageExtent = extent;
         createInfo.imageArrayLayers = 1;
-        createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_STORAGE_BIT;
+        createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
         QueueFamilyIndices indices = device.findPhysicalQueueFamilies();
         uint32_t queueFamilyIndices[] = { indices.graphicsFamily, indices.presentFamily };
@@ -454,6 +457,13 @@ namespace lve {
 
     void LveSwapChain::createShadowDepthImages()
     {
+      shadowImage.resize(SHADOW_CASCADES);
+      shadowMemory.resize(SHADOW_CASCADES);
+      shadowDepthView.resize(SHADOW_CASCADES);
+
+      for (int i = 0; i < SHADOW_CASCADES; i++)
+      {
+
       VkImageCreateInfo imageInfo{};
       imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
       imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -467,24 +477,24 @@ namespace lve {
       imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
       imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // Explicitly set sharing mode.
 
-      if (vkCreateImage(device.device(), &imageInfo, nullptr, &shadowImage) != VK_SUCCESS)
+      if (vkCreateImage(device.device(), &imageInfo, nullptr, &shadowImage[i]) != VK_SUCCESS)
       {
         throw std::runtime_error("failed to create shadow image!");
       }
       VkMemoryRequirements memRequirements;
-      vkGetImageMemoryRequirements(device.device(), shadowImage, &memRequirements);
+      vkGetImageMemoryRequirements(device.device(), shadowImage[i], &memRequirements);
 
       VkMemoryAllocateInfo allocInfo{};
       allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
       allocInfo.allocationSize = memRequirements.size;
       allocInfo.memoryTypeIndex = device.findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-      if (vkAllocateMemory(device.device(), &allocInfo, nullptr, &shadowMemory) != VK_SUCCESS)
+      if (vkAllocateMemory(device.device(), &allocInfo, nullptr, &shadowMemory[i]) != VK_SUCCESS)
       {
         throw std::runtime_error("failed to allocate memory for shadow image!");
       }
 
-      vkBindImageMemory(device.device(), shadowImage, shadowMemory, 0);
+      vkBindImageMemory(device.device(), shadowImage[i], shadowMemory[i], 0);
       VkImageViewCreateInfo depthStencilView{};
       depthStencilView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
       depthStencilView.viewType = VK_IMAGE_VIEW_TYPE_2D;
@@ -495,31 +505,38 @@ namespace lve {
       depthStencilView.subresourceRange.levelCount = 1;
       depthStencilView.subresourceRange.baseArrayLayer = 0;
       depthStencilView.subresourceRange.layerCount = 1;
-      depthStencilView.image = shadowImage;
+      depthStencilView.image = shadowImage[i];
 
-      if (vkCreateImageView(device.device(), &depthStencilView, nullptr, &shadowDepthView) != VK_SUCCESS)
+      if (vkCreateImageView(device.device(), &depthStencilView, nullptr, &shadowDepthView[i]) != VK_SUCCESS)
       {
         throw std::runtime_error("failed to create shadow depth image view!");
+      }
+
       }
     }
 
     void LveSwapChain::createShadowFrameBuffers()
     {
+      shadowBuffer.resize(SHADOW_CASCADES);
+
+      for (int i = 0; i < SHADOW_CASCADES; i++)
+      {
       assert(shadowPass != VK_NULL_HANDLE && "shadowRenderPass is invalid!");
-      assert(shadowDepthView != VK_NULL_HANDLE && "shadowDepthImageView is invalid!");
+      assert(shadowDepthView[i] != VK_NULL_HANDLE && "shadowDepthImageView is invalid!");
 
       VkFramebufferCreateInfo framebufferInfo = {};
       framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
       framebufferInfo.renderPass = shadowPass;
       framebufferInfo.attachmentCount = 1;
-      framebufferInfo.pAttachments = &shadowDepthView;
+      framebufferInfo.pAttachments = &shadowDepthView[i];
       framebufferInfo.width = shadowExtent.width;
       framebufferInfo.height = shadowExtent.height;
       framebufferInfo.layers = 1;
 
-      if (vkCreateFramebuffer(device.device(), &framebufferInfo, nullptr, &shadowBuffer) != VK_SUCCESS)
+      if (vkCreateFramebuffer(device.device(), &framebufferInfo, nullptr, &shadowBuffer[i]) != VK_SUCCESS)
       {
         throw std::runtime_error("failed to create shadow map framebuffer!");
+      }
       }
     }
 
@@ -818,7 +835,7 @@ namespace lve {
     VkSurfaceFormatKHR LveSwapChain::chooseSwapSurfaceFormat(
         const std::vector<VkSurfaceFormatKHR>& availableFormats) {
         for (const auto& availableFormat : availableFormats) {
-            if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM &&//R8G8B8A8_SRGB && //
+            if (availableFormat.format == VK_FORMAT_R8G8B8A8_SRGB && //
                 availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
                 return availableFormat;
             }

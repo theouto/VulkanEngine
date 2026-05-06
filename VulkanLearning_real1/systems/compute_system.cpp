@@ -66,7 +66,7 @@ namespace lve
     computeConstants placehold{1};
 
     vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout,
-			0, 1, &frameInfo.computeSet, 0, nullptr);
+			0, 1, &frameInfo.shadowSet, 0, nullptr);
  
     vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, 
                        VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(computeConstants), &placehold);
