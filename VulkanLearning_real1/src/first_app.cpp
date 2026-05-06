@@ -156,10 +156,12 @@ namespace lve
 
                 for (int i = 0; i < LveSwapChain::SHADOW_CASCADES; i++)
                 {
+                  ubo.depthValues[i] = radius * (i + 1);
+
                   ubo.lightSpaceMatrix[i] = DirectionalLightSystem::lightViewProjection(
                   rot,
                   frameInfo.camera.getPosition() + offset,
-                  radius * (i * 5 + 1));
+                  ubo.depthValues[i] * 2);
                 }
 
                 pointLightSystem.update(frameInfo, ubo);

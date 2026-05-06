@@ -148,6 +148,8 @@ namespace lve
     if(ImGui::Button("change material", ImVec2(100.f, 20.f))) materialChange();   
 
     //ImGui::InputScalar("Int", ImGuiDataType_U32, &gameObjects.at(object).textures[0], (const void *)1, (const void *)10);
+
+    ImGui::InputInt("Shadowmap", &gameObjects.at(object).RID, 1, 1);
   }
 
   void Imgui_LVE::performance()

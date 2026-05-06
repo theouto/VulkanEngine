@@ -23,7 +23,7 @@ layout(push_constant) uniform Push
 {
   mat4 modelMatrix;
   mat4 normalMatrix;
-  uint RIDo;
+  int RIDo;
   uint RID[7];
   float modifiers[4];
 } push;
@@ -54,6 +54,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo
   int padding;
   mat4 lightSpaceMatrix[4]; //this is ugly
   vec3 lightPos;
+  float depthValues[4];
 } ubo;
 
 const float M_PI = 3.1415926538;
@@ -177,11 +178,21 @@ float calculateRandPCF(float currentDepth, vec2 uv, int image)
 float ShadowCalculation(vec3 lightDir, vec3 normal, vec3 pos)
 {
     //hell is here
-    int image;
-    if (gl_FragCoord.z <= 1.f) image = 0;
-    else if (gl_FragCoord.z > 1.f && gl_FragCoord.z <= 5.f) image = 1;
-    else if (gl_FragCoord.z > 5.f && gl_FragCoord.z <= 25.f) image = 2;
+    int image = 3;
+    vec4 fragPosViewSpace = ubo.view * vec4(fragPosWorld, 1.f);
+    float depth = abs(fragPosViewSpace.z);
+
+    for (int i = 0; i < 4; i++)
+    {
+      if (depth < ubo.depthValues[i]) {image = i; break;}
+    }
+
+    /*
+    if (fragPosWorld.z <= .5f) image = 0;
+    else if (fragPosWorld.z > .5f && fragPosWorld.z <= 2.0f) image = 1;
+    else if (fragPosWorld.z > 2.0f && fragPosWorld.z <= 5.f) image = 2;
     else image = 3;
+    */
 
   // perform perspective divide
     vec3 projCoords = FragPosLightSpace[image].xyz / FragPosLightSpace[image].w;
@@ -356,4 +367,5 @@ void main()
 
     outColor = diffuse + vec4(Lo, 0.f);
     //outColor = vec4(texture(storageSampler[push.RID[push.RIDo]], fragUv).rgb, 1.f);
+    //outColor = vec4(texture(shadowStorage[push.RIDo], fragUv).rgb, 1.f);
 }
