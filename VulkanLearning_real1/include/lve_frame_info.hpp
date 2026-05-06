@@ -28,7 +28,7 @@ namespace lve
         int width;
         int height;
         int padding;
-        glm::mat4 lightSpaceMatrix{1.f};
+        glm::mat4 lightSpaceMatrix[4]{1.f, 1.f, 1.f, 1.f};
         glm::vec3 lightPos{-1.f, 2.f, -1.f};
 	};
 

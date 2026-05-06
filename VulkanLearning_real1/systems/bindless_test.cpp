@@ -75,7 +75,7 @@ namespace lve
 	}
 
 
-	void SimpleBindlessSystem::renderGameObjects(FrameInfo &frameInfo, glm::mat4 matrix, glm::vec3 lightPos)
+	void SimpleBindlessSystem::renderGameObjects(FrameInfo &frameInfo)
 	{
 		lvePipeline->bind(frameInfo.commandBuffer);
 

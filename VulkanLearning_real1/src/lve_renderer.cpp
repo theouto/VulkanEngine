@@ -266,7 +266,7 @@ void LveRenderer::beginShadowRenderPass(VkCommandBuffer commandBuffer, int index
 
   VkRenderPassBeginInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-  renderPassInfo.renderPass = lveSwapChain->getShadowPass();
+  renderPassInfo.renderPass = lveSwapChain->getShadowPass(index);
   renderPassInfo.framebuffer = lveSwapChain->getShadowBuffer(index);
 
   renderPassInfo.renderArea.offset = {0, 0};

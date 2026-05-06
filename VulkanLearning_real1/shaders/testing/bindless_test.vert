@@ -9,8 +9,7 @@ layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec3 fragPosWorld;
 layout(location = 2) out vec3 fragNormalWorld;
 layout(location = 3) out vec2 fragUv;
-layout(location = 4) out vec4 FragPosLightSpace;
-layout(location = 5) out vec3 lightPos;
+layout(location = 4) out vec4 FragPosLightSpace[4];
 
 struct PointLight
 {
@@ -30,7 +29,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo
   int width;
   int height;
   int padding;
-  mat4 lightSpaceMatrix;
+  mat4 lightSpaceMatrix[4];
   vec3 lightPos;
 } ubo;
 
@@ -52,5 +51,8 @@ void main()
   fragPosWorld = positionWorld.xyz;
   fragColor = color;
   fragUv = uv;
-  FragPosLightSpace = ubo.lightSpaceMatrix * push.modelMatrix * vec4(position, 1.f);
+  for (int i = 0; i < 4; i++)
+  {
+    FragPosLightSpace[i] = ubo.lightSpaceMatrix[i] * push.modelMatrix * vec4(position, 1.f);
+  }
 }

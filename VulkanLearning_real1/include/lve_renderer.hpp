@@ -46,7 +46,7 @@ namespace lve
 			return currentFrameIndex; 
 		}
 
-        VkRenderPass getSwapChainShadowPass() const {return lveSwapChain->getShadowPass();}
+        VkRenderPass getSwapChainShadowPass(int index) const {return lveSwapChain->getShadowPass(index);}
         VkDescriptorImageInfo getShadowInfo(int index)
         {
           return descriptorImageInfoHelper(lveSwapChain->getShadowView(index));

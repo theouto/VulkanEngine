@@ -8,8 +8,7 @@ layout(location = 0) in vec3 fragColor;
 layout(location = 1) in vec3 fragPosWorld;
 layout(location = 2) in vec3 fragNormalWorld;
 layout(location = 3) in vec2 fragUv;
-layout(location = 4) in vec4 FragPosLightSpace;
-layout(location = 5) in vec3 lightPos;
+layout(location = 4) in vec4 FragPosLightSpace[4];
 
 layout(location = 0) out vec4 outColor;
 
@@ -53,7 +52,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo
   int width;
   int height;
   int padding;
-  mat4 lightSpaceMatrix; //this is ugly
+  mat4 lightSpaceMatrix[4]; //this is ugly
   vec3 lightPos;
 } ubo;
 
@@ -177,19 +176,18 @@ float calculateRandPCF(float currentDepth, vec2 uv, int image)
 
 float ShadowCalculation(vec3 lightDir, vec3 normal, vec3 pos)
 {
-  // perform perspective divide
-    vec3 projCoords = FragPosLightSpace.xyz / FragPosLightSpace.w;
-    vec2 uv = projCoords.xy * 0.5 + 0.5;
-    float currentDepth = projCoords.z ;
-    //projCoords = projCoords * 0.5 + 0.5;
-
     //hell is here
     int image;
-    if (gl_FragCoord.z <= 10.f) image = 0;
-    else if (gl_FragCoord.z > 10.f && gl_FragCoord.z <= 25.f) image = 1;
-    else if (gl_FragCoord.z > 25.f && gl_FragCoord.z <= 50.f) image = 2;
+    if (gl_FragCoord.z <= 1.f) image = 0;
+    else if (gl_FragCoord.z > 1.f && gl_FragCoord.z <= 5.f) image = 1;
+    else if (gl_FragCoord.z > 5.f && gl_FragCoord.z <= 25.f) image = 2;
     else image = 3;
 
+  // perform perspective divide
+    vec3 projCoords = FragPosLightSpace[image].xyz / FragPosLightSpace[image].w;
+    vec2 uv = projCoords.xy * 0.5 + 0.5;
+    float currentDepth = projCoords.z ;
+    //projCoords = projCoords * 0.5 + 0.5; 
 
     float shadow = calculateRandPCF(currentDepth, uv, image);
     //float shadow = PCSS_DirectionalLight(vec3(uv, projCoords.z), 1.5f, pos);

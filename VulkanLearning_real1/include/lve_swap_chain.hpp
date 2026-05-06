@@ -31,7 +31,7 @@ class LveSwapChain {
         VkFramebuffer getDepthBuffer() {return depthBuffer;}
 
         VkRenderPass getRenderPass() { return renderPass; }
-        VkRenderPass getShadowPass() {return shadowPass;}
+        VkRenderPass getShadowPass(int index) {return shadowPass[index];}
         VkRenderPass getNormalPass() {return normalPass;}
         VkRenderPass getDepthPass() {return depthPass;}
  
@@ -117,7 +117,7 @@ class LveSwapChain {
  
         //shadow resources
         std::vector<VkFramebuffer> shadowBuffer;
-        VkRenderPass shadowPass;
+        std::vector<VkRenderPass> shadowPass;
         std::vector<VkDeviceMemory> shadowMemory;
         std::vector<VkImage> shadowImage;
         std::vector<VkImageView> shadowDepthView;

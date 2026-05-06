@@ -61,7 +61,13 @@ namespace lve
         PointLightSystem pointLightSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), lveRenderer.getGlobalLayout() };
         SkyboxSystem skybox{lveDevice, lveRenderer.getSwapChainRenderPass(), lveRenderer.getGlobalLayout(), *lveRenderer.globalPool};
 
-        DirectionalLightSystem shadowSystem{lveDevice, lveRenderer.getSwapChainShadowPass(),lveRenderer.getGlobalLayout()};
+        std::vector<std::unique_ptr<DirectionalLightSystem>> shadowSystems(4);
+
+        for (int i = 0; i < LveSwapChain::SHADOW_CASCADES; i++)
+        {
+          shadowSystems[i] = std::make_unique<DirectionalLightSystem>(lveDevice, lveRenderer.getSwapChainShadowPass(i),lveRenderer.getGlobalLayout());
+          std::cout << lveRenderer.getSwapChainShadowPass(i) << '\n';
+        }
         NormalSpecPass normalSpecPass{lveDevice, lveRenderer.getSwapChainNormalPass(), 
                                      {lveRenderer.getGlobalLayout(), lveRenderer.bindlessSetLayout->getDescriptorSetLayout()}};
  
@@ -100,7 +106,7 @@ namespace lve
 
     glm::vec3 rot = {1.f, 5.f, 0.f};
     std::cout << "\n\n\nAll loaded, rendering:\n\n\n\n\n\n\n";
-    float radius = 2.f;
+    float radius = 1.f;
 	while (!lveWindow.shouldClose())
 	{
 	    glfwPollEvents();
@@ -137,11 +143,6 @@ namespace lve
                 frameInfo.globalDescriptorSet = lveRenderer.getLayout(frameIndex);
                 frameInfo.bindlessSet = lveRenderer.getBindlessLayout();
                 frameInfo.shadowSet = lveRenderer.shadowSet();
-		
-                glm::mat4 projMat = DirectionalLightSystem::lightViewProjection(
-                  rot,
-                  frameInfo.camera.getPosition() + offset,
-                  radius);
 
                 //update
                 GlobalUbo ubo{};
@@ -152,7 +153,15 @@ namespace lve
                 ubo.width = lveWindow.getExtent().width;
                 ubo.height = lveWindow.getExtent().height;
                 ubo.lightPos = rot;
-                ubo.lightSpaceMatrix = projMat;
+
+                for (int i = 0; i < LveSwapChain::SHADOW_CASCADES; i++)
+                {
+                  ubo.lightSpaceMatrix[i] = DirectionalLightSystem::lightViewProjection(
+                  rot,
+                  frameInfo.camera.getPosition() + offset,
+                  radius * (i * 5 + 1));
+                }
+
                 pointLightSystem.update(frameInfo, ubo);
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
@@ -160,10 +169,8 @@ namespace lve
                 //render shadowmap cascades
                 for (int i = 0; i < LveSwapChain::SHADOW_CASCADES; i++)
                 {
-
-
                   lveRenderer.beginShadowRenderPass(commandBuffer, i);
-                  shadowSystem.drawDepth(frameInfo, projMat, rot);
+                  shadowSystems[i]->drawDepth(frameInfo, ubo.lightSpaceMatrix[i], rot);
                   lveRenderer.endSwapChainRenderPass(commandBuffer);
                 }
 
@@ -184,7 +191,7 @@ namespace lve
                 skybox.render(frameInfo);
 
                 //bindless_test
-                simpleBindlessSystem.renderGameObjects(frameInfo, projMat, rot);
+                simpleBindlessSystem.renderGameObjects(frameInfo);
 
                 //Ambient Occlusion, here for now for debugging purposes until I get it working right and make it its own image
                 //AOSystem.render(frameInfo);

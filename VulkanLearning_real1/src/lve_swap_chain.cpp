@@ -84,8 +84,8 @@ namespace lve {
         vkDestroyImageView(device.device(), shadowDepthView[i], nullptr);
         vkFreeMemory(device.device(), shadowMemory[i], nullptr);
         vkDestroyFramebuffer(device.device(), shadowBuffer[i], nullptr);
+        vkDestroyRenderPass(device.device(), shadowPass[i], nullptr);
         }
-        vkDestroyRenderPass(device.device(), shadowPass, nullptr);
 
         //depth
         vkDestroyImage(device.device(), depthImage, nullptr);
@@ -403,6 +403,10 @@ namespace lve {
     //Everything shadow related:https://github.com/h3ck0r/VKEngine/blob/main/Engine/src/swap_chain.cpp
     void LveSwapChain::createShadowRenderPass()
     {
+    shadowPass.resize(SHADOW_CASCADES);
+
+    for (int i = 0; i < SHADOW_CASCADES; i++)
+    {
       VkAttachmentDescription attachmentDescription{};
     attachmentDescription.format = VK_FORMAT_D32_SFLOAT;
     attachmentDescription.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -449,9 +453,10 @@ namespace lve {
     renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
     renderPassInfo.pDependencies = dependencies.data();
 
-    if (vkCreateRenderPass(device.device(), &renderPassInfo, nullptr, &shadowPass) != VK_SUCCESS)
+    if (vkCreateRenderPass(device.device(), &renderPassInfo, nullptr, &shadowPass[i]) != VK_SUCCESS)
     {
       throw std::runtime_error("failed to create shadow render pass");
+    }
     }
     }
 
@@ -521,12 +526,12 @@ namespace lve {
 
       for (int i = 0; i < SHADOW_CASCADES; i++)
       {
-      assert(shadowPass != VK_NULL_HANDLE && "shadowRenderPass is invalid!");
+      assert(shadowPass[i] != VK_NULL_HANDLE && "shadowRenderPass is invalid!");
       assert(shadowDepthView[i] != VK_NULL_HANDLE && "shadowDepthImageView is invalid!");
 
       VkFramebufferCreateInfo framebufferInfo = {};
       framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-      framebufferInfo.renderPass = shadowPass;
+      framebufferInfo.renderPass = shadowPass[i];
       framebufferInfo.attachmentCount = 1;
       framebufferInfo.pAttachments = &shadowDepthView[i];
       framebufferInfo.width = shadowExtent.width;
