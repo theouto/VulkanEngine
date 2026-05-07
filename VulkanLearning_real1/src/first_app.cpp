@@ -107,6 +107,8 @@ namespace lve
     glm::vec3 rot = {1.f, 5.f, 0.f};
     std::cout << "\n\n\nAll loaded, rendering:\n\n\n\n\n\n\n";
     float radius = 1.f;
+    float farPlane = 50.f;
+    float nearPlane = 0.01f;
 	while (!lveWindow.shouldClose())
 	{
 	    glfwPollEvents();
@@ -121,7 +123,7 @@ namespace lve
 	
 
             float aspect = lveRenderer.getAspectRatio();
-            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.01f, 50.f);
+            camera.setPerspectiveProjection(glm::radians(50.f), aspect, nearPlane, farPlane);
 
             glm::vec3 offset = {-radius, radius, -2.f};
 		if (auto commandBuffer = lveRenderer.beginFrame())
@@ -153,15 +155,14 @@ namespace lve
                 ubo.width = lveWindow.getExtent().width;
                 ubo.height = lveWindow.getExtent().height;
                 ubo.lightPos = rot;
+                std::vector<float> arro = {farPlane / 50.f, farPlane / 25.f, farPlane / 10.f, farPlane / 2.f};
+                auto matrices = DirectionalLightSystem::getLightSpaceMatrices(arro, ubo.inverseView,
+                                                                              rot, nearPlane, farPlane);
 
                 for (int i = 0; i < LveSwapChain::SHADOW_CASCADES; i++)
                 {
-                  ubo.depthValues[i] = radius * (i + 1);
-
-                  ubo.lightSpaceMatrix[i] = DirectionalLightSystem::lightViewProjection(
-                  rot,
-                  frameInfo.camera.getPosition() + offset,
-                  ubo.depthValues[i] * 2);
+                  ubo.depthValues[i] =  arro[i];
+                  ubo.lightSpaceMatrix[i] = matrices[i];
                 }
 
                 pointLightSystem.update(frameInfo, ubo);

@@ -26,14 +26,20 @@ namespace lve
     ~DirectionalLightSystem();
 
     static glm::mat4 lightViewProjection(const glm::vec3 &dirLightPos, 
-                    const glm::vec3 &cameraPosition, float sceneRadius);
+                    const glm::vec3 &cameraPosition, float sceneRadius); 
 
     void drawDepth(FrameInfo &frameInfo, glm::mat4 matrix, glm::vec3 lightPos);
+    static std::vector<glm::mat4> getLightSpaceMatrices(std::vector<float> depthValues,
+                                                 const glm::mat4& projView, const glm::vec3 rot,
+                                                 const float nearPlane, const float farPlane);
 
     private:
 
       void createPipeline(VkRenderPass renderPass);
       void createPipeLineLayout();
+      static std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4 &projView);
+      static glm::mat4 getLightSpaceMatrix(const glm::mat4& projView, const glm::vec3 rot,
+                                    const float nearPlane, const float farPlane);
 
       glm::mat4 lightSpaceMatrix{1.f};
       std::vector<VkDescriptorSetLayout> setLayouts = {};

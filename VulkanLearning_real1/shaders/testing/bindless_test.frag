@@ -175,26 +175,9 @@ float calculateRandPCF(float currentDepth, vec2 uv, int image)
     return shadow;
 }
 
-float ShadowCalculation(vec3 lightDir, vec3 normal, vec3 pos)
+float ShadowCalculation(vec3 lightDir, vec3 normal, vec3 pos, int image)
 {
-    //hell is here
-    int image = 3;
-    vec4 fragPosViewSpace = ubo.view * vec4(fragPosWorld, 1.f);
-    float depth = abs(fragPosViewSpace.z);
-
-    for (int i = 0; i < 4; i++)
-    {
-      if (depth < ubo.depthValues[i]) {image = i; break;}
-    }
-
-    /*
-    if (fragPosWorld.z <= .5f) image = 0;
-    else if (fragPosWorld.z > .5f && fragPosWorld.z <= 2.0f) image = 1;
-    else if (fragPosWorld.z > 2.0f && fragPosWorld.z <= 5.f) image = 2;
-    else image = 3;
-    */
-
-  // perform perspective divide
+    // perform perspective divide
     vec3 projCoords = FragPosLightSpace[image].xyz / FragPosLightSpace[image].w;
     vec2 uv = projCoords.xy * 0.5 + 0.5;
     float currentDepth = projCoords.z ;
@@ -208,13 +191,13 @@ float ShadowCalculation(vec3 lightDir, vec3 normal, vec3 pos)
 
 //==============================================================================
 
-vec3 calculateSunLight(DirectionalLight sun, vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0, vec3 cameraPosWorld)
+vec3 calculateSunLight(DirectionalLight sun, vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0, vec3 cameraPosWorld, int image)
 {
     vec3 directionToLight = sun.direction;
     directionToLight = normalize(-directionToLight);
-    float shadow = ShadowCalculation(directionToLight, surfaceNormal, cameraPosWorld);
+    float shadow = ShadowCalculation(directionToLight, surfaceNormal, cameraPosWorld, image);
 
-    if (shadow == 0) return vec3(0.f);
+    if (shadow <= 0) return vec3(0.f);
 
     vec3 intensity = sun.color.xyz * sun.color.w;
     vec3 halfAngle = normalize(directionToLight + viewDirection);
@@ -353,8 +336,23 @@ void main()
 
     vec3 Lo = vec3(0.f);
 
+    //hell is here
+    int image = -1;
+    vec3[] debugColours =
+    {
+      {0.5, 0, 0},
+      {0, 0.5, 0},
+      {0, 0, 0.5},
+      {0.5, 0.5, 0.5}
+    };
+
+    vec4 fragPosViewSpace = ubo.view * vec4(fragPosWorld, 1.f);
+    float depth = abs(fragPosViewSpace.z);
+    for (int i = 0; i < 4; i++) {if (depth < ubo.depthValues[i]) {image = i; break;}}
+    if (image == -1) image = 2;
+
     //vec3 diffuseLight = vec3(0.f);//vec3(0.02f, 0.01f, 0.08f);
-    Lo += calculateSunLight(sun, surfaceNormal, UVs, viewDirection, F0, cameraPosWorld);
+    Lo += calculateSunLight(sun, surfaceNormal, UVs, viewDirection, F0, cameraPosWorld, image);
     Lo += calculateLights(surfaceNormal, UVs, viewDirection, F0);
 
     //https://www.youtube.com/watch?v=BFld4EBO2RE great video!
@@ -365,7 +363,8 @@ void main()
 
     diffuse = vec4(lambda, 0.f) * diffuse + vec4((1 - lambda), 0.f) * vec4(0.1f, 0.1f, 0.1f, 0.f);
 
-    outColor = diffuse + vec4(Lo, 0.f);
+    //outColor = vec4(debugColours[image], 0.f);
+    //outColor = diffuse + vec4(Lo, 0.f);
     //outColor = vec4(texture(storageSampler[push.RID[push.RIDo]], fragUv).rgb, 1.f);
-    //outColor = vec4(texture(shadowStorage[push.RIDo], fragUv).rgb, 1.f);
+    outColor = vec4(texture(shadowStorage[push.RIDo], fragUv).rgb, 1.f);
 }
