@@ -61,7 +61,7 @@ namespace lve
     ImGui::Begin("Directional light");
 
     ImGui::SliderFloat("X", &rotationnn->x, -5.0f, 5.0f);
-    ImGui::SliderFloat("Y", &rotationnn->y, 5.0f, 10.0f);
+    ImGui::SliderFloat("Y", &rotationnn->y, 0.0f, 10.0f);
     ImGui::SliderFloat("Z", &rotationnn->z, -5.0f, 5.0f);
 
     ImGui::End();

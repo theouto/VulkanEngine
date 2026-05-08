@@ -11,8 +11,14 @@
 #include <vulkan/vulkan_core.h>
 
 namespace lve
-{  
-  AOSystem::AOSystem(LveDevice& device, VkRenderPass renderPass, LveDescriptorPool &pool, VkDescriptorSetLayout image) : 
+{
+  struct AODebug
+  {
+    int shadowImages;
+    int normImages;
+  };
+
+  AOSystem::AOSystem(LveDevice& device, VkRenderPass renderPass, LveDescriptorPool &pool, std::vector<VkDescriptorSetLayout> image) : 
                 globalPool{&pool}, lveDevice{device}
   {
     //createDescriptorSets(image);
@@ -38,18 +44,17 @@ namespace lve
     vkDestroyPipelineLayout(lveDevice.device(), pipelineLayout, nullptr);
   }
 
-  void AOSystem::createPipeLineLayout(VkDescriptorSetLayout globalSetLayout)
+  void AOSystem::createPipeLineLayout(std::vector<VkDescriptorSetLayout> globalSetLayout)
   {
     VkPushConstantRange pushConstantRange{};
 	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 	pushConstantRange.offset = 0;
-	pushConstantRange.size = 0;
-	std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout };
+	pushConstantRange.size = sizeof(AODebug);
 
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-	pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+	pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(globalSetLayout.size());
+	pipelineLayoutInfo.pSetLayouts = globalSetLayout.data();
 	pipelineLayoutInfo.pushConstantRangeCount = 1;
 	pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 	if (vkCreatePipelineLayout(lveDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
@@ -79,8 +84,15 @@ namespace lve
   void AOSystem::render(FrameInfo& frameInfo)
   {
     lvePipeline->bind(frameInfo.commandBuffer);
+    VkDescriptorSet sets[] = {frameInfo.globalDescriptorSet, frameInfo.shadowSet};
+
+    AODebug push{0, 1};
+
     vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                1, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
+                0, 2, sets, 0, nullptr);
+
+    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, 
+                       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(AODebug), &push);
 
     vkCmdDraw(frameInfo.commandBuffer, 3, 1, 0, 0);
   }

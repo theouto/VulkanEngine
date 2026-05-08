@@ -1,7 +1,7 @@
 #version 450
 #extension GL_EXT_nonuniform_qualifier : enable
 #define NEAR 0.01f
-#define FAR 200.f
+#define FAR 400.f
 
 
 layout(location = 0) in vec3 fragColor;
@@ -156,7 +156,7 @@ float rand(vec2 co) {
 float calculateRandPCF(float currentDepth, vec2 uv, int image)
 {
     float shadow = 0.f;
-    
+
     int steps = 2;
     vec2 texelSize = 1.0 / textureSize(shadowStorage[image], 0);
     float bias = 0.00009f;
@@ -167,11 +167,11 @@ float calculateRandPCF(float currentDepth, vec2 uv, int image)
             vec2 randomOffset = vec2(rand(uv + vec2(x, y)), rand(uv - vec2(x, y))) * texelSize;
 
             float pcfDepth = texture(shadowStorage[image], uv + vec2(float(x)/steps, float(y)/steps) * texelSize + randomOffset*4).r; 
-           shadow += currentDepth - bias < pcfDepth ? 1.0 : 0.0;        
-       }    
+            shadow += currentDepth - bias < pcfDepth ? 1.0 : 0.0;
+       }
     }
     shadow /= (steps * 2) * (steps * 2);
-   
+ 
     return shadow;
 }
 
@@ -247,7 +247,7 @@ vec3 calculateLights(vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
               dot(halfAngle, directionToLight), 
               UVs);
         
-        //diffcont += diff;
+        diffcont += diff;
         */
 
         float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(storageSampler[push.RID[1]], UVs).x, 0.001f, 1.f) * push.modifiers[1]);
@@ -292,7 +292,7 @@ vec3 calculateDiffuse(vec3 fragNormal, vec3 surfaceNormal, vec2 UVs, vec3 viewDi
 
 float LinearizeDepth(float depth) 
 {
-  return NEAR * FAR / (FAR + depth * (NEAR - FAR));	
+  return NEAR * FAR / (FAR + depth * (NEAR - FAR));
 }
 
 void main()
@@ -349,7 +349,9 @@ void main()
     vec4 fragPosViewSpace = ubo.view * vec4(fragPosWorld, 1.f);
     float depth = abs(fragPosViewSpace.z);
     for (int i = 0; i < 4; i++) {if (depth < ubo.depthValues[i]) {image = i; break;}}
-    if (image == -1) image = 2;
+    if (image == -1) image = 3;
+
+    image = push.RIDo;
 
     //vec3 diffuseLight = vec3(0.f);//vec3(0.02f, 0.01f, 0.08f);
     Lo += calculateSunLight(sun, surfaceNormal, UVs, viewDirection, F0, cameraPosWorld, image);
@@ -363,8 +365,9 @@ void main()
 
     diffuse = vec4(lambda, 0.f) * diffuse + vec4((1 - lambda), 0.f) * vec4(0.1f, 0.1f, 0.1f, 0.f);
 
+    //outColor = vec4(vec3(depth), 0.f);
     //outColor = vec4(debugColours[image], 0.f);
-    //outColor = diffuse + vec4(Lo, 0.f);
+    outColor = diffuse + vec4(Lo, 0.f);
     //outColor = vec4(texture(storageSampler[push.RID[push.RIDo]], fragUv).rgb, 1.f);
-    outColor = vec4(texture(shadowStorage[push.RIDo], fragUv).rgb, 1.f);
+    //outColor = vec4(texture(shadowStorage[push.RIDo], fragUv).rgb, 1.f);
 }
