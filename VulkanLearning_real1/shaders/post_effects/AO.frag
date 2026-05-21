@@ -1,9 +1,11 @@
 #version 450
 
+#extension GL_EXT_nonuniform_qualifier : enable
+
 #define PI 3.1415926535897932384626433832795
 #define PI_HALF 1.5707963267948966192313216916398
-#define near 0.1
-#define far 30.f
+#define NEAR 0.01
+#define FAR 50.f
 
 layout(location = 0) in vec2 texCoords;
 
@@ -11,6 +13,7 @@ layout(location = 0) out vec4 outColor;
 
 layout(set = 0, binding = 2) uniform sampler2D depthBuffer;
 layout(set = 0, binding = 3) uniform sampler2D normalSpec;
+layout(set = 1, binding = 0) uniform sampler2D shadowStorage[];
 
 struct PointLight
 {
@@ -38,6 +41,12 @@ layout(set = 0, binding = 0) uniform GlobalUbo
   int height;
 } ubo;
 
+layout(push_constant) uniform Push
+{
+  int shadowImage;
+  int normalDepth;
+} push;
+
 // https://cdrinmatane.github.io/posts/ssaovb-code/
 const uint sectorCount = 32u;
 uint updateSectors(float minHorizon, float maxHorizon, uint outBitfield) {
@@ -59,10 +68,21 @@ float randf(int x, int y) {
 #define Ns 2
 #define THICKNESS 0.4f
 
+float LinearizeDepth(float depth) 
+{
+  return NEAR * FAR / (FAR + depth * (NEAR - FAR));	
+}
 
 //https://cybereality.com/screen-space-indirect-lighting-with-visibility-bitmask-improvement-to-gtao-ssao-real-time-ambient-occlusion-algorithm-glsl-shader-implementation/
 void main() 
 {
+  outColor = vec4(vec3(LinearizeDepth(texture(shadowStorage[push.shadowImage], texCoords).r)/FAR), 1.f);
+
+  //if (push.normalDepth == 0) outColor = vec4(vec3(LinearizeDepth(texture(depthBuffer, texCoords).r)/FAR), 1.f);
+  //else outColor = vec4(texture(normalSpec, texCoords).rgb, 1.f);
+
+  return;
+
   discard;
   uint indirect = 0u;
   uint occlusion = 0u;
@@ -79,8 +99,6 @@ void main()
   float sampleScale = (-RADIUS) / position.z;
   float sampleOffset = 0.01;
   float jitter = randf(int(gl_FragCoord.x), int(gl_FragCoord.y)) - 0.5;
-
-  
 
   for (float slice = 0.0; slice < Nd + 0.5; slice += 1.0) {
         float phi = sliceRotation * (slice + jitter) + PI;

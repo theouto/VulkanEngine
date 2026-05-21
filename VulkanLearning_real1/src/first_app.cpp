@@ -68,15 +68,18 @@ namespace lve
           shadowSystems[i] = std::make_unique<DirectionalLightSystem>(lveDevice, lveRenderer.getSwapChainShadowPass(i),lveRenderer.getGlobalLayout());
           std::cout << lveRenderer.getSwapChainShadowPass(i) << '\n';
         }
+
         NormalSpecPass normalSpecPass{lveDevice, lveRenderer.getSwapChainNormalPass(), 
                                      {lveRenderer.getGlobalLayout(), lveRenderer.bindlessSetLayout->getDescriptorSetLayout()}};
  
         DepthBuffer depthBuffer{lveDevice, lveRenderer.getSwapChainDepthPass(), lveRenderer.getGlobalLayout()};
-        AOSystem AOSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), *lveRenderer.globalPool, lveRenderer.getGlobalLayout()};
+
+        AOSystem AOSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), *lveRenderer.globalPool, 
+                         {lveRenderer.getGlobalLayout(), lveRenderer.shadowSetLayout->getDescriptorSetLayout()}};
 
         SimpleBindlessSystem simpleBindlessSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), 
-                             {lveRenderer.getGlobalLayout(), lveRenderer.bindlessSetLayout->getDescriptorSetLayout()
-                             , lveRenderer.shadowSetLayout->getDescriptorSetLayout()}};
+                             {lveRenderer.getGlobalLayout(), lveRenderer.bindlessSetLayout->getDescriptorSetLayout(),
+                             lveRenderer.shadowSetLayout->getDescriptorSetLayout()}};
 
         //ComputeSystem computeSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), lveRenderer.computeSetLayout->getDescriptorSetLayout()};
 
@@ -90,7 +93,7 @@ namespace lve
         if (glfwRawMouseMotionSupported())
         {
             glfwSetInputMode(lveWindow.getGLFWwindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-        }     
+        }
 
         glfwSetInputMode(lveWindow.getGLFWwindow(), GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
         KeyboardMovementController cameraController{};
@@ -107,7 +110,7 @@ namespace lve
     glm::vec3 rot = {1.f, 5.f, 0.f};
     std::cout << "\n\n\nAll loaded, rendering:\n\n\n\n\n\n\n";
     float radius = 1.f;
-    float farPlane = 50.f;
+    float farPlane = 400.f;
     float nearPlane = 0.01f;
 	while (!lveWindow.shouldClose())
 	{
@@ -170,10 +173,11 @@ namespace lve
                 uboBuffers[frameIndex]->flush();
 
                 //render shadowmap cascades
+                //Unoptimised hell.
                 for (int i = 0; i < LveSwapChain::SHADOW_CASCADES; i++)
                 {
                   lveRenderer.beginShadowRenderPass(commandBuffer, i);
-                  shadowSystems[i]->drawDepth(frameInfo, ubo.lightSpaceMatrix[i], rot);
+                  shadowSystems[i]->drawDepth(frameInfo, ubo.lightSpaceMatrix[i], glm::normalize(rot));
                   lveRenderer.endSwapChainRenderPass(commandBuffer);
                 }
 
@@ -197,7 +201,7 @@ namespace lve
                 simpleBindlessSystem.renderGameObjects(frameInfo);
 
                 //Ambient Occlusion, here for now for debugging purposes until I get it working right and make it its own image
-                //AOSystem.render(frameInfo);
+                AOSystem.render(frameInfo);
 
                 //renders light dots
                 pointLightSystem.render(frameInfo);

@@ -76,7 +76,7 @@ namespace lve
 
 			vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
 				0, sizeof(SimplePushConstantData), &push);
-            
+
 			obj.model->bind(frameInfo.commandBuffer);
 			obj.model->draw(frameInfo.commandBuffer);
 		}
@@ -133,7 +133,8 @@ namespace lve
     }
     center /= corners.size();
 
-    const auto lightView = glm::lookAt(center + rot, center, glm::vec3(0.0f, 1.0f, 0.0f));
+    const auto lightView = glm::lookAt(center - glm::normalize(rot),
+                                       center, glm::vec3(0.f, 1.f ,0.f));
 
     float minX = std::numeric_limits<float>::max();
     float maxX = std::numeric_limits<float>::lowest();
@@ -153,7 +154,7 @@ namespace lve
     }
 
     // Tune this parameter according to the scene
-    constexpr float zMult = 10.0f;
+    constexpr float zMult = 20.0f;
     if (minZ < 0)
     {
         minZ *= zMult;
