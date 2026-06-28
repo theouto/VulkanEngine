@@ -301,8 +301,8 @@ bool LveDevice::checkValidationLayerSupport() {
 
 std::vector<const char *> LveDevice::getRequiredExtensions() {
   uint32_t glfwExtensionCount = 0;
-  const char **glfwExtensions;
-  glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+  const char* const *glfwExtensions;
+  glfwExtensions = SDL_Vulkan_GetInstanceExtensions(&glfwExtensionCount);
 
   std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 

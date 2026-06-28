@@ -76,12 +76,12 @@ float LinearizeDepth(float depth)
 //https://cybereality.com/screen-space-indirect-lighting-with-visibility-bitmask-improvement-to-gtao-ssao-real-time-ambient-occlusion-algorithm-glsl-shader-implementation/
 void main() 
 {
-  outColor = vec4(vec3(LinearizeDepth(texture(shadowStorage[push.shadowImage], texCoords).r)/FAR), 1.f);
+  //outColor = vec4(vec3(LinearizeDepth(texture(shadowStorage[push.shadowImage], texCoords).r)/FAR), 1.f);
 
   //if (push.normalDepth == 0) outColor = vec4(vec3(LinearizeDepth(texture(depthBuffer, texCoords).r)/FAR), 1.f);
   //else outColor = vec4(texture(normalSpec, texCoords).rgb, 1.f);
 
-  return;
+  //return;
 
   discard;
   uint indirect = 0u;

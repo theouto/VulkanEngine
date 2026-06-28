@@ -1,6 +1,5 @@
 #pragma once
 
-
 #define GLM_ENABLE_EXPERIMENTAL
 
 #include "lve_game_object.hpp"
@@ -15,22 +14,23 @@ namespace lve
 	public:
 		struct KeyMappings
 		{
-            int moveLeft = GLFW_KEY_A;
-            int moveRight = GLFW_KEY_D;
-            int moveForward = GLFW_KEY_W;
-            int moveBackward = GLFW_KEY_S;
-            int moveUp = GLFW_KEY_E;
-            int moveDown = GLFW_KEY_Q;
-            int lookLeft = GLFW_KEY_LEFT;
-            int lookRight = GLFW_KEY_RIGHT;
-            int lookUp = GLFW_KEY_UP;
-            int lookDown = GLFW_KEY_DOWN;
-            int close = GLFW_KEY_ESCAPE;
+            int moveLeft = SDLK_A;
+            int moveRight = SDLK_D;
+            int moveForward = SDLK_W;
+            int moveBackward = SDLK_S;
+            int moveUp = SDLK_E;
+            int moveDown = SDLK_Q;
+            int lookLeft = SDLK_LEFT;
+            int lookRight = SDLK_RIGHT;
+            int lookUp = SDLK_UP;
+            int lookDown = SDLK_DOWN;
+            int close = SDLK_ESCAPE;
 		};
 
-        void moveInPlaneXZ(GLFWwindow* window, float dt, LveGameObject &gameObject, double oMouseX, double oMouseY);
+        void moveInPlaneXZ(SDL_Window* window, float dt, LveGameObject &gameObject, float oMouseX, float oMouseY);
         bool mousecontrol;
 
+        const bool* keyse = SDL_GetKeyboardState(nullptr);
         KeyMappings keys{};
         float moveSpeed{ 3.f };
         float lookSpeed{ 1.0f };

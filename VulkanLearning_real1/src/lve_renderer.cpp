@@ -138,7 +138,7 @@ void LveRenderer::recreateSwapChain() {
     extent = lveWindow.getExtent();  
     while (extent.width == 0 || extent.height == 0) {
       extent = lveWindow.getExtent();
-      glfwWaitEvents();
+      SDL_WaitEvent(nullptr);
     }
     vkDeviceWaitIdle(lveDevice.device());
   }

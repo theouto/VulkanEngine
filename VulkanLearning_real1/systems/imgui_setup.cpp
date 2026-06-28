@@ -26,7 +26,7 @@ namespace lve
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
 
-    ImGui_ImplGlfw_InitForVulkan(lveWindow.getGLFWwindow(), true);
+    ImGui_ImplSDL3_InitForVulkan(lveWindow.getGLFWwindow());
 
     ImGui_ImplVulkan_PipelineInfo pipelineInfo{};
     pipelineInfo.RenderPass = lveRenderer.getSwapChainRenderPass();
@@ -55,7 +55,7 @@ namespace lve
   void Imgui_LVE::draw(VkCommandBuffer commandBuffer, glm::vec3 *rotationnn)
   {
     ImGui_ImplVulkan_NewFrame();
-    ImGui_ImplGlfw_NewFrame(); 
+    ImGui_ImplSDL3_NewFrame(); 
     ImGui::NewFrame();
 
     ImGui::Begin("Directional light");

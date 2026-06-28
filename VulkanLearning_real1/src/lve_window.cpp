@@ -1,7 +1,10 @@
 #include "../include/lve_window.hpp"
 #include <stb_image.h>
 
+#define SDL_MAIN_HANDLED
+
 #include <stdexcept>
+#include <iostream>
 
 namespace lve
 {
@@ -12,39 +15,52 @@ namespace lve
 
 	LveWindow::~LveWindow()
 	{
-		glfwDestroyWindow(window);
-		glfwTerminate();
-	}
+		SDL_DestroyWindow(window);
+		SDL_Quit();
+    }
 
 	void LveWindow::initWindow()
 	{
-		glfwInit();
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-		window = glfwCreateWindow(width, height, windowName.c_str(), nullptr, nullptr);
+		SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO);
 
-		GLFWimage images[1];
-		images[0].pixels = stbi_load("textures/NEEERDDDD.png", &images[0].width, &images[0].height, 0, 4); //rgba channels 
-		glfwSetWindowIcon(window, 1, images);
-		stbi_image_free(images[0].pixels);
+		//glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		//glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+		window = SDL_CreateWindow(windowName.c_str(), width, height, 
+                                 SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN);
 
-		glfwSetWindowUserPointer(window, this);
-		glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
-	}
+        //the nerd will sing again at a later date.
+		SDL_Surface image;
+		image.pixels = stbi_load("textures/NEEERDDDD.png", &image.w, &image.h, 0, 4); //rgba channels 
+	    SDL_SetWindowIcon(window, &image);
+		stbi_image_free(image.pixels);
+    }
 
 	void LveWindow::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface)
 	{
-		if (glfwCreateWindowSurface(instance, window, nullptr, surface) != VK_SUCCESS)
+		if (!SDL_Vulkan_CreateSurface(window, instance, nullptr, surface))
 		{
-			throw std::runtime_error("failed to create window surface");
+          std::cout << SDL_GetError() << '\n';
+		  throw std::runtime_error("failed to create window surface");
 		}
 	}
 
-	void LveWindow::framebufferResizeCallback(GLFWwindow* window, int width, int height)
-	{
-		auto lveWindow = reinterpret_cast<LveWindow*>(glfwGetWindowUserPointer(window));
-		lveWindow->framebufferResized = true;
-		lveWindow->width = width;
-		lveWindow->height = height;
-	}
+    bool LveWindow::eventWatcher()
+    {
+      for (SDL_Event event; SDL_PollEvent(&event);) 
+      {
+        if (event.type == SDL_EVENT_WINDOW_RESIZED)
+        {
+          auto lveWindow = reinterpret_cast<LveWindow*>(SDL_GetWindowFromID(event.window.windowID));
+		  lveWindow->framebufferResized = true;
+		  lveWindow->width = width;
+		  lveWindow->height = height;
+          lveWindow->windowName = windowName;
+        }
+        if (event.type == SDL_EVENT_QUIT) 
+        {
+		  return false;
+        }
+      }
+      return true;
+    }
 }
