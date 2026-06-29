@@ -114,7 +114,6 @@ namespace lve
     float radius = 1.f;
     float farPlane = 400.f;
     float nearPlane = 0.01f;
-    SDL_Event event;
 	while (lveWindow.eventWatcher())
     {
             auto newTime = std::chrono::high_resolution_clock::now();
@@ -128,7 +127,6 @@ namespace lve
 
             float aspect = lveRenderer.getAspectRatio();
             camera.setPerspectiveProjection(glm::radians(50.f), aspect, nearPlane, farPlane);
-
             glm::vec3 offset = {-radius, radius, -2.f};
 		if (auto commandBuffer = lveRenderer.beginFrame())
 		{

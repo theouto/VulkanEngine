@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <memory>
 #include <vulkan/vulkan_core.h>
+#include <iostream>
 
 namespace lve 
 {
@@ -135,6 +136,8 @@ namespace lve
     ImGui::LabelText("\nRotation", "");
     ImGui::SliderFloat("X-rot", &gameObjects.at(object).transform.rotation.x, -10.f, 10.f);
     ImGui::SliderFloat("Y-rot", &gameObjects.at(object).transform.rotation.y, -10.f, 10.f);
+    //std::cout << object << '\n';
+    //gameObjects.at(2).transform.rotation.y -= 0.1f;
     ImGui::SliderFloat("Z-rot", &gameObjects.at(object).transform.rotation.z, -10.f, 10.f);
 
 
