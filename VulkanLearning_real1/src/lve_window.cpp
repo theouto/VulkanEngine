@@ -1,5 +1,6 @@
 #include "../include/lve_window.hpp"
 //#include <stb_image.h>
+#include <SDL3/SDL_mouse.h>
 #include <SDL3_image/SDL_image.h>
 
 #define SDL_MAIN_HANDLED
@@ -27,9 +28,9 @@ namespace lve
 		window = SDL_CreateWindow(windowName.c_str(), width, height, 
                                  SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN);
 
-        //the nerd will sing again at a later date.
 		SDL_Surface* image = IMG_Load("textures/NEEERDDDD.png");
 	    SDL_SetWindowIcon(window, image);
+        //SDL_SetWindowRelativeMouseMode(window, true);
     }
 
 	void LveWindow::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface)
@@ -39,21 +40,4 @@ namespace lve
 		  throw std::runtime_error("failed to create window surface");
 		}
 	}
-
-    bool LveWindow::eventWatcher()
-    {
-      for (SDL_Event event; SDL_PollEvent(&event);) 
-      {
-        if (event.type == SDL_EVENT_WINDOW_RESIZED)
-        {
-		  framebufferResized = true;
-          SDL_GetWindowSize(window, &width, &height);
-        }
-        if (event.type == SDL_EVENT_QUIT) 
-        {
-		  return false;
-        }
-      }
-      return true;
-    }
 }

@@ -96,7 +96,26 @@ namespace lve
     ImGui::EndFrame();
     ImGui::Render();
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+    
   }
+
+  bool Imgui_LVE::eventWatcher()
+  {
+    for (SDL_Event event; SDL_PollEvent(&event);) 
+      {
+        if (event.type == SDL_EVENT_WINDOW_RESIZED)
+        {
+		  lveWindow.resize();
+        }
+        if (event.type == SDL_EVENT_QUIT) 
+        {
+		  return false;
+        }
+
+        ImGui_ImplSDL3_ProcessEvent(&event);
+      }
+      return true;
+    }
 
   void Imgui_LVE::scene()
   {

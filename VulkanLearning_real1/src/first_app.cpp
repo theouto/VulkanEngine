@@ -18,6 +18,7 @@
 
 
 //#include <GLFW/glfw3.h>
+#include <SDL3/SDL_mouse.h>
 #include <algorithm>
 #include <glm/ext/vector_float3.hpp>
 #include <memory>
@@ -99,7 +100,8 @@ namespace lve
         glfwSetInputMode(lveWindow.getGLFWwindow(), GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
         */
         KeyboardMovementController cameraController{};
-        //cameraController.mousecontrol = true;
+        cameraController.mousecontrol = true;
+        SDL_HideCursor();
         float mouseX = 0.f;
         float mouseY = 0.f;
 
@@ -114,14 +116,24 @@ namespace lve
     float radius = 1.f;
     float farPlane = 400.f;
     float nearPlane = 0.01f;
-	while (lveWindow.eventWatcher())
+	while (imgui.eventWatcher())
     {
+            //if (SDL_CursorVisible()) std::cout << "fuck\n";
+
             auto newTime = std::chrono::high_resolution_clock::now();
             float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
             currentTime = newTime;
 
-            //cameraController.moveInPlaneXZ(frameTime, viewerObject, mouseX, mouseY);
-            SDL_GetMouseState(&mouseX, &mouseY);
+            cameraController.moveInPlaneXZ(frameTime, viewerObject,
+                                            lveWindow.getExtent().width/2,
+                                            lveWindow.getExtent().height/2);
+
+
+            if (cameraController.mousecontrol) SDL_WarpMouseInWindow(lveWindow.getGLFWwindow(), 
+                                               static_cast<float>(lveWindow.getExtent().width/2),
+                                               static_cast<float>(lveWindow.getExtent().height/2));
+
+
             camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 	
 
