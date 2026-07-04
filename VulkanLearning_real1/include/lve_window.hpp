@@ -24,7 +24,7 @@ namespace lve
 		bool wasWindowResized() { return framebufferResized; };
 		void resetWindowResizedFlag() { framebufferResized = false; };
         void resize() {framebufferResized = true; SDL_GetWindowSize(window, &width, &height);}
-		SDL_Window *getGLFWwindow() const { return window; }
+		SDL_Window *getSDLwindow() const { return window; }
 
 		void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);
         bool eventWatcher();

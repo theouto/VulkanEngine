@@ -17,7 +17,7 @@ namespace lve
 		
 		float mouseX;
 		float mouseY;
-
+        glm::vec3 mousetate{0};
         SDL_MouseButtonFlags mouse = SDL_GetMouseState(&mouseX, &mouseY);
         if (mousecontrol)
         {
@@ -25,12 +25,13 @@ namespace lve
 		    float rotx = height - mouseY;
 		    float roty = width - mouseX;
 
-	    	rotate.y -= roty;
-      		rotate.x += rotx;
+	    	mousetate.y -= roty/height;
+      		mousetate.x += rotx/width;
         }
 
-        if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon()) {
-			gameObject.transform.rotation += lookSpeed * dt * rotate;
+        if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon() ||
+            glm::dot(mousetate, mousetate) > std::numeric_limits<float>::epsilon()) {
+			gameObject.transform.rotation += lookSpeed * (dt * rotate + mousetate * lookSpeed);
 		}
 
 		gameObject.transform.rotation.x = glm::clamp(gameObject.transform.rotation.x, -1.5f, 1.5f);

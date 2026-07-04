@@ -129,7 +129,7 @@ namespace lve
                                             lveWindow.getExtent().height/2);
 
 
-            if (cameraController.mousecontrol) SDL_WarpMouseInWindow(lveWindow.getGLFWwindow(), 
+            if (cameraController.mousecontrol) SDL_WarpMouseInWindow(lveWindow.getSDLwindow(), 
                                                static_cast<float>(lveWindow.getExtent().width/2),
                                                static_cast<float>(lveWindow.getExtent().height/2));
 

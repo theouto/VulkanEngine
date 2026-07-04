@@ -27,7 +27,7 @@ namespace lve
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
 
-    ImGui_ImplSDL3_InitForVulkan(lveWindow.getGLFWwindow());
+    ImGui_ImplSDL3_InitForVulkan(lveWindow.getSDLwindow());
 
     ImGui_ImplVulkan_PipelineInfo pipelineInfo{};
     pipelineInfo.RenderPass = lveRenderer.getSwapChainRenderPass();
