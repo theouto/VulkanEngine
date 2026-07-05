@@ -30,7 +30,7 @@ namespace lve
 
 		SDL_Surface* image = IMG_Load("textures/NEEERDDDD.png");
 	    SDL_SetWindowIcon(window, image);
-        //SDL_SetWindowRelativeMouseMode(window, true);
+        SDL_SetWindowRelativeMouseMode(window, true);
     }
 
 	void LveWindow::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface)

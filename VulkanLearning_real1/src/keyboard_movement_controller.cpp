@@ -7,7 +7,7 @@
 
 namespace lve
 {
-	void KeyboardMovementController::moveInPlaneXZ(float dt, LveGameObject& gameObject, float width, float height) 
+	void KeyboardMovementController::moveInPlaneXZ(float dt, SDL_Window* window,LveGameObject& gameObject, float width, float height) 
 	{
 		glm::vec3 rotate{ 0 };
 		if (keyse[keys.lookRight]) rotate.y += 1.f;
@@ -45,12 +45,12 @@ namespace lve
 	    if (SDL_BUTTON_MASK(keys.rClick) & mouse) 
         {
           mousecontrol = false;
-          SDL_ShowCursor();
+          SDL_SetWindowRelativeMouseMode(window, false);
         }
         if (SDL_BUTTON_MASK(keys.mClick) & mouse) 
         {
           mousecontrol = true;
-          SDL_HideCursor();
+          SDL_SetWindowRelativeMouseMode(window, true);
         }
 
 		glm::vec3 moveDir{ 0.f };

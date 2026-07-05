@@ -124,7 +124,7 @@ namespace lve
             float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
             currentTime = newTime;
 
-            cameraController.moveInPlaneXZ(frameTime, viewerObject,
+            cameraController.moveInPlaneXZ(frameTime, lveWindow.getSDLwindow(), viewerObject,
                                             lveWindow.getExtent().width/2,
                                             lveWindow.getExtent().height/2);
 

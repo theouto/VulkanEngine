@@ -30,7 +30,7 @@ namespace lve
             int mClick = SDL_BUTTON_MIDDLE;
 		};
 
-        void moveInPlaneXZ(float dt, LveGameObject &gameObject, float width, float height);
+        void moveInPlaneXZ(float dt, SDL_Window* window,LveGameObject &gameObject, float width, float height);
         bool mousecontrol;
 
         const bool* keyse = SDL_GetKeyboardState(nullptr);
