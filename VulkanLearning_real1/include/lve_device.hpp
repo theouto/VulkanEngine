@@ -5,6 +5,7 @@
 // std lib headers
 #include <string>
 #include <vector>
+#include <vulkan/vulkan_core.h>
 
 namespace lve {
 
@@ -113,7 +114,7 @@ class LveDevice {
   
   VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
   VkDevice device_;
-  VkSurfaceKHR surface_;
+  VkSurfaceKHR surface_{VK_NULL_HANDLE};
   VkQueue graphicsQueue_;
   VkQueue presentQueue_;
 

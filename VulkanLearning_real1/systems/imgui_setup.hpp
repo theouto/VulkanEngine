@@ -2,7 +2,7 @@
 
 #include "imconfig.h"
 
-#include "../imgui/backends/imgui_impl_glfw.h"
+#include "../imgui/backends/imgui_impl_sdl3.h"
 #include "../imgui/backends/imgui_impl_vulkan.h"
 
 #include <glm/glm.hpp>
@@ -26,7 +26,7 @@ namespace lve
     ~Imgui_LVE()
     {
       ImGui_ImplVulkan_Shutdown();
-      ImGui_ImplGlfw_Shutdown();
+      ImGui_ImplSDL3_Shutdown();
       ImGui::DestroyContext();
     };
 
@@ -41,6 +41,7 @@ namespace lve
     void materials();
     void materialControl();
     void reloadMaterial();
+    bool eventWatcher();
 
     private:
 

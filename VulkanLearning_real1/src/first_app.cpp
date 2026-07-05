@@ -17,7 +17,8 @@
 #include "../systems/compute_system.hpp"
 
 
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h>
+#include <SDL3/SDL_mouse.h>
 #include <algorithm>
 #include <glm/ext/vector_float3.hpp>
 #include <memory>
@@ -89,17 +90,20 @@ namespace lve
         viewerObject.transform.translation.z = -1.5f; 
 
         // https://www.glfw.org/docs/3.3/input_guide.html#raw_mouse_motion <- important
+        /*
         glfwSetInputMode(lveWindow.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         if (glfwRawMouseMotionSupported())
         {
             glfwSetInputMode(lveWindow.getGLFWwindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
         }
-
+        
         glfwSetInputMode(lveWindow.getGLFWwindow(), GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
+        */
         KeyboardMovementController cameraController{};
         cameraController.mousecontrol = true;
-        double mouseX = 0.f;
-        double mouseY = 0.f;
+        SDL_HideCursor();
+        float mouseX = 0.f;
+        float mouseY = 0.f;
 
         sceneManager.load("scenes/test_scene.ths", *lveRenderer.globalPool);
         Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow, gameObjects, sceneManager};
@@ -108,26 +112,33 @@ namespace lve
 	auto currentTime = std::chrono::high_resolution_clock::now();
 
     glm::vec3 rot = {1.f, 5.f, 0.f};
-    std::cout << "\n\n\nAll loaded, rendering:\n\n\n\n\n\n\n";
+    std::cout << "\n\n\nAll loaded, rendering: 🙏\n\n\n\n\n\n\n";
     float radius = 1.f;
     float farPlane = 400.f;
     float nearPlane = 0.01f;
-	while (!lveWindow.shouldClose())
-	{
-	    glfwPollEvents();
+	while (imgui.eventWatcher())
+    {
+            //if (SDL_CursorVisible()) std::cout << "fuck\n";
 
             auto newTime = std::chrono::high_resolution_clock::now();
             float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
             currentTime = newTime;
 
-            cameraController.moveInPlaneXZ(lveWindow.getGLFWwindow(), frameTime, viewerObject, mouseX, mouseY);
-            glfwGetCursorPos(lveWindow.getGLFWwindow(), &mouseX, &mouseY);
+            cameraController.moveInPlaneXZ(frameTime, lveWindow.getSDLwindow(), viewerObject,
+                                            lveWindow.getExtent().width/2,
+                                            lveWindow.getExtent().height/2);
+
+
+            if (cameraController.mousecontrol) SDL_WarpMouseInWindow(lveWindow.getSDLwindow(), 
+                                               static_cast<float>(lveWindow.getExtent().width/2),
+                                               static_cast<float>(lveWindow.getExtent().height/2));
+
+
             camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 	
 
             float aspect = lveRenderer.getAspectRatio();
             camera.setPerspectiveProjection(glm::radians(50.f), aspect, nearPlane, farPlane);
-
             glm::vec3 offset = {-radius, radius, -2.f};
 		if (auto commandBuffer = lveRenderer.beginFrame())
 		{
@@ -165,7 +176,10 @@ namespace lve
                 for (int i = 0; i < LveSwapChain::SHADOW_CASCADES; i++)
                 {
                   ubo.depthValues[i] =  arro[i];
-                  ubo.lightSpaceMatrix[i] = matrices[i];
+                  ubo.lightSpaceMatrix[i] = DirectionalLightSystem::lightViewProjection(
+                  rot,
+                  frameInfo.camera.getPosition() + offset,
+                  radius * 5);
                 }
 
                 pointLightSystem.update(frameInfo, ubo);

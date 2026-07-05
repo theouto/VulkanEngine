@@ -1,10 +1,9 @@
 #pragma once
 
-
+#include <SDL3/SDL_mouse.h>
 #define GLM_ENABLE_EXPERIMENTAL
 
 #include "lve_game_object.hpp"
-#include "lve_window.hpp"
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>
 
@@ -15,22 +14,26 @@ namespace lve
 	public:
 		struct KeyMappings
 		{
-            int moveLeft = GLFW_KEY_A;
-            int moveRight = GLFW_KEY_D;
-            int moveForward = GLFW_KEY_W;
-            int moveBackward = GLFW_KEY_S;
-            int moveUp = GLFW_KEY_E;
-            int moveDown = GLFW_KEY_Q;
-            int lookLeft = GLFW_KEY_LEFT;
-            int lookRight = GLFW_KEY_RIGHT;
-            int lookUp = GLFW_KEY_UP;
-            int lookDown = GLFW_KEY_DOWN;
-            int close = GLFW_KEY_ESCAPE;
+            int moveLeft = SDL_SCANCODE_A;
+            int moveRight = SDL_SCANCODE_D;
+            int moveForward = SDL_SCANCODE_W;
+            int moveBackward = SDL_SCANCODE_S;
+            int moveUp = SDL_SCANCODE_E;
+            int moveDown = SDL_SCANCODE_Q;
+            int lookLeft = SDL_SCANCODE_LEFT;
+            int lookRight = SDL_SCANCODE_RIGHT;
+            int lookUp = SDL_SCANCODE_UP;
+            int lookDown = SDL_SCANCODE_DOWN;
+            int close = SDL_SCANCODE_ESCAPE;
+
+            int rClick = SDL_BUTTON_RIGHT;
+            int mClick = SDL_BUTTON_MIDDLE;
 		};
 
-        void moveInPlaneXZ(GLFWwindow* window, float dt, LveGameObject &gameObject, double oMouseX, double oMouseY);
+        void moveInPlaneXZ(float dt, SDL_Window* window,LveGameObject &gameObject, float width, float height);
         bool mousecontrol;
 
+        const bool* keyse = SDL_GetKeyboardState(nullptr);
         KeyMappings keys{};
         float moveSpeed{ 3.f };
         float lookSpeed{ 1.0f };

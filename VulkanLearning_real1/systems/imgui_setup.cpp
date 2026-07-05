@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <memory>
 #include <vulkan/vulkan_core.h>
+#include <iostream>
 
 namespace lve 
 {
@@ -26,7 +27,7 @@ namespace lve
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
 
-    ImGui_ImplGlfw_InitForVulkan(lveWindow.getGLFWwindow(), true);
+    ImGui_ImplSDL3_InitForVulkan(lveWindow.getSDLwindow());
 
     ImGui_ImplVulkan_PipelineInfo pipelineInfo{};
     pipelineInfo.RenderPass = lveRenderer.getSwapChainRenderPass();
@@ -55,7 +56,7 @@ namespace lve
   void Imgui_LVE::draw(VkCommandBuffer commandBuffer, glm::vec3 *rotationnn)
   {
     ImGui_ImplVulkan_NewFrame();
-    ImGui_ImplGlfw_NewFrame(); 
+    ImGui_ImplSDL3_NewFrame(); 
     ImGui::NewFrame();
 
     ImGui::Begin("Directional light");
@@ -95,7 +96,26 @@ namespace lve
     ImGui::EndFrame();
     ImGui::Render();
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+    
   }
+
+  bool Imgui_LVE::eventWatcher()
+  {
+    for (SDL_Event event; SDL_PollEvent(&event);) 
+      {
+        if (event.type == SDL_EVENT_WINDOW_RESIZED)
+        {
+		  lveWindow.resize();
+        }
+        if (event.type == SDL_EVENT_QUIT) 
+        {
+		  return false;
+        }
+
+        ImGui_ImplSDL3_ProcessEvent(&event);
+      }
+      return true;
+    }
 
   void Imgui_LVE::scene()
   {
@@ -135,6 +155,8 @@ namespace lve
     ImGui::LabelText("\nRotation", "");
     ImGui::SliderFloat("X-rot", &gameObjects.at(object).transform.rotation.x, -10.f, 10.f);
     ImGui::SliderFloat("Y-rot", &gameObjects.at(object).transform.rotation.y, -10.f, 10.f);
+    //std::cout << object << '\n';
+    //gameObjects.at(2).transform.rotation.y -= 0.1f;
     ImGui::SliderFloat("Z-rot", &gameObjects.at(object).transform.rotation.z, -10.f, 10.f);
 
 

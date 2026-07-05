@@ -1,35 +1,37 @@
 #include "../include/keyboard_movement_controller.hpp"
 
-#include <GLFW/glfw3.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_mouse.h>
 #include <iostream>
 #include <limits>
 
 namespace lve
 {
-	void KeyboardMovementController::moveInPlaneXZ(GLFWwindow* window, float dt, LveGameObject& gameObject, double oMouseX, double oMouseY) 
+	void KeyboardMovementController::moveInPlaneXZ(float dt, SDL_Window* window,LveGameObject& gameObject, float width, float height) 
 	{
 		glm::vec3 rotate{ 0 };
-		if (glfwGetKey(window, keys.lookRight) == GLFW_PRESS) rotate.y += 1.f;
-		if (glfwGetKey(window, keys.lookLeft) == GLFW_PRESS) rotate.y -= 1.f;
-		if (glfwGetKey(window, keys.lookUp) == GLFW_PRESS) rotate.x += 1.f;
-		if (glfwGetKey(window, keys.lookDown) == GLFW_PRESS) rotate.x -= 1.f;
+		if (keyse[keys.lookRight]) rotate.y += 1.f;
+		if (keyse[keys.lookLeft]) rotate.y -= 1.f;
+		if (keyse[keys.lookUp]) rotate.x += 1.f;
+		if (keyse[keys.lookDown]) rotate.x -= 1.f;
 		
-		double mouseX;
-		double mouseY;
+		float mouseX;
+		float mouseY;
+        glm::vec3 mousetate{0};
+        SDL_MouseButtonFlags mouse = SDL_GetMouseState(&mouseX, &mouseY);
         if (mousecontrol)
         {
-		    glfwGetCursorPos(window, &mouseX, &mouseY);
-		
 		    //if I want a sensitivity field then I just multiply the result below by a passed through sensitivity value
-		    float rotx = (float)(mouseY - oMouseY);
-		    float roty = (float)(mouseX - oMouseX);			
+		    float rotx = height - mouseY;
+		    float roty = width - mouseX;
 
-	    	rotate.y += roty;
-      		rotate.x -= rotx;
+	    	mousetate.y -= roty/height;
+      		mousetate.x += rotx/width;
         }
 
-        if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon()) {
-			gameObject.transform.rotation += lookSpeed * dt * rotate;
+        if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon() ||
+            glm::dot(mousetate, mousetate) > std::numeric_limits<float>::epsilon()) {
+			gameObject.transform.rotation += lookSpeed * (dt * rotate + mousetate * lookSpeed);
 		}
 
 		gameObject.transform.rotation.x = glm::clamp(gameObject.transform.rotation.x, -1.5f, 1.5f);
@@ -40,27 +42,26 @@ namespace lve
 		const glm::vec3 rightDir{ forwardDir.z, 0.f, -forwardDir.x };
 		const glm::vec3 upDir{ 0.f, -1.f, 0.f };
 
-		
-
-		glm::vec3 moveDir{ 0.f };
-		if (glfwGetKey(window, keys.moveForward) == GLFW_PRESS) moveDir += forwardDir;
-		if (glfwGetKey(window, keys.moveBackward) == GLFW_PRESS) moveDir -= forwardDir;
-		if (glfwGetKey(window, keys.moveRight) == GLFW_PRESS) moveDir += rightDir;
-		if (glfwGetKey(window, keys.moveLeft) == GLFW_PRESS) moveDir -= rightDir;
-		if (glfwGetKey(window, keys.moveUp) == GLFW_PRESS) moveDir += upDir;
-		if (glfwGetKey(window, keys.moveDown) == GLFW_PRESS) moveDir -= upDir;
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS) 
+	    if (SDL_BUTTON_MASK(keys.rClick) & mouse) 
         {
           mousecontrol = false;
-          glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+          SDL_SetWindowRelativeMouseMode(window, false);
         }
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_3) == GLFW_PRESS) 
+        if (SDL_BUTTON_MASK(keys.mClick) & mouse) 
         {
           mousecontrol = true;
-          glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);        
+          SDL_SetWindowRelativeMouseMode(window, true);
         }
 
-		if (glfwGetKey(window, keys.close) == GLFW_PRESS) glfwTerminate();
+		glm::vec3 moveDir{ 0.f };
+		if (keyse[keys.moveForward]) moveDir += forwardDir;
+		if (keyse[keys.moveBackward]) moveDir -= forwardDir;
+		if (keyse[keys.moveRight]) moveDir += rightDir;
+		if (keyse[keys.moveLeft]) moveDir -= rightDir;
+		if (keyse[keys.moveUp]) moveDir += upDir;
+		if (keyse[keys.moveDown]) moveDir -= upDir;
+
+		if (keyse[keys.close]) SDL_Quit();
 
 		if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon())
 		{
