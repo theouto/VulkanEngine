@@ -2,10 +2,10 @@
 TARGET_EXEC := final_program
 
 BUILD_DIR := ./build
-SRC_DIRS := ./src ./include ./systems
+SRC_DIRS := ./src ./include ./systems ./thirdparty/ 
 
-CFLAGS = -std=c++20 -O3
-LDFLAGS = -lSDL3 -lSDL3_image -lvulkan -ldl -lpthread -lXxf86vm -lXrandr -lXi -limgui -lxxhash
+CFLAGS = -O3
+LDFLAGS = -lSDL3 -lSDL3_image -lvulkan -ldl -lpthread -lXxf86vm -lXrandr -lXi
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. The shell will incorrectly expand these otherwise, but we want to send the * directly to the find command.
 SRCS := $(shell find $(SRC_DIRS) -name '*.cpp' -or -name '*.c' -or -name '*.s')

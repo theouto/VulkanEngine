@@ -2,8 +2,8 @@
 
 #include "imconfig.h"
 
-#include "../imgui/backends/imgui_impl_sdl3.h"
-#include "../imgui/backends/imgui_impl_vulkan.h"
+#include "../thirdparty/imgui/imgui_impl_sdl3.h"
+#include "../thirdparty/imgui/imgui_impl_vulkan.h"
 
 #include <glm/glm.hpp>
 #include <vector>

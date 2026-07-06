@@ -33,7 +33,7 @@ namespace lve
       if (type == -1) {createObjectHelper(scene, pool); std::cout << "chosen!\n";}
       else if (type == 0) createPointLightHelper(scene);
     }
-    
+
     scene.close();
   }
 
