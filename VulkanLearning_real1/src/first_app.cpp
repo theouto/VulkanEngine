@@ -4,6 +4,7 @@
 #include "../include/lve_camera.hpp"
 #include "../include/lve_buffer.hpp"
 #include "../include/lve_frame_info.hpp"
+#include "../include/the_events.hpp"
 
 
 #include "../systems/point_light_system.hpp"
@@ -81,6 +82,8 @@ namespace lve
                              {lveRenderer.getGlobalLayout(), lveRenderer.bindlessSetLayout->getDescriptorSetLayout(),
                              lveRenderer.shadowSetLayout->getDescriptorSetLayout()}};
 
+        TheEvents theEvents{lveWindow};
+
         //ComputeSystem computeSystem{lveDevice, lveRenderer.getSwapChainRenderPass(), lveRenderer.computeSetLayout->getDescriptorSetLayout()};
 
         LveCamera camera{};
@@ -115,7 +118,7 @@ namespace lve
     float radius = 1.f;
     float farPlane = 400.f;
     float nearPlane = 0.01f;
-	while (imgui.eventWatcher())
+	while (theEvents.eventHandler())
     {
             //if (SDL_CursorVisible()) std::cout << "fuck\n";
 
