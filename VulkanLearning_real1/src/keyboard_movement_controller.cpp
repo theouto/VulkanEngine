@@ -7,7 +7,7 @@
 
 namespace lve
 {
-	void KeyboardMovementController::moveInPlaneXZ(float dt, SDL_Window* window,LveGameObject& gameObject, float width, float height) 
+	void KeyboardMovementController::moveInPlaneXZ(float dt, SDL_Window* window,LveGameObject& gameObject, float width, float height)
 	{
 		glm::vec3 rotate{ 0 };
 		if (keyse[keys.lookRight]) rotate.y += 1.f;
@@ -25,8 +25,9 @@ namespace lve
 		    float rotx = height - mouseY;
 		    float roty = width - mouseX;
 
-	    	mousetate.y -= roty/height;
-      		mousetate.x += rotx/width;
+            float divider = width*750/height;
+	    	mousetate.y -= roty/divider;
+      		mousetate.x += rotx/divider;
         }
 
         if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon() ||
