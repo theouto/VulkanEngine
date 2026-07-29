@@ -42,7 +42,7 @@ namespace lve
 	FirstApp::~FirstApp() {}
 
 	void FirstApp::run()
-	{ 
+	{
          uboBuffers.resize(LveSwapChain::MAX_FRAMES_IN_FLIGHT);
         for (int i = 0; i < uboBuffers.size(); i++)
         {
@@ -98,7 +98,7 @@ namespace lve
         {
             glfwSetInputMode(lveWindow.getGLFWwindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
         }
-        
+
         glfwSetInputMode(lveWindow.getGLFWwindow(), GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
         */
         KeyboardMovementController cameraController{};
@@ -107,7 +107,8 @@ namespace lve
         float mouseX = 0.f;
         float mouseY = 0.f;
 
-        sceneManager.load("scenes/test_scene.ths", *lveRenderer.globalPool);
+        sceneManager.load("scenes/cube_hell.ths", *lveRenderer.globalPool);
+
         Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow, gameObjects, sceneManager};
 
 
@@ -190,7 +191,7 @@ namespace lve
 
                 //render shadowmap cascades
                 //Unoptimised hell.
-                for (int i = 0; i < LveSwapChain::SHADOW_CASCADES; i++)
+                for (int i = 0; i < 1; i++)
                 {
                   lveRenderer.beginShadowRenderPass(commandBuffer, i);
                   shadowSystems[i]->drawDepth(frameInfo, ubo.lightSpaceMatrix[i], glm::normalize(rot));

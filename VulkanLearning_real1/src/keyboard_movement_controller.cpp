@@ -25,7 +25,7 @@ namespace lve
 		    float rotx = height - mouseY;
 		    float roty = width - mouseX;
 
-            float divider = width*750/height;
+            float divider = 800.f;
 	    	mousetate.y -= roty/divider;
       		mousetate.x += rotx/divider;
         }

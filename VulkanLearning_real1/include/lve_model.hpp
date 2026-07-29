@@ -3,6 +3,7 @@
 #include "lve_device.hpp"
 #include "lve_buffer.hpp"
 #include "lve_textures.hpp"
+#include "../thirdparty/xxHash/xxhash.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -72,6 +73,9 @@ namespace lve
 
 		std::unique_ptr<LveBuffer> vertexBuffer;
 		uint32_t vertexCount;
+
+        XXH32_hash_t model_name;
+        XXH32_hash_t material_name;
 		
 		bool hasIndexBuffer = false;
 		std::unique_ptr<LveBuffer> indexBuffer;

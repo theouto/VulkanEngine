@@ -40,7 +40,7 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
 
     shadowPool = LveDescriptorPool::Builder(lveDevice)
             .setMaxSets(1)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 4)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 4)
             .build();
 
     globalSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
@@ -133,15 +133,12 @@ void LveRenderer::updateDescriptors()
 
 void LveRenderer::recreateSwapChain() {
 
-  if (!skip)
-  {
     extent = lveWindow.getExtent();  
     while (extent.width == 0 || extent.height == 0) {
       extent = lveWindow.getExtent();
       SDL_WaitEvent(nullptr);
     }
     vkDeviceWaitIdle(lveDevice.device());
-  }
 
   if (lveSwapChain == nullptr) {
     lveSwapChain = std::make_unique<LveSwapChain>(lveDevice, extent);

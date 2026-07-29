@@ -88,7 +88,6 @@ namespace lve
               << kv.second.transform.rotation[2] << '\n';
       } else if (kv.second.type == 0)
       {
-        //TODO: Update docs to account for this shit that I just made up on the spot
         scene << kv.second.color[0] << " "
               << kv.second.color[1] << " "
               << kv.second.color[2] << '\n';
@@ -118,7 +117,10 @@ namespace lve
     scene >> scale[0] >> scale[1] >> scale[2];
     scene >> rotation[0] >> rotation[1] >> rotation[2];
 
+    //TODO: Add material filepath to createModelFromFile and keep an index somewhere for this
+    //      function below to draw from
     lveModel = LveModel::createModelFromFile(lveDevice, model);
+
     LveGameObject object = LveGameObject::createGameObject();
     object.model = lveModel;
     object.matName = material;

@@ -38,6 +38,7 @@ namespace lve
 	{
 		Builder builder{};
 		builder.loadModel(filepath);
+        auto lala = XXH32(filepath.c_str(), filepath.length(), 0);
 		return std::make_unique<LveModel>(device, builder);
 	}
 
@@ -104,7 +105,7 @@ namespace lve
 		else
 		{
 			vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
-		}		
+		}
 	}
 
 	void LveModel::bind(VkCommandBuffer commandBuffer)
