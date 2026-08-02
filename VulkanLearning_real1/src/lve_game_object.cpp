@@ -38,15 +38,6 @@ namespace lve
 			{translation.x, translation.y, translation.z, 1.0f} };
 	}
 
-    void LveGameObject::createDescriptorSets()
-    {
-      for (size_t i = 0; i < LveSwapChain::MAX_FRAMES_IN_FLIGHT; i++) 
-      {
-        //something
-      }
-
-    }
-
 	glm::mat3 TransformComponent::normalMatrix()
 	{
 		const float c3 = glm::cos(rotation.z);

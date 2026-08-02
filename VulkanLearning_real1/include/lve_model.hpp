@@ -76,6 +76,7 @@ namespace lve
 
         XXH32_hash_t model_name;
         XXH32_hash_t material_name;
+        uint32_t instanceCount = 0;
 		
 		bool hasIndexBuffer = false;
 		std::unique_ptr<LveBuffer> indexBuffer;

@@ -63,7 +63,7 @@ namespace lve {
         std::string matName = "";
         std::string modelName = "";
         uint32_t hash;
-        int RID = 0;
+        int RID = 0; 
         uint32_t textures[6];
         float modifiers[4];
         std::unique_ptr<PointLightComponent> pointLight = nullptr;

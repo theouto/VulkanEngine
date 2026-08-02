@@ -54,6 +54,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo
   int padding;
   mat4 lightSpaceMatrix[4]; //this is ugly
   vec3 lightPos;
+  //float padding;
   float depthValues[4];
 } ubo;
 

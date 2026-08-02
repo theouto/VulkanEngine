@@ -25,6 +25,36 @@ layout(push_constant) uniform Push
   mat4 normalMatrix;
 } push;
 
+mat4 rotateZ(float angle)
+{
+  mat4 rotationMatrix;
+  rotationMatrix[0] = vec4(cos(angle), sin(angle), 0, 0);
+  rotationMatrix[1] = vec4(-sin(angle), cos(angle), 0, 0);
+  rotationMatrix[2] = vec4(0, 0, 1, 0);
+  rotationMatrix[3] = vec4(0, 0, 0, 1);
+  return rotationMatrix;
+}
+
+mat4 rotateY(float angle)
+{
+  mat4 rotationMatrix;
+  rotationMatrix[0] = vec4(cos(angle), 0, sin(angle), 0);
+  rotationMatrix[1] = vec4(0, 1, 0, 0);
+  rotationMatrix[2] = vec4(-sin(angle), 0, cos(angle), 0);
+  rotationMatrix[3] = vec4(0, 0, 0, 1);
+  return rotationMatrix;
+}
+
+mat4 rotateX(float angle)
+{
+  mat4 rotationMatrix;
+  rotationMatrix[0] = vec4(1, 0, 0, 0);
+  rotationMatrix[1] = vec4(0, cos(angle), -sin(angle), 0);
+  rotationMatrix[2] = vec4(0, sin(angle), cos(angle), 0);
+  rotationMatrix[3] = vec4(0, 0, 0, 1);
+  return rotationMatrix;
+}
+
 void main() 
 {
   vec4 positionWorld = push.modelMatrix * vec4(position, 1.0);

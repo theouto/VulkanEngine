@@ -1,4 +1,4 @@
-number of objects (if I ever have more than 2^32 objects, I have bigger issues to worry about)
+number of instanced objects (if I ever have more than 2^32 objects, I have bigger issues to worry about)
 
 before any object:
 -1 -> 3d object
@@ -6,17 +6,23 @@ before any object:
 
 OBJECT LOADING:
 
-Name
-
-Object file
+Model file
 
 Material (as file)
 
-translate
+instance count
+
+per instance information:
+
+Name
+
+translation
 
 scale
 
 rotation
+
+
 
 Light loading
 
