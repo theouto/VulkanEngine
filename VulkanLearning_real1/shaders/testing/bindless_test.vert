@@ -12,6 +12,7 @@ layout(location = 3) out vec2 fragUv;
 layout(location = 4) out vec4 FragPosLightSpace[4];
 
 const float PI = 3.1415926535897932384626433832795;
+const float rotator = PI / 180.f;
 
 struct PointLight
 {
@@ -42,7 +43,7 @@ layout(push_constant) uniform Push
   uint RIDo;
   uint RID[7];
   //vec4 position[8192];
-  //vec4 rotaton[8192];
+  //vec4 rotation[8192];
   //vec4 scale[8192];
   //vec4 used for alignment reasons
 } push;
@@ -82,8 +83,20 @@ mat4 rotateX(float angle)
 
 void main()
 {
-  float rotator = PI / 180.f;
-  vec4 positionWorld = rotateZ(30 * rotator) * rotateY(30 * rotator) * rotateX(30 * rotator) * push.modelMatrix * vec4(position, 1.0);
+  /*
+  int index = gl_InstanceIndex;
+
+  mat4 scaleMatrix;
+  scaleMatrix[0] = vec4(scale[index], 0, 0, 0);
+  scaleMatrix[1] = vec4(0, scale[index], 0, 0);
+  scaleMatrix[2] = vec4(0, 0, scale[index], 0);
+  scaleMatrix[3] = vec4(0, 0, 0, 1);
+  mat4 rotationMatrix = rotateZ(rotation[index] * rotator) * rotateY(rotation[index] * rotator) * rotateX(rotation[index] * rotator)
+
+  mat4 appliedTransformation = scaleMatrix * rotationMatrix;
+  */
+
+  vec4 positionWorld = push.modelMatrix * vec4(position, 1.0);
   gl_Position = ubo.projection * ubo.view * positionWorld;
 
   fragNormalWorld = normalize(mat3(push.normalMatrix) * normal);

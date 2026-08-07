@@ -29,8 +29,9 @@ namespace lve
     {
       scene >> type;
       getline(scene, line);
-      //two ifs here as I do eventually plan on adding more types, such as area lights or spot lights, to name a few
-      if (type == -1) {createObjectHelper(scene, pool); std::cout << "chosen!\n";}
+      
+      if (type == -2) {createInstancedObjectHelper(scene, pool);}
+      else if (type == -1) {createObjectHelper(scene, pool);}
       else if (type == 0) createPointLightHelper(scene);
     }
 

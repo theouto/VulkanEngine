@@ -48,18 +48,22 @@ namespace lve
 			void loadModel(const std::string& filepath);
 		};
 
-        
 		LveModel(LveDevice & device, const LveModel::Builder &builder);
 		~LveModel();
 
 		LveModel(const LveModel&) = delete;
 		LveModel& operator=(const LveModel&) = delete;
-	    
+
       	VkDescriptorPool descriptorPool;
 
 		std::vector<VkDescriptorSet> descriptorSets;
 
 		static std::unique_ptr<LveModel> createModelFromFile(LveDevice& device, const std::string &filepath);
+
+        void setScale(uint32_t index, glm::vec4 scale) {scales[index] = scale;}
+        void setTranslation(uint32_t index, glm::vec4 translation) {translations[index] = translation;}
+        void setRotation(uint32_t index, glm::vec4 rotation) {rotations[index] = rotation;}
+        uint32_t getInstanceCount() {return instanceCount;}
 
 		void bind(VkCommandBuffer);
 		void draw(VkCommandBuffer);
@@ -77,6 +81,10 @@ namespace lve
         XXH32_hash_t model_name;
         XXH32_hash_t material_name;
         uint32_t instanceCount = 0;
+
+        glm::vec4 scales[8192];
+        glm::vec4 rotations[8192];
+        glm::vec4 translations[8192];
 		
 		bool hasIndexBuffer = false;
 		std::unique_ptr<LveBuffer> indexBuffer;

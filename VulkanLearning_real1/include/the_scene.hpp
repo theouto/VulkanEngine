@@ -17,10 +17,12 @@ namespace lve
       LveScene(LveDevice &device, LveGameObject::Map& objects, LveRenderer& renderer);
 
       void load(std::string file, LveDescriptorPool& pool);
+      void loadInstanced(std::string file, LveDescriptorPool& pool); //non-destructive testing
       void saveScene();
 
       void createPointLightHelper(std::ifstream& scene);
       void createObjectHelper(std::ifstream& scene, LveDescriptorPool& pool);
+      void createInstancedObjectHelper(std::ifstream& scene, LveDescriptorPool& pool);
 
       void loadModel(LveGameObject& object, LveDescriptorPool& pool, 
                            LveDescriptorPool& bindlessPool, 

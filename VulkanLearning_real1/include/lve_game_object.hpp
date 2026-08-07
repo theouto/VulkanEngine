@@ -50,6 +50,7 @@ namespace lve {
         LveGameObject& operator=(LveGameObject&&) = default;
 
         id_t getId() { return id; }
+        uint32_t numInstances(){return model->getInstanceCount();}
 
         int type = -1;
         std::shared_ptr<LveModel> model{};
@@ -59,11 +60,16 @@ namespace lve {
         void createDescriptorSets();
 		//VkDescriptorSetLayout descriptorSetLayout;
         VkDescriptorSet descriptorSet{};
+
         std::string name = "";
         std::string matName = "";
         std::string modelName = "";
-        uint32_t hash;
-        int RID = 0; 
+  
+        XXH32_hash_t hash;
+        int RID = 0;
+
+        int instanceIndex;
+
         uint32_t textures[6];
         float modifiers[4];
         std::unique_ptr<PointLightComponent> pointLight = nullptr;
