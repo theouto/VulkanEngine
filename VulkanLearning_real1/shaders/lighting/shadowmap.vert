@@ -8,6 +8,9 @@ layout(push_constant) uniform Push {
 } push;
 
 void main() 
-{    
-  gl_Position = push.lightSpaceMatrix * push.modelMatrix * vec4(position, 1.0);
+{
+  int index = gl_InstanceIndex;
+  vec4 grid = vec4(position.x + index, position.y - index, position.z + index, 1.0);
+
+  gl_Position = push.lightSpaceMatrix * push.modelMatrix * grid;//vec4(position, 1.0);
 }

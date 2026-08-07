@@ -34,7 +34,10 @@ layout(push_constant) uniform Push {
 
 void main() 
 {
-  vec4 positionWorld = push.modelMatrix * vec4(position, 1.0);
+  int index = gl_InstanceIndex;
+  vec4 grid = vec4(position.x + index, position.y - index, position.z + index, 1.0);
+
+  vec4 positionWorld = push.modelMatrix * grid;//vec4(position, 1.f);
   gl_Position = ubo.projection * ubo.view * positionWorld;
 
   fragNormalWorld = normalize(mat3(push.normalMatrix) * normal);
