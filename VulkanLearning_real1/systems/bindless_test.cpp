@@ -95,8 +95,7 @@ namespace lve
 		{
 		  auto& obj = kv.second;
 		  if (obj.model == nullptr) continue;
-          try {render.at(obj.instanceHash);
-              std::cout << "Not on my watch\n";} catch (std::out_of_range e)
+          try {render.at(obj.instanceHash);} catch (std::out_of_range e)
           {
 			SimplePushConstantData push{};
 			push.modelMatrix = obj.transform.mat4();

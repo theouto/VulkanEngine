@@ -1,5 +1,6 @@
 #include "shadow_system.hpp"
 #include <memory>
+#include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
 namespace lve
@@ -64,10 +65,14 @@ namespace lve
 		vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
 			0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
 
+        std::unordered_map<XXH32_hash_t, bool> render;
+
 		for (auto& kv : frameInfo.gameObjects)
 		{
 			auto& obj = kv.second;
 			if (obj.model == nullptr) continue;
+            try{render.at(obj.instanceHash);} catch (std::out_of_range e)
+            {
 			SimplePushConstantData push{};
             push.lightSpaceMatrix = matrix;
             push.lightPos = lightPos;
@@ -79,6 +84,8 @@ namespace lve
 
 			obj.model->bind(frameInfo.commandBuffer);
 			obj.model->draw(frameInfo.commandBuffer);
+            render.emplace(obj.instanceHash, true);
+            }
 		}
   }
 

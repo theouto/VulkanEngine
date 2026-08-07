@@ -1,5 +1,6 @@
 #include "normal_spec.hpp"
 #include <memory>
+#include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
 namespace lve
@@ -75,11 +76,15 @@ namespace lve
 		vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
 			0, 2, arr, 0, nullptr);
 
+        std::unordered_map<XXH32_hash_t, bool> render;
+
 		for (auto& kv : frameInfo.gameObjects)
 		{
 			auto& obj = kv.second;
 			if (obj.model == nullptr) continue;
-			SimplePushConstantData push{};
+            try {render.at(obj.instanceHash);} catch (std::out_of_range e)
+            {
+              SimplePushConstantData push{};
 			push.modelMatrix = obj.transform.mat4();
             push.normalMatrix = obj.transform.normalMatrix();
             push.relevantRid[0] = obj.textures[1];
@@ -89,6 +94,9 @@ namespace lve
 				0, sizeof(SimplePushConstantData), &push);
 			obj.model->bind(frameInfo.commandBuffer);
 			obj.model->draw(frameInfo.commandBuffer);
+
+            render.emplace(obj.instanceHash, true);
+            }
 		}
 	}
 }
