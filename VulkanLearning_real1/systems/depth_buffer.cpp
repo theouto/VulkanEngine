@@ -16,6 +16,9 @@ namespace lve
 	{
 		glm::mat4 modelMatrix{ 1.f };
 		glm::mat4 normalMatrix{ 1.f };
+        //glm::vec4 position[8192];
+        //glm::vec4 rotation[8192];
+        //glm::vec4 scale[8192];
 	};
 
 	DepthBuffer::DepthBuffer(LveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : lveDevice{device}
@@ -81,18 +84,35 @@ namespace lve
 		vkCmdBindDescriptorSets(frameInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
 			0, 1, &frameInfo.globalDescriptorSet, 0, nullptr);
 
+        std::unordered_map<XXH32_hash_t, bool> render;
+
 		for (auto& kv : frameInfo.gameObjects)
 		{
-			auto& obj = kv.second;
-			if (obj.model == nullptr) continue;
+		  auto& obj = kv.second;
+		  if (obj.model == nullptr) continue;
+		  try {render.at(obj.instanceHash);} catch (std::out_of_range e)
+          {
 			SimplePushConstantData push{};
 			push.modelMatrix = obj.transform.mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
 
-			vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+            /*
+            for (int i = 0; i < obj.model->getInstanceCount(); i++)
+            {
+              push.position[i] = obj.model->getTranslations()[i];
+              push.scale[i] = obj.model->getScales()[i];
+              push.rotation[i] = obj.model->getRotations()[i];
+            }
+            */
+
+            vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 				0, sizeof(SimplePushConstantData), &push);
+
 			obj.model->bind(frameInfo.commandBuffer);
 			obj.model->draw(frameInfo.commandBuffer);
+
+            render.emplace(obj.instanceHash, true);
+          }
 		}
 	}
 }

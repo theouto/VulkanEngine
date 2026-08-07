@@ -57,12 +57,18 @@ namespace lve
       	VkDescriptorPool descriptorPool;
 
 		std::vector<VkDescriptorSet> descriptorSets;
+        void upInstanceCount(){instanceCount++;}
 
 		static std::unique_ptr<LveModel> createModelFromFile(LveDevice& device, const std::string &filepath);
 
-        void setScale(uint32_t index, glm::vec4 scale) {scales[index] = scale;}
-        void setTranslation(uint32_t index, glm::vec4 translation) {translations[index] = translation;}
-        void setRotation(uint32_t index, glm::vec4 rotation) {rotations[index] = rotation;}
+        void setScale(uint32_t index, glm::vec3 scale) {scales[index] = glm::vec4{scale, 0};}
+        void setTranslation(uint32_t index, glm::vec3 translation) {translations[index] = glm::vec4{translation, 0};}
+        void setRotation(uint32_t index, glm::vec3 rotation) {rotations[index] = glm::vec4{rotation, 0};}
+
+        glm::vec4* getScales(){return scales;}
+        glm::vec4* getRotations(){return rotations;}
+        glm::vec4* getTranslations(){return translations;}
+
         uint32_t getInstanceCount() {return instanceCount;}
 
 		void bind(VkCommandBuffer);
@@ -80,7 +86,7 @@ namespace lve
 
         XXH32_hash_t model_name;
         XXH32_hash_t material_name;
-        uint32_t instanceCount = 0;
+        uint32_t instanceCount = 1;
 
         glm::vec4 scales[8192];
         glm::vec4 rotations[8192];

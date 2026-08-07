@@ -22,7 +22,6 @@ namespace lve
 
       void createPointLightHelper(std::ifstream& scene);
       void createObjectHelper(std::ifstream& scene, LveDescriptorPool& pool);
-      void createInstancedObjectHelper(std::ifstream& scene, LveDescriptorPool& pool);
 
       void loadModel(LveGameObject& object, LveDescriptorPool& pool, 
                            LveDescriptorPool& bindlessPool, 
@@ -35,6 +34,8 @@ namespace lve
                                 LveDescriptorSetLayout& bindlessLayout, 
                                 VkDescriptorSet& bindlessSet,
                                 const char* path);
+
+      uint32_t retrieveModel(XXH32_hash_t hash, std::string model);
 
       LveMaterials& handler() {return *materialHandler;}
       //LveDescriptorSetLayout& mattLayout(){return *matLayout;}
@@ -60,6 +61,7 @@ namespace lve
       int count, type;
       std::shared_ptr<LveModel> lveModel = nullptr;
 
+      std::unordered_map<uint32_t, std::shared_ptr<LveModel>> models;
       std::unique_ptr<LveMaterials> materialHandler;
       std::vector<LveGameObject> objArr;
       LveGameObject::Map& gameObjects;

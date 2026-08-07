@@ -42,9 +42,6 @@ layout(push_constant) uniform Push
   mat4 normalMatrix;
   uint RIDo;
   uint RID[7];
-  //vec4 position[8192];
-  //vec4 rotation[8192];
-  //vec4 scale[8192];
   //vec4 used for alignment reasons
 } push;
 
@@ -83,15 +80,16 @@ mat4 rotateX(float angle)
 
 void main()
 {
-  /*
+  
   int index = gl_InstanceIndex;
 
+  /*
   mat4 scaleMatrix;
-  scaleMatrix[0] = vec4(scale[index], 0, 0, 0);
-  scaleMatrix[1] = vec4(0, scale[index], 0, 0);
-  scaleMatrix[2] = vec4(0, 0, scale[index], 0);
+  scaleMatrix[0] = vec4(push.scale[index].x, 0, 0, 0);
+  scaleMatrix[1] = vec4(0, push.scale[index].y, 0, 0);
+  scaleMatrix[2] = vec4(0, 0, push.scale[index].z, 0);
   scaleMatrix[3] = vec4(0, 0, 0, 1);
-  mat4 rotationMatrix = rotateZ(rotation[index] * rotator) * rotateY(rotation[index] * rotator) * rotateX(rotation[index] * rotator)
+  mat4 rotationMatrix = rotateZ(push.rotation[index].x * rotator) * rotateY(push.rotation[index].y * rotator) * rotateX(push.rotation[index].z * rotator);
 
   mat4 appliedTransformation = scaleMatrix * rotationMatrix;
   */

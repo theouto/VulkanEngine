@@ -96,16 +96,15 @@ namespace lve
 		lveDevice.copyBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
 	}
 
-	void LveModel::draw(VkCommandBuffer commandBuffer) //uint32_t instanceCount)
+	void LveModel::draw(VkCommandBuffer commandBuffer)
 	{
 		if (hasIndexBuffer)
 		{
-			vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
-		                                                //instanceCount
+			vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, 0, 0, 0);
         }
 		else
 		{
-			vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
+			vkCmdDraw(commandBuffer, vertexCount, instanceCount, 0, 0);
 		}
 	}
 

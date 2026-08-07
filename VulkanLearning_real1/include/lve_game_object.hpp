@@ -50,7 +50,6 @@ namespace lve {
         LveGameObject& operator=(LveGameObject&&) = default;
 
         id_t getId() { return id; }
-        uint32_t numInstances(){return model->getInstanceCount();}
 
         int type = -1;
         std::shared_ptr<LveModel> model{};
@@ -66,6 +65,7 @@ namespace lve {
         std::string modelName = "";
   
         XXH32_hash_t hash;
+        XXH32_hash_t instanceHash;
         int RID = 0;
 
         int instanceIndex;

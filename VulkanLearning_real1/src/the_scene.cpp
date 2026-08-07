@@ -30,8 +30,7 @@ namespace lve
       scene >> type;
       getline(scene, line);
       
-      if (type == -2) {createInstancedObjectHelper(scene, pool);}
-      else if (type == -1) {createObjectHelper(scene, pool);}
+      if (type == -1) {createObjectHelper(scene, pool);}
       else if (type == 0) createPointLightHelper(scene);
     }
 
@@ -114,26 +113,36 @@ namespace lve
     getline(scene, line);
     material = line;
 
+    std::string tobehashed = material + model;
+    XXH32_hash_t hash = XXH32(tobehashed.c_str(), tobehashed.length(), 0);
+
     scene >> translation[0] >> translation[1] >> translation[2];
     scene >> scale[0] >> scale[1] >> scale[2];
     scene >> rotation[0] >> rotation[1] >> rotation[2];
 
-    //TODO: Add material filepath to createModelFromFile and keep an index somewhere for this
-    //      function below to draw from
-    lveModel = LveModel::createModelFromFile(lveDevice, model);
+    uint32_t instanceIndex = retrieveModel(hash, model);
 
     LveGameObject object = LveGameObject::createGameObject();
     object.model = lveModel;
     object.matName = material;
     object.modelName = model;
+    object.instanceHash = hash;
+    object.instanceIndex = instanceIndex;
+
     std::vector<uint32_t> arr = materialHandler->retrieveBindless(material, *lveRenderer.bindlessSetLayout, 
                         *lveRenderer.descriptorPool, lveRenderer.getBindlessLayout(),
                                     object);
+
     for (int i = 0; i < arr.size(); i++) {object.textures[i] = arr[i];}
     object.transform.translation = translation;
     object.transform.rotation = rotation;
     object.transform.scale = scale;
     object.name = name;
+
+    object.model->setRotation(instanceIndex, rotation);
+    object.model->setScale(instanceIndex, scale);
+    object.model->setTranslation(instanceIndex, translation);
+
     gameObjects.emplace(object.getId(), std::move(object));
 
     getline(scene, line); //clear the line
@@ -151,5 +160,20 @@ namespace lve
     light.name = name;
     light.transform.translation = translation;
     gameObjects.emplace(light.getId(), std::move(light));
+  }
+
+  uint32_t LveScene::retrieveModel(XXH32_hash_t hash, std::string model)
+  {
+    try {lveModel = models.at(hash);} catch (std::out_of_range e)
+    {
+      std::cout << "new model!\n";
+      lveModel = LveModel::createModelFromFile(lveDevice, model);
+      models.emplace(hash, lveModel);
+      lveModel = models.at(hash);
+      return 0;
+    }
+
+    lveModel->upInstanceCount();
+    return lveModel->getInstanceCount() - 1;
   }
 }
