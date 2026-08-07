@@ -60,8 +60,18 @@ mat4 rotateX(float angle)
 
 void main() 
 {
+  int columns = 90;
+
+  float offset = 1.5f;
+
   int index = gl_InstanceIndex;
-  vec4 grid = vec4(position.x + index, position.y - index, position.z + index, 1.0);
+
+  int fullRows = index/columns;
+  int remainder = index%columns;
+  float ydelta = fullRows*offset;
+  float xdelta = remainder*offset;
+
+  vec4 grid = vec4(position + vec3(xdelta, ydelta, 0.f), 1.f);
   /*
   mat4 scaleMatrix;
   scaleMatrix[0] = vec4(push.scale[index].x, 0, 0, 0);

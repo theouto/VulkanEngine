@@ -866,7 +866,7 @@ namespace lve {
         // }
 
         std::cout << "Present mode: V-Sync" << std::endl;
-        return VK_PRESENT_MODE_FIFO_KHR;
+        return VK_PRESENT_MODE_IMMEDIATE_KHR;
     }
 
     VkExtent2D LveSwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
