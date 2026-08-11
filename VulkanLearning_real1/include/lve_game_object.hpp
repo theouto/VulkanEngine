@@ -48,6 +48,7 @@ namespace lve {
         LveGameObject& operator=(const LveGameObject&) = delete;
         LveGameObject(LveGameObject&&) = default;
         LveGameObject& operator=(LveGameObject&&) = default;
+        void update();
 
         id_t getId() { return id; }
 
@@ -68,7 +69,7 @@ namespace lve {
         XXH32_hash_t instanceHash;
         int RID = 0;
 
-        int instanceIndex;
+        uint32_t instanceIndex;
 
         uint32_t textures[6];
         float modifiers[4];

@@ -172,6 +172,8 @@ namespace lve
     //ImGui::InputScalar("Int", ImGuiDataType_U32, &gameObjects.at(object).textures[0], (const void *)1, (const void *)10);
 
     ImGui::InputInt("Shadowmap", &gameObjects.at(object).RID, 1, 1);
+
+    &gameObjects.at(object).update();
   }
 
   void Imgui_LVE::performance()

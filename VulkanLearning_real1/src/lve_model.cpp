@@ -97,6 +97,28 @@ namespace lve
 		lveDevice.copyBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
 	}
 
+    void LveModel::createInstanceBuffer()
+    {
+      VkDeviceSize bufferSize = sizeof(InstanceData) * instanceCount;
+	  uint32_t instanceSize = sizeof(InstanceData);
+
+	  LveBuffer stagingBuffer
+	  {
+		lveDevice, instanceSize, instanceCount,
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+	    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+	  };
+
+	  stagingBuffer.map();
+	  stagingBuffer.writeToBuffer((void*)instanceData.data());
+
+	  indexBuffer = std::make_unique<LveBuffer>(lveDevice, instanceSize, instanceCount,
+	  	VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+	  	VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+      lveDevice.copyBuffer(stagingBuffer.getBuffer(), instanceBuffer->getBuffer(), bufferSize);
+    }
+
 	void LveModel::draw(VkCommandBuffer commandBuffer)
 	{
 		if (hasIndexBuffer)
@@ -111,7 +133,7 @@ namespace lve
 
 	void LveModel::bind(VkCommandBuffer commandBuffer)
 	{
-		VkBuffer buffers[] = { vertexBuffer->getBuffer() };
+		VkBuffer buffers[] = { vertexBuffer->getBuffer(), instanceBuffer->getBuffer()};
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
 
@@ -123,7 +145,7 @@ namespace lve
 
     uint32_t LveModel::addInstanceData(glm::vec3 scale, glm::vec3 translation, glm::vec3 rotation, std::vector<uint32_t> material, std::vector<float> materialModifiers)
     {
-      InstanceData toAdd{translation, rotation, scale};
+      InstanceData toAdd{glm::mat3{translation, rotation, scale}};
       for (int i = 0; i < 5; i++) 
       {
         toAdd.RID[i] = material[i];
@@ -153,7 +175,7 @@ namespace lve
 		attributeDescriptions.push_back({ 3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) });
 
 		return attributeDescriptions;
-	} 
+	}
 
 	void LveModel::Builder::loadModel(const std::string& filepath)
 	{

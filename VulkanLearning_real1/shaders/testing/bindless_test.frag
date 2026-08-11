@@ -28,6 +28,16 @@ layout(push_constant) uniform Push
   float modifiers[4];
 } push;
 
+struct InstanceData
+{
+  vec3 translation;
+  vec3 rotation;
+  vec3 scale;
+  uint RID[8];
+  float modifiers[4];
+};
+
+
 struct PointLight
 {
 	vec4 position;

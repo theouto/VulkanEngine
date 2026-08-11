@@ -37,9 +37,10 @@ namespace lve
 
         struct InstanceData
         {
-          alignas(16) glm::vec3 translation;
-          alignas(16) glm::vec3 rotation;
-          alignas(16) glm::vec3 scale;
+          alignas(16) glm::mat3 instanceVariables;
+          //mat3[0] = translation
+          //mat3[1] = rotation
+          //mat3[2] = scale
           uint32_t RID[8];
           float modifiers[4];
         };
@@ -73,13 +74,15 @@ namespace lve
 
         uint32_t addInstanceData(glm::vec3 scale, glm::vec3 translation, glm::vec3 rotation, std::vector<uint32_t> material, std::vector<float> materialModifiers);
 
-        void setScale(uint32_t index, glm::vec3 scale) {instanceData[index].scale = scale;}
-        void setTranslation(uint32_t index, glm::vec3 translation) {instanceData[index].translation = translation;}
-        void setRotation(uint32_t index, glm::vec3 rotation) {instanceData[index].scale = rotation;}
+        void createInstanceBuffer();
 
-        glm::vec3 getScale(uint32_t index){return instanceData[index].scale;}
-        glm::vec3 getRotation(uint32_t index){return instanceData[index].rotation;}
-        glm::vec3 getTranslation(uint32_t index){return instanceData[index].translation;}
+        void setScale(uint32_t index, glm::vec3 scale) {instanceData[index].instanceVariables[2] = scale;}
+        void setTranslation(uint32_t index, glm::vec3 translation) {instanceData[index].instanceVariables[0] = translation;}
+        void setRotation(uint32_t index, glm::vec3 rotation) {instanceData[index].instanceVariables[1] = rotation;}
+
+        glm::vec3 getScale(uint32_t index){return instanceData[index].instanceVariables[2];}
+        glm::vec3 getRotation(uint32_t index){return instanceData[index].instanceVariables[1];}
+        glm::vec3 getTranslation(uint32_t index){return instanceData[index].instanceVariables[0];}
 
         uint32_t getInstanceCount() {return instanceCount;}
 
@@ -98,10 +101,11 @@ namespace lve
 
         XXH32_hash_t model_name;
         XXH32_hash_t material_name;
-        uint32_t instanceCount = 1;
 
         std::vector<InstanceData> instanceData;
-		
+        std::unique_ptr<LveBuffer> instanceBuffer;
+        uint32_t instanceCount = 1;
+
 		bool hasIndexBuffer = false;
 		std::unique_ptr<LveBuffer> indexBuffer;
 		uint32_t indexCount;

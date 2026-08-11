@@ -19,6 +19,7 @@ namespace lve
 
   void LveScene::load(std::string file, LveDescriptorPool& pool)
   {
+    currentScene = file;
     std::ifstream scene(file.c_str());
     if (!scene.is_open()) {throw std::runtime_error("Failed to open scene file!");}
 
@@ -61,7 +62,7 @@ namespace lve
 
   void LveScene::saveScene()
   {
-    std::ofstream scene("./scenes/test_scene.ths");
+    std::ofstream scene(currentScene);
     if (!scene.is_open()) {throw std::runtime_error("Failed to open scene file!");}
 
     scene << gameObjects.size() << '\n';

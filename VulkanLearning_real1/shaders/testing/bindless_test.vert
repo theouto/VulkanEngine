@@ -1,9 +1,13 @@
 #version 450
 
-layout(location = 0) in vec3 position; //to be deprecated
-layout(location = 1) in vec3 color;
-layout(location = 2) in vec3 normal;
-layout(location = 3) in vec2 uv;
+layout(location = 0) in vec3 vPos;
+layout(location = 1) in vec3 normal;
+layout(location = 2) in vec2 uv;
+
+layout(location = 3) in mat3 instanceVariables;
+layout(location = 4) in uint RID[5];
+layout(location = 5) in float modifiers[4];
+
 
 layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec3 fragPosWorld;

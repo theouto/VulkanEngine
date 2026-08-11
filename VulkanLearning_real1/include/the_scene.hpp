@@ -61,6 +61,8 @@ namespace lve
       int count, type;
       std::shared_ptr<LveModel> lveModel = nullptr;
 
+      std::string currentScene;
+
       std::unordered_map<uint32_t, std::shared_ptr<LveModel>> models;
       std::unique_ptr<LveMaterials> materialHandler;
       std::vector<LveGameObject> objArr;

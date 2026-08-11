@@ -79,4 +79,13 @@ namespace lve
         gameObj.type = 0;
 		return gameObj;
 	}
+
+    void LveGameObject::update()
+    {
+      model->setRotation(instanceIndex, transform.rotation);
+      model->setScale(instanceIndex, transform.scale);
+      model->setTranslation(instanceIndex, transform.translation);
+
+      
+    }
 }
