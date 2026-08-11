@@ -1,7 +1,5 @@
 #pragma once
 
-#include "imconfig.h"
-
 #include "../thirdparty/imgui/imgui_impl_sdl3.h"
 #include "../thirdparty/imgui/imgui_impl_vulkan.h"
 

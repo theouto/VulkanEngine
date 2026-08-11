@@ -121,6 +121,19 @@ namespace lve
 		}
 	}
 
+    uint32_t LveModel::addInstanceData(glm::vec3 scale, glm::vec3 translation, glm::vec3 rotation, std::vector<uint32_t> material, std::vector<float> materialModifiers)
+    {
+      InstanceData toAdd{translation, rotation, scale};
+      for (int i = 0; i < 5; i++) 
+      {
+        toAdd.RID[i] = material[i];
+        if (i < 4) {toAdd.modifiers[i] = materialModifiers[i];}
+      }
+      uint32_t index = instanceData.size();
+      instanceData.push_back(toAdd);
+      return index; //just in case
+    }
+
 	std::vector<VkVertexInputBindingDescription> LveModel::Vertex::getBindingDescriptions()
 	{
 		std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);

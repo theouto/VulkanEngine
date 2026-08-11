@@ -113,8 +113,7 @@ namespace lve
     getline(scene, line);
     material = line;
 
-    std::string tobehashed = material + model;
-    XXH32_hash_t hash = XXH32(tobehashed.c_str(), tobehashed.length(), 0);
+    XXH32_hash_t hash = XXH32(model.c_str(), model.length(), 0);
 
     scene >> translation[0] >> translation[1] >> translation[2];
     scene >> scale[0] >> scale[1] >> scale[2];
@@ -133,15 +132,16 @@ namespace lve
                         *lveRenderer.descriptorPool, lveRenderer.getBindlessLayout(),
                                     object);
 
+    //It's good to have this here as well in the event of a change in model data, necessitating a move away from the
+    //previous instance. Sure, I could extradite the data in the model change, but that's a TODO: for a later date.
     for (int i = 0; i < arr.size(); i++) {object.textures[i] = arr[i];}
     object.transform.translation = translation;
     object.transform.rotation = rotation;
     object.transform.scale = scale;
     object.name = name;
 
-    object.model->setRotation(instanceIndex, rotation);
-    object.model->setScale(instanceIndex, scale);
-    object.model->setTranslation(instanceIndex, translation);
+    object.model->addInstanceData(scale, translation, rotation, arr, 
+                                  materialHandler->modi(XXH32(material.c_str(), material.length(), 0)));
 
     gameObjects.emplace(object.getId(), std::move(object));
 

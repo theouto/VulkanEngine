@@ -4,6 +4,7 @@
 #include "lve_buffer.hpp"
 #include "lve_textures.hpp"
 #include "../thirdparty/xxHash/xxhash.h"
+#include <glm/ext/vector_float3.hpp>
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -34,6 +35,15 @@ namespace lve
 				&& normal == other.normal && uv == other.uv; }
 		};
 
+        struct InstanceData
+        {
+          alignas(16) glm::vec3 translation;
+          alignas(16) glm::vec3 rotation;
+          alignas(16) glm::vec3 scale;
+          uint32_t RID[8];
+          float modifiers[4];
+        };
+
 		struct UniformBufferObject {
 			alignas(16) glm::mat4 model;
 			alignas(16) glm::mat4 view;
@@ -61,13 +71,15 @@ namespace lve
 
 		static std::unique_ptr<LveModel> createModelFromFile(LveDevice& device, const std::string &filepath);
 
-        void setScale(uint32_t index, glm::vec3 scale) {scales[index] = glm::vec4{scale, 0};}
-        void setTranslation(uint32_t index, glm::vec3 translation) {translations[index] = glm::vec4{translation, 0};}
-        void setRotation(uint32_t index, glm::vec3 rotation) {rotations[index] = glm::vec4{rotation, 0};}
+        uint32_t addInstanceData(glm::vec3 scale, glm::vec3 translation, glm::vec3 rotation, std::vector<uint32_t> material, std::vector<float> materialModifiers);
 
-        glm::vec4* getScales(){return scales;}
-        glm::vec4* getRotations(){return rotations;}
-        glm::vec4* getTranslations(){return translations;}
+        void setScale(uint32_t index, glm::vec3 scale) {instanceData[index].scale = scale;}
+        void setTranslation(uint32_t index, glm::vec3 translation) {instanceData[index].translation = translation;}
+        void setRotation(uint32_t index, glm::vec3 rotation) {instanceData[index].scale = rotation;}
+
+        glm::vec3 getScale(uint32_t index){return instanceData[index].scale;}
+        glm::vec3 getRotation(uint32_t index){return instanceData[index].rotation;}
+        glm::vec3 getTranslation(uint32_t index){return instanceData[index].translation;}
 
         uint32_t getInstanceCount() {return instanceCount;}
 
@@ -88,9 +100,7 @@ namespace lve
         XXH32_hash_t material_name;
         uint32_t instanceCount = 1;
 
-        glm::vec4 scales[8192];
-        glm::vec4 rotations[8192];
-        glm::vec4 translations[8192];
+        std::vector<InstanceData> instanceData;
 		
 		bool hasIndexBuffer = false;
 		std::unique_ptr<LveBuffer> indexBuffer;
