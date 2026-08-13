@@ -302,7 +302,7 @@ void main()
     float currDepth = gl_FragCoord.z;
 
     float prePassDepth = texture(depthMap, projCoords).r;
-    
+
     if (prePassDepth < currDepth) discard;
 
 	vec3 cameraPosWorld = ubo.invView[3].xyz;
