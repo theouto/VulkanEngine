@@ -113,7 +113,8 @@ namespace lve
 	  stagingBuffer.map();
 	  stagingBuffer.writeToBuffer((void*)instanceData.data());
 
-	  instanceBuffer = std::make_unique<LveBuffer>(lveDevice, instanceSize, instanceCount, VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+	  instanceBuffer = std::make_unique<LveBuffer>(lveDevice, instanceSize, instanceCount, 
+        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 	  	VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
       std::cout << "try to copy\n";
@@ -135,10 +136,11 @@ namespace lve
 
 	void LveModel::bind(VkCommandBuffer commandBuffer)
 	{
-		VkBuffer buffers[] = { vertexBuffer->getBuffer(), instanceBuffer->getBuffer()};
-		VkDeviceSize offsets[] = { 0 };
+		VkBuffer buffers[] = { vertexBuffer->getBuffer()};
+		VkDeviceSize offsets[] = { 0};
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
-
+        buffers[0] = instanceBuffer->getBuffer();
+        vkCmdBindVertexBuffers(commandBuffer, 1, 1, buffers, offsets);
 		if (hasIndexBuffer) 
 		{
 			vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
@@ -147,10 +149,10 @@ namespace lve
 
     uint32_t LveModel::addInstanceData(glm::vec3 scale, glm::vec3 translation, glm::vec3 rotation, std::vector<uint32_t> material, std::vector<float> materialModifiers)
     {
-      InstanceData toAdd{glm::mat3{translation, rotation, scale}};
-      for (int i = 0; i < 5; i++) 
+      InstanceData toAdd{translation, rotation, scale};
+      for (int i = 0; i < 6; i++) 
       {
-        toAdd.RID[i] = material[i];
+        if (i < 3) {toAdd.RIDone[i] = material[i];} else {toAdd.RIDtwo[i-3] = material[i];}
         if (i < 4) {toAdd.modifiers[i] = materialModifiers[i];}
       }
 
@@ -184,7 +186,7 @@ namespace lve
 		std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
 		bindingDescriptions[0].binding = 1;
 		bindingDescriptions[0].stride = sizeof(InstanceData);
-		bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_INSTANCE;
 		return bindingDescriptions;
 	}
 
@@ -192,10 +194,12 @@ namespace lve
 	{
 		std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
-        //TODO: FIX THE DAMN FORMATS
-		attributeDescriptions.push_back({ 3, 1, VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK, offsetof(InstanceData, instanceVariables) });
-		attributeDescriptions.push_back({ 6, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(InstanceData, RID) });
-		attributeDescriptions.push_back({ 12, 1, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(InstanceData, modifiers) });
+		attributeDescriptions.push_back({ 3, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(InstanceData, scale) });
+		attributeDescriptions.push_back({ 4, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(InstanceData, rotation) });
+        attributeDescriptions.push_back({ 5, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(InstanceData, translation) });
+        attributeDescriptions.push_back({ 6, 1, VK_FORMAT_R32G32B32_SINT, offsetof(InstanceData, RIDone) });
+        attributeDescriptions.push_back({ 7, 1, VK_FORMAT_R32G32B32_SINT, offsetof(InstanceData, RIDtwo) });
+		attributeDescriptions.push_back({ 8, 1, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(InstanceData, modifiers) });
 
 		return attributeDescriptions;
 	}

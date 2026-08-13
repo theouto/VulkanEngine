@@ -4,9 +4,12 @@ layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 uv;
 
-layout(location = 3) in mat3 instanceVariables;
-layout(location = 6) in uint RID[6];
-layout(location = 12) in vec4 modifiers;
+layout(location = 3) in vec3 scale;
+layout(location = 4) in vec3 rotation;
+layout(location = 5) in vec3 translation;
+layout(location = 6) in ivec3 RIDone;
+layout(location = 7) in ivec3 RIDtwo;
+layout(location = 8) in vec4 modifiers;
 
 layout(location = 0) out vec3 fragPosWorld;
 layout(location = 1) out vec3 fragNormalWorld;
@@ -84,24 +87,16 @@ mat4 rotateX(float angle)
 
 void main()
 {
-  int columns = 90;
-
-  float offset = 1.5f;
-
-  int index = gl_InstanceIndex;
-
-  vec4 instancePosition = vec4(position + instanceVariables[0], 0.f);
+  vec4 instancePosition = vec4(position + translation, 1.f);
  
   mat4 scaleMatrix;
-  scaleMatrix[0] = vec4(instanceVariables[2].x, 0, 0, 0);
-  scaleMatrix[1] = vec4(0, instanceVariables[2].y, 0, 0);
-  scaleMatrix[2] = vec4(0, 0, instanceVariables[2].z, 0);
+  scaleMatrix[0] = vec4(scale.x, 0, 0, 0);
+  scaleMatrix[1] = vec4(0, scale.y, 0, 0);
+  scaleMatrix[2] = vec4(0, 0, scale.z, 0);
   scaleMatrix[3] = vec4(0, 0, 0, 1);
-  mat4 rotationMatrix = rotateZ(instanceVariables[1].x * rotator) * rotateY(instanceVariables[1].y * rotator) * rotateX(instanceVariables[1].z * rotator);
+  mat4 rotationMatrix = rotateZ(rotation.x * rotator) * rotateY(rotation.y * rotator) * rotateX(rotation.z * rotator);
 
-  mat4 appliedTransformation = scaleMatrix * rotationMatrix;
-
-  vec4 positionWorld = appliedTransformation * push.modelMatrix * instancePosition;//vec4(position, 1.0);
+  vec4 positionWorld = rotationMatrix * scaleMatrix * push.modelMatrix * instancePosition;//vec4(position, 1.0);
   gl_Position = ubo.projection * ubo.view * positionWorld;
 
   fragNormalWorld = normalize(mat3(push.normalMatrix) * normal);
@@ -110,7 +105,7 @@ void main()
   fmodifiers = modifiers;
   for (int i = 0; i < 6; i++)
   {
-    fRID[i] = RID[i];
+    if (i < 3) {fRID[i] = RIDone[i];} else {fRID[i] = RIDtwo[i - 3];}
     if (i < 4) 
     {
       FragPosLightSpace[i] = ubo.lightSpaceMatrix[i] * push.modelMatrix * vec4(position, 1.f);

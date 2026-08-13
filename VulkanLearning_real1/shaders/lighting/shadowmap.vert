@@ -1,7 +1,9 @@
 #version 450
 layout(location = 0) in vec3 position;
 
-layout(location = 3) in mat3 instanceVariables;
+layout(location = 3) in vec3 scale;
+layout(location = 4) in vec3 rotation;
+layout(location = 5) in vec3 translation;
 
 const float PI = 3.1415926535897932384626433832795;
 const float rotator = PI / 180.f;
@@ -45,20 +47,14 @@ mat4 rotateX(float angle)
 
 void main() 
 {
-  int columns = 90;
-
-  float offset = 1.5f;
-
-  int index = gl_InstanceIndex;
-
-  vec4 instancePosition = vec4(position + instanceVariables[0], 0.f);
+  vec4 instancePosition = vec4(translation, 1.f);
  
   mat4 scaleMatrix;
-  scaleMatrix[0] = vec4(instanceVariables[2].x, 0, 0, 0);
-  scaleMatrix[1] = vec4(0, instanceVariables[2].y, 0, 0);
-  scaleMatrix[2] = vec4(0, 0, instanceVariables[2].z, 0);
+  scaleMatrix[0] = vec4(scale.x, 0, 0, 0);
+  scaleMatrix[1] = vec4(0, scale.y, 0, 0);
+  scaleMatrix[2] = vec4(0, 0, scale.z, 0);
   scaleMatrix[3] = vec4(0, 0, 0, 1);
-  mat4 rotationMatrix = rotateZ(instanceVariables[1].x * rotator) * rotateY(instanceVariables[1].y * rotator) * rotateX(instanceVariables[1].z * rotator);
+  mat4 rotationMatrix = rotateZ(rotation.x * rotator) * rotateY(rotation.y * rotator) * rotateX(rotation.z * rotator);
 
   mat4 appliedTransformation = scaleMatrix * rotationMatrix;
 

@@ -83,6 +83,9 @@ namespace lve
 		auto& bindingDescriptions = configInfo.bindingDescriptions;
 		auto& attributeDescriptions = configInfo.attributeDescriptions;
 
+        std::cout << vertFilePath << "\n";
+        std::cout << configInfo.attributeDescriptions.size() << "\n\n\n\n";
+
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
@@ -175,7 +178,6 @@ namespace lve
 
 	void LvePipeline::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo)
 	{
-
 		configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 		configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
@@ -278,7 +280,11 @@ namespace lve
         configInfo.subpass = 0;
 
         configInfo.bindingDescriptions = LveModel::Vertex::getBindingDescriptions();
-        configInfo.attributeDescriptions = LveModel::Vertex::getAttributeDescriptions();
+        configInfo.bindingDescriptions.push_back(LveModel::InstanceData::getBindingDescriptions()[0]);
+
+		configInfo.attributeDescriptions = LveModel::Vertex::getAttributeDescriptions();
+        auto dummy = LveModel::InstanceData::getAttributeDescriptions();
+        for (int i = 0; i < dummy.size(); i++) configInfo.attributeDescriptions.push_back(dummy[i]);
     }
 
 	void LvePipeline::enableAlphaBlending(PipelineConfigInfo& configInfo)

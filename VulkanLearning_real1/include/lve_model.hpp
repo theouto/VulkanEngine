@@ -37,11 +37,11 @@ namespace lve
 
         struct InstanceData
         {
-          glm::mat3 instanceVariables;
-          //mat3[0] = translation
-          //mat3[1] = rotation
-          //mat3[2] = scale
-          uint32_t RID[6];
+          glm::vec3 translation;
+          glm::vec3 rotation;
+          glm::vec3 scale;
+          glm::ivec3 RIDone;
+          glm::ivec3 RIDtwo;
           glm::vec4 modifiers;
 
           static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
@@ -79,13 +79,13 @@ namespace lve
 
         void createInstanceBuffer();
 
-        void setScale(uint32_t index, glm::vec3 scale) {instanceData[index].instanceVariables[2] = scale;}
-        void setTranslation(uint32_t index, glm::vec3 translation) {instanceData[index].instanceVariables[0] = translation;}
-        void setRotation(uint32_t index, glm::vec3 rotation) {instanceData[index].instanceVariables[1] = rotation;}
+        void setScale(uint32_t index, glm::vec3 scale) {instanceData[index].scale = scale;}
+        void setTranslation(uint32_t index, glm::vec3 translation) {instanceData[index].translation = translation;}
+        void setRotation(uint32_t index, glm::vec3 rotation) {instanceData[index].rotation = rotation;}
 
-        glm::vec3 getScale(uint32_t index){return instanceData[index].instanceVariables[2];}
-        glm::vec3 getRotation(uint32_t index){return instanceData[index].instanceVariables[1];}
-        glm::vec3 getTranslation(uint32_t index){return instanceData[index].instanceVariables[0];}
+        glm::vec3 getScale(uint32_t index){return instanceData[index].scale;}
+        glm::vec3 getRotation(uint32_t index){return instanceData[index].rotation;}
+        glm::vec3 getTranslation(uint32_t index){return instanceData[index].translation;}
 
         uint32_t getInstanceCount() {return instanceCount;}
 
