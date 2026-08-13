@@ -205,7 +205,7 @@ vec3 calculateSunLight(DirectionalLight sun, vec3 surfaceNormal, vec2 UVs, vec3 
 
     vec3 fres = fresnelSchlick(clamp(dot(halfAngle, viewDirection), 0.f, 1.f), F0);
  
-    float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(storageSampler[push.RID[1]], UVs).r * push.modifiers[0]);
+    float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(storageSampler[fRID[1]], UVs).r * push.modifiers[0]);
 
     float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(storageSampler[push.RID[1]], UVs).x, 0.001f, 1.f) * push.modifiers[1]);
 

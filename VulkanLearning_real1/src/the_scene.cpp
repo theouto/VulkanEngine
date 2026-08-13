@@ -41,9 +41,10 @@ namespace lve
 
     for (auto &kv : models)
     {
-      std::cout << "\ndamn\n";
       kv.second->createInstanceBuffer();
     }
+
+      std::cout << "\ndamn\n";
 
   }
 

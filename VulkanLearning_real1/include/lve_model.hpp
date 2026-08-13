@@ -41,7 +41,7 @@ namespace lve
           //mat3[0] = translation
           //mat3[1] = rotation
           //mat3[2] = scale
-          uint32_t RID[8];
+          uint32_t RID[6];
           glm::vec4 modifiers;
 
           static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();

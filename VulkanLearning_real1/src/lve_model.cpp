@@ -113,11 +113,12 @@ namespace lve
 	  stagingBuffer.map();
 	  stagingBuffer.writeToBuffer((void*)instanceData.data());
 
-	  indexBuffer = std::make_unique<LveBuffer>(lveDevice, instanceSize, instanceCount,
-	  	VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+	  instanceBuffer = std::make_unique<LveBuffer>(lveDevice, instanceSize, instanceCount, VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 	  	VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
+      std::cout << "try to copy\n";
       lveDevice.copyBuffer(stagingBuffer.getBuffer(), instanceBuffer->getBuffer(), bufferSize);
+      std::cout << "copies\n";
     }
 
 	void LveModel::draw(VkCommandBuffer commandBuffer)
