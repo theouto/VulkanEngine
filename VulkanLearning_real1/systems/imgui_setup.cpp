@@ -173,7 +173,7 @@ namespace lve
 
     ImGui::InputInt("Shadowmap", &gameObjects.at(object).RID, 1, 1);
 
-    &gameObjects.at(object).update();
+    gameObjects.at(object).update();
   }
 
   void Imgui_LVE::performance()

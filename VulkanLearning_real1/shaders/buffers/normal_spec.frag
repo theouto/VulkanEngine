@@ -3,10 +3,10 @@
 #define NEAR 0.1
 #define FAR 30.f
 
-layout(location = 0) in vec3 fragColor;
-layout(location = 1) in vec3 fragPosWorld;
-layout(location = 2) in vec3 fragNormalWorld;
-layout(location = 3) in vec2 fragUv;
+layout(location = 0) in vec3 fragPosWorld;
+layout(location = 1) in vec3 fragNormalWorld;
+layout(location = 2) in vec2 fragUv;
+layout(location = 3) flat in uint fRID[6];
 
 layout(set = 1, binding = 0) uniform sampler2D textures[];
 
@@ -67,7 +67,7 @@ mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
 vec3 perturb_normal( vec3 N, vec3 V, vec2 texcoord ) 
 { 
   // assume N, the interpolated vertex normal and // V, the view vector (vertex to eye) 
-  vec3 map = texture( textures[push.relevantRid[1]], texcoord ).rgb; 
+  vec3 map = texture( textures[fRID[1]], texcoord ).rgb; 
   map = map * 255./127. - 128./127.;
   mat3 TBN = cotangent_frame( N, V, texcoord ); 
   return normalize( TBN * map ); 
@@ -90,7 +90,7 @@ void main()
 
     surfaceNormal = perturb_normal(surfaceNormal, viewDirection, UVs);
 
-    float spec = texture(textures[push.relevantRid[0]], UVs).r;
+    float spec = texture(textures[fRID[0]], UVs).r;
 
     outColor = vec4(surfaceNormal, spec);
 }

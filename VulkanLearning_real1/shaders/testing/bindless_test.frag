@@ -3,12 +3,12 @@
 #define NEAR 0.01f
 #define FAR 400.f
 
-
-layout(location = 0) in vec3 fragColor;
-layout(location = 1) in vec3 fragPosWorld;
-layout(location = 2) in vec3 fragNormalWorld;
-layout(location = 3) in vec2 fragUv;
-layout(location = 4) in vec4 FragPosLightSpace[4];
+layout(location = 0) in vec3 fragPosWorld;
+layout(location = 1) in vec3 fragNormalWorld;
+layout(location = 2) in vec2 fragUv;
+layout(location = 3) in vec4 FragPosLightSpace[4];
+layout(location = 7) flat in uint fRID[6];
+layout(location = 13) in vec4 fmodifiers;
 
 layout(location = 0) out vec4 outColor;
 
@@ -27,16 +27,6 @@ layout(push_constant) uniform Push
   uint RID[7];
   float modifiers[4];
 } push;
-
-struct InstanceData
-{
-  vec3 translation;
-  vec3 rotation;
-  vec3 scale;
-  uint RID[8];
-  float modifiers[4];
-};
-
 
 struct PointLight
 {

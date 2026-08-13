@@ -2,6 +2,10 @@
 
 layout(location = 0) in vec3 position;
 
+layout(location = 3) in mat3 instanceVariables;
+layout(location = 6) in uint RID[5];
+layout(location = 11) in float modifiers[4];
+
 const float PI = 3.1415926535897932384626433832795;
 const float rotator = PI / 180.f;
 
@@ -73,12 +77,14 @@ void main()
 
   vec4 grid = vec4(position + vec3(xdelta, ydelta, 0.f), 1.f);
   /*
+  vec4 instancePosition = vec4(position + instanceVariables[0], 0.f);
+ 
   mat4 scaleMatrix;
-  scaleMatrix[0] = vec4(push.scale[index].x, 0, 0, 0);
-  scaleMatrix[1] = vec4(0, push.scale[index].y, 0, 0);
-  scaleMatrix[2] = vec4(0, 0, push.scale[index].z, 0);
+  scaleMatrix[0] = vec4(instanceVariables[2].x, 0, 0, 0);
+  scaleMatrix[1] = vec4(0, push.scale[2].y, 0, 0);
+  scaleMatrix[2] = vec4(0, 0, push.scale[2].z, 0);
   scaleMatrix[3] = vec4(0, 0, 0, 1);
-  mat4 rotationMatrix = rotateZ(push.rotation[index].x * rotator) * rotateY(push.rotation[index].y * rotator) * rotateX(push.rotation[index].z * rotator);
+  mat4 rotationMatrix = rotateZ(instanceVariables[1].x * rotator) * rotateY(instanceVariables[1].y * rotator) * rotateX(instanceVariables[1].z * rotator);
 
   mat4 appliedTransformation = scaleMatrix * rotationMatrix;
   */

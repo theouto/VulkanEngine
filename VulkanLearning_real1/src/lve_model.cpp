@@ -1,5 +1,6 @@
 #include "../include/lve_model.hpp"
 #include "../include/lve_utils.hpp"
+#include <vulkan/vulkan_core.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
@@ -151,6 +152,7 @@ namespace lve
         toAdd.RID[i] = material[i];
         if (i < 4) {toAdd.modifiers[i] = materialModifiers[i];}
       }
+
       uint32_t index = instanceData.size();
       instanceData.push_back(toAdd);
       return index; //just in case
@@ -170,13 +172,32 @@ namespace lve
 		std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
 		attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position) });
-		attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color) });
-		attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal) });
-		attributeDescriptions.push_back({ 3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) });
+		attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal) });
+		attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) });
 
 		return attributeDescriptions;
 	}
 
+    std::vector<VkVertexInputBindingDescription> LveModel::InstanceData::getBindingDescriptions()
+	{
+		std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
+		bindingDescriptions[0].binding = 1;
+		bindingDescriptions[0].stride = sizeof(InstanceData);
+		bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		return bindingDescriptions;
+	}
+
+	std::vector<VkVertexInputAttributeDescription> LveModel::InstanceData::getAttributeDescriptions()
+	{
+		std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
+
+        //TODO: FIX THE DAMN FORMATS
+		attributeDescriptions.push_back({ 3, 1, VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK, offsetof(InstanceData, instanceVariables) });
+		attributeDescriptions.push_back({ 6, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(InstanceData, RID) });
+		attributeDescriptions.push_back({ 12, 1, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(InstanceData, modifiers) });
+
+		return attributeDescriptions;
+	}
 	void LveModel::Builder::loadModel(const std::string& filepath)
 	{
 		tinyobj::attrib_t attrib;
@@ -206,8 +227,6 @@ namespace lve
 					attrib.vertices[3 * index.vertex_index + 0],
 					attrib.vertices[3 * index.vertex_index + 1],
 					attrib.vertices[3 * index.vertex_index + 2], };
-
-                    std::cout << vertex.position.x << " " << vertex.position.y << " " << vertex.position.z << '\n';
 
 					vertex.color = {
 					attrib.colors[3 * index.vertex_index + 0],

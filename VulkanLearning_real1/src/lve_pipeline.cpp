@@ -245,8 +245,14 @@ namespace lve
 		configInfo.dynamicStateInfo.pDynamicStates = configInfo.dynamicStateEnables.data();
 		configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
 
+
+        //eventually I have to clean this up, but this is currently not too big an issue as I know what data comes in and out
 		configInfo.bindingDescriptions = LveModel::Vertex::getBindingDescriptions();
+        configInfo.bindingDescriptions.push_back(LveModel::InstanceData::getBindingDescriptions()[0]);
+
 		configInfo.attributeDescriptions = LveModel::Vertex::getAttributeDescriptions();
+        auto dummy = LveModel::InstanceData::getAttributeDescriptions();
+        for (int i = 0; i < dummy.size(); i++) configInfo.attributeDescriptions.push_back(dummy[i]);
 	}
 
     void LvePipeline::defaultPipelineShadowInfo(PipelineConfigInfo &configInfo)

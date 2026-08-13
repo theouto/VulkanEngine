@@ -37,12 +37,15 @@ namespace lve
 
         struct InstanceData
         {
-          alignas(16) glm::mat3 instanceVariables;
+          glm::mat3 instanceVariables;
           //mat3[0] = translation
           //mat3[1] = rotation
           //mat3[2] = scale
           uint32_t RID[8];
-          float modifiers[4];
+          glm::vec4 modifiers;
+
+          static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
+          static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
         };
 
 		struct UniformBufferObject {
@@ -96,6 +99,7 @@ namespace lve
         std::vector<std::unique_ptr<LveTextures>> textures;
         LveDevice &lveDevice;
 
+        bool createdbuffer = false;
 		std::unique_ptr<LveBuffer> vertexBuffer;
 		uint32_t vertexCount;
 

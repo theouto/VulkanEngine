@@ -36,6 +36,15 @@ namespace lve
     }
 
     scene.close();
+
+    std::cout << "the moment prior\n";
+
+    for (auto &kv : models)
+    {
+      std::cout << "\ndamn\n";
+      kv.second->createInstanceBuffer();
+    }
+
   }
 
   void LveScene::loadModel(LveGameObject& object, LveDescriptorPool& pool, 
@@ -165,7 +174,10 @@ namespace lve
 
   uint32_t LveScene::retrieveModel(XXH32_hash_t hash, std::string model)
   {
-    try {lveModel = models.at(hash);} catch (std::out_of_range e)
+    int instanceCount;
+    try {
+      lveModel = models.at(hash);
+      instanceCount = lveModel->getInstanceCount();} catch (std::out_of_range e)
     {
       std::cout << "new model!\n";
       lveModel = LveModel::createModelFromFile(lveDevice, model);
@@ -174,7 +186,17 @@ namespace lve
       return 0;
     }
 
-    lveModel->upInstanceCount();
+    if (instanceCount > 8192)
+    {
+      std::cout << "new model!\n";
+      lveModel = LveModel::createModelFromFile(lveDevice, model);
+      models.emplace(hash+1, lveModel);
+      lveModel = models.at(hash+1);
+      //TODO: fix this inevitable problem that I am sidelining for the moment
+    } else {
+      lveModel->upInstanceCount();
+    }
+
     return lveModel->getInstanceCount() - 1;
   }
 }
