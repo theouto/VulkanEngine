@@ -20,7 +20,7 @@ namespace std
 		size_t operator()(lve::LveModel::Vertex const &vertex) const 
 		{
 			size_t seed = 0;
-			lve::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
+			lve::hashCombine(seed, vertex.position, vertex.normal, vertex.uv);
 			return seed;
 		}
 	};
@@ -174,9 +174,9 @@ namespace lve
 	{
 		std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
-		attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position) });
-		attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal) });
-		attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) });
+		attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position)});
+		attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal)});
+		attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv)});
 
 		return attributeDescriptions;
 	}
@@ -194,12 +194,12 @@ namespace lve
 	{
 		std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
-		attributeDescriptions.push_back({ 3, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(InstanceData, scale) });
-		attributeDescriptions.push_back({ 4, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(InstanceData, rotation) });
-        attributeDescriptions.push_back({ 5, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(InstanceData, translation) });
-        attributeDescriptions.push_back({ 6, 1, VK_FORMAT_R32G32B32_SINT, offsetof(InstanceData, RIDone) });
-        attributeDescriptions.push_back({ 7, 1, VK_FORMAT_R32G32B32_SINT, offsetof(InstanceData, RIDtwo) });
-		attributeDescriptions.push_back({ 8, 1, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(InstanceData, modifiers) });
+		attributeDescriptions.push_back({ 3, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(InstanceData, scale)});
+		attributeDescriptions.push_back({ 4, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(InstanceData, rotation)});
+        attributeDescriptions.push_back({ 5, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(InstanceData, translation)});
+        attributeDescriptions.push_back({ 6, 1, VK_FORMAT_R32G32B32_SINT, offsetof(InstanceData, RIDone)});
+        attributeDescriptions.push_back({ 7, 1, VK_FORMAT_R32G32B32_SINT, offsetof(InstanceData, RIDtwo)});
+		attributeDescriptions.push_back({ 8, 1, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(InstanceData, modifiers)});
 
 		return attributeDescriptions;
 	}
@@ -233,10 +233,10 @@ namespace lve
 					attrib.vertices[3 * index.vertex_index + 1],
 					attrib.vertices[3 * index.vertex_index + 2], };
 
-					vertex.color = {
-					attrib.colors[3 * index.vertex_index + 0],
-					attrib.colors[3 * index.vertex_index + 1],
-					attrib.colors[3 * index.vertex_index + 2], };
+					//vertex.color = {
+					//attrib.colors[3 * index.vertex_index + 0],
+					//attrib.colors[3 * index.vertex_index + 1],
+					//attrib.colors[3 * index.vertex_index + 2], };
 				}
 
 				if (index.normal_index >= 0)

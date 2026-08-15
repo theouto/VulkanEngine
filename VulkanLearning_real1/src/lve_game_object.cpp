@@ -36,7 +36,7 @@ namespace lve
 				0.0f,
 			},
 			//{translation.x, translation.y, translation.z, 1.0f} 
-            glm::vec4{1.f}};
+            glm::vec4{glm::vec3{0.f}, 1.f}};
 	}
 
 	glm::mat3 TransformComponent::normalMatrix()

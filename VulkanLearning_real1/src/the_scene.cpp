@@ -37,14 +37,10 @@ namespace lve
 
     scene.close();
 
-    std::cout << "the moment prior\n";
-
     for (auto &kv : models)
     {
       kv.second->createInstanceBuffer();
     }
-
-      std::cout << "\ndamn\n";
 
   }
 

@@ -67,7 +67,7 @@ mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
 vec3 perturb_normal( vec3 N, vec3 V, vec2 texcoord ) 
 { 
   // assume N, the interpolated vertex normal and // V, the view vector (vertex to eye) 
-  vec3 map = texture( textures[fRID[1]], texcoord ).rgb; 
+  vec3 map = texture( textures[fRID[2]], texcoord ).rgb; 
   map = map * 255./127. - 128./127.;
   mat3 TBN = cotangent_frame( N, V, texcoord ); 
   return normalize( TBN * map ); 
@@ -89,8 +89,9 @@ void main()
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld);
 
     surfaceNormal = perturb_normal(surfaceNormal, viewDirection, UVs);
+    surfaceNormal.z = -surfaceNormal.z;
 
-    float spec = texture(textures[fRID[0]], UVs).r;
+    float spec = texture(textures[fRID[1]], UVs).r;
 
     outColor = vec4(surfaceNormal, spec);
 }

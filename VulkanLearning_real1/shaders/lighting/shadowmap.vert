@@ -47,16 +47,22 @@ mat4 rotateX(float angle)
 
 void main() 
 {
-  vec4 instancePosition = vec4(translation, 1.f);
- 
-  mat4 scaleMatrix;
-  scaleMatrix[0] = vec4(scale.x, 0, 0, 0);
-  scaleMatrix[1] = vec4(0, scale.y, 0, 0);
-  scaleMatrix[2] = vec4(0, 0, scale.z, 0);
-  scaleMatrix[3] = vec4(0, 0, 0, 1);
+  mat4 scaleMatrix =
+  {
+    vec4(scale.x, 0, 0, 0),
+    vec4(0, scale.y, 0, 0),
+    vec4(0, 0, scale.z, 0),
+    vec4(0, 0, 0, 1)
+  };
+
   mat4 rotationMatrix = rotateZ(rotation.x * rotator) * rotateY(rotation.y * rotator) * rotateX(rotation.z * rotator);
 
-  mat4 appliedTransformation = scaleMatrix * rotationMatrix;
+  mat4 mat = {push.modelMatrix[0], push.modelMatrix[1], push.modelMatrix[2], vec4(translation, 1.f)};
 
-  gl_Position = appliedTransformation * push.lightSpaceMatrix * push.modelMatrix * instancePosition;//vec4(position, 1.0);
+  mat4 instanceMatrix = rotationMatrix * mat;
+  instanceMatrix = scaleMatrix * instanceMatrix;
+
+  vec4 positionWorld = instanceMatrix * vec4(position, 1.f);
+
+  gl_Position = push.lightSpaceMatrix * positionWorld;
 }

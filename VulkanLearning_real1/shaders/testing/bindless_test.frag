@@ -306,7 +306,7 @@ void main()
     if (prePassDepth < currDepth) discard;
 
 	vec3 cameraPosWorld = ubo.invView[3].xyz;
-	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld); 
+	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld);
 
     vec2 UVs = fragUv;
     mat3 TBN = cotangent_frame(normalize(fragNormalWorld), viewDirection, UVs);
@@ -322,11 +322,14 @@ void main()
     //vec3 boxcolor = texture(fakebox, boxuv).rgb;
 
 	//UVs = parallaxOcclusionMapping(UVs, TBN * viewDirection);
-    
+
 	vec3 tangentNormal = texture(storageSampler[fRID[2]], UVs).xyz * 255.f/127.f - 128.f/127.f;
+
 	//vec3 surfaceNormal = texture(normalSpec, projCoords).rgb;
     vec3 surfaceNormal = normalize(TBN * tangentNormal);
+
     //vec3 surfaceNormal = normalize(fragNormalWorld);
+    surfaceNormal.z = -surfaceNormal.z;
 
     vec3 diffcont = vec3(0.f);
     //float diffcont = 0.f;
@@ -369,6 +372,6 @@ void main()
     //outColor = vec4(vec3(depth), 0.f);
     //outColor = vec4(debugColours[image], 0.f);
     outColor = diffuse + vec4(Lo, 0.f);
-    //outColor = vec4(texture(storageSampler[fRID[fRIDo]], fragUv).rgb, 1.f);
+    //outColor = vec4(texture(storageSampler[fRID[push.RIDo]], fragUv).rgb, 1.f);
     //outColor = vec4(texture(shadowStorage[fRIDo], fragUv).rgb, 1.f);
 }
