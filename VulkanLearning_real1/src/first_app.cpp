@@ -116,7 +116,7 @@ namespace lve
 
     glm::vec3 rot = {1.f, 5.f, 0.f};
     std::cout << "\n\n\nAll loaded, rendering: 🙏\n\n\n\n\n\n\n";
-    float radius = 1.f;
+    float radius = 2.f;
     float farPlane = 400.f;
     float nearPlane = 0.01f;
 	while (theEvents.eventHandler())
@@ -177,29 +177,29 @@ namespace lve
                 for (int i = 0; i < LveSwapChain::SHADOW_CASCADES; i++)
                 {
                   ubo.depthValues[i] =  arro[i];
-                  ubo.lightSpaceMatrix[i] = DirectionalLightSystem::lightViewProjection(
+                  ubo.lightSpaceMatrix[i] = matrices[i];/*DirectionalLightSystem::lightViewProjection(
                   rot,
                   frameInfo.camera.getPosition() + offset,
-                  radius * 5);
+                  radius * 5);*/
                 }
 
                 pointLightSystem.update(frameInfo, ubo);
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
 
+                //Depth Prepass
+                lveRenderer.beginDepthRenderPass(commandBuffer);
+                depthBuffer.renderGameObjects(frameInfo);
+                lveRenderer.endSwapChainRenderPass(commandBuffer);
+
                 //render shadowmap cascades
                 //Unoptimised hell.
-                for (int i = 0; i < 1; i++)
+                for (int i = 0; i < LveSwapChain::SHADOW_CASCADES; i++)
                 {
                   lveRenderer.beginShadowRenderPass(commandBuffer, i);
                   shadowSystems[i]->drawDepth(frameInfo, ubo.lightSpaceMatrix[i], glm::normalize(rot));
                   lveRenderer.endSwapChainRenderPass(commandBuffer);
                 }
-
-                //Depth Prepass
-                lveRenderer.beginDepthRenderPass(commandBuffer);
-                depthBuffer.renderGameObjects(frameInfo);
-                lveRenderer.endSwapChainRenderPass(commandBuffer);
 
                 //Normal and specular pass
                 lveRenderer.beginNormalRenderPass(commandBuffer);

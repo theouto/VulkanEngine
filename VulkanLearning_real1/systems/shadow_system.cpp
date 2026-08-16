@@ -179,7 +179,7 @@ namespace lve
         maxZ *= zMult;
     }
 
-    const glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
+    const glm::mat4 lightProjection = glm::ortho(minX, maxX, -minY, -maxY, minZ, maxZ);
     return lightProjection * lightView;
   }
 

@@ -113,16 +113,14 @@ void main()
   vec4 positionWorld = instanceMatrix * vec4(position, 1.f);
   gl_Position = ubo.projection * ubo.view * positionWorld;
 
-  fragNormalWorld = normalize(mat3(invScaleMatrix * push.normalMatrix) * normal);
+  fragNormalWorld = normalize(mat3(invScaleMatrix * mat) * normal);
   fragPosWorld = positionWorld.xyz;
   fragUv = uv;
   fmodifiers = modifiers;
+  FragPosLightSpace[0] = ubo.lightSpaceMatrix[0] * positionWorld;
+
   for (int i = 0; i < 6; i++)
   {
     if (i < 3) {fRID[i] = RIDone[i];} else {fRID[i] = RIDtwo[i - 3];}
-    if (i < 4) 
-    {
-      FragPosLightSpace[i] = ubo.lightSpaceMatrix[i] * push.modelMatrix * vec4(position, 1.f);
-    }
   }
 }
