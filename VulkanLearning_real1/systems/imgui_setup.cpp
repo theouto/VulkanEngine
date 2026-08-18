@@ -73,7 +73,7 @@ namespace lve
     ImGui::BeginTabBar("other tabs");
     if (ImGui::TabItemButton("Entities")) {for (int i = 0; i < tabs.size(); i++) {tabbi[i] = i == 0 ? true : false;}}
     else if (ImGui::TabItemButton("Material Control")) {for (int i = 0; i < tabs.size(); i++) {tabbi[i] = i == 1 ? true : false;}}
-    
+ 
     if (tabbi[0]) entityControl();
     else if (tabbi[1]) materialControl();
     ImGui::EndTabBar();
@@ -95,8 +95,7 @@ namespace lve
 
     ImGui::EndFrame();
     ImGui::Render();
-    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
-    
+    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer); 
   }
 
   bool Imgui_LVE::eventWatcher()
@@ -143,37 +142,35 @@ namespace lve
 
     ImGui::LabelText("\nPosition", "");
 
-    ImGui::InputFloat("X", &gameObjects.at(object).transform.translation.x, 
-                      1.f, 10.f, "%.4f");
-    //ImGui::SameLine();
-    ImGui::InputFloat("Y", &gameObjects.at(object).transform.translation.y,
-                      1.f, 10.f);
-    //ImGui::SameLine();
-    ImGui::InputFloat("Z", &gameObjects.at(object).transform.translation.z, 
+    bool update = false;
+
+    update += ImGui::InputFloat("X", &gameObjects.at(object).transform.translation.x,
+                      1.f, 10.f, "%.4f") ||
+              ImGui::InputFloat("Y", &gameObjects.at(object).transform.translation.y,
+                      1.f, 10.f) ||
+              ImGui::InputFloat("Z", &gameObjects.at(object).transform.translation.z,
                       1.f, 10.f);
 
     ImGui::LabelText("\nRotation", "");
-    ImGui::SliderFloat("X-rot", &gameObjects.at(object).transform.rotation.x, -10.f, 10.f);
-    ImGui::SliderFloat("Y-rot", &gameObjects.at(object).transform.rotation.y, -10.f, 10.f);
-    //std::cout << object << '\n';
-    //gameObjects.at(2).transform.rotation.y -= 0.1f;
-    ImGui::SliderFloat("Z-rot", &gameObjects.at(object).transform.rotation.z, -10.f, 10.f);
+
+    update += ImGui::SliderFloat("X-rot", &gameObjects.at(object).transform.rotation.x, -10.f, 10.f) ||
+              ImGui::SliderFloat("Y-rot", &gameObjects.at(object).transform.rotation.y, -10.f, 10.f) ||
+              ImGui::SliderFloat("Z-rot", &gameObjects.at(object).transform.rotation.z, -10.f, 10.f);
 
 
     ImGui::LabelText("\nScale", "");
-    ImGui::SliderFloat("X-scale", &gameObjects.at(object).transform.scale.x, -10.f, 10.f);
-    ImGui::SliderFloat("Y-scale", &gameObjects.at(object).transform.scale.y, -10.f, 10.f);
-    ImGui::SliderFloat("Z-scale", &gameObjects.at(object).transform.scale.z, -10.f, 10.f);
+
+    update += ImGui::SliderFloat("X-scale", &gameObjects.at(object).transform.scale.x, -10.f, 10.f) ||
+              ImGui::SliderFloat("Y-scale", &gameObjects.at(object).transform.scale.y, -10.f, 10.f) ||
+              ImGui::SliderFloat("Z-scale", &gameObjects.at(object).transform.scale.z, -10.f, 10.f);
 
     ImGui::LabelText("\nMaterial", "");
     ImGui::InputText("materialFile: ", materialFile, 1024);
-    if(ImGui::Button("change material", ImVec2(100.f, 20.f))) materialChange();   
+    if(ImGui::Button("change material", ImVec2(100.f, 20.f))) materialChange();
 
-    //ImGui::InputScalar("Int", ImGuiDataType_U32, &gameObjects.at(object).textures[0], (const void *)1, (const void *)10);
+    if (update) std::cout << "yeah, this works\n"; //gameObjects.at(object).update();
 
     ImGui::InputInt("Shadowmap", &gameObjects.at(object).RID, 1, 1);
-
-    gameObjects.at(object).update();
   }
 
   void Imgui_LVE::performance()
@@ -223,12 +220,17 @@ namespace lve
         delete[] buf;
     }
 
-
     ImGui::LabelText("\nMaterial properties", "");
-    ImGui::SliderFloat("roughness", &sceneManager.handler().modi(key)[0], 0, 1);
-    ImGui::SliderFloat("specular", &sceneManager.handler().modi(key)[1], 0, 1);
-    ImGui::SliderFloat("ao", &sceneManager.handler().modi(key)[2], 0, 1);
-    ImGui::SliderFloat("metal", &sceneManager.handler().modi(key)[3], 0, 1);
+
+    if (ImGui::SliderFloat("roughness", &sceneManager.handler().modi(key)[0], 0, 1) ||
+        ImGui::SliderFloat("specular", &sceneManager.handler().modi(key)[1], 0, 1) ||
+        ImGui::SliderFloat("ao", &sceneManager.handler().modi(key)[2], 0, 1) ||
+        ImGui::SliderFloat("metal", &sceneManager.handler().modi(key)[3], 0, 1))
+    {
+      //boolean map for skipping already updated models
+      //All_models->materialUpdate();
+    }
+
 
     if(ImGui::Button("Save material", ImVec2(100.f, 20.f))) sceneManager.handler().saveMaterial(key);
     if(ImGui::Button("Reload material", ImVec2(100.f, 20.f))) reloadMaterial();

@@ -195,9 +195,9 @@ float ShadowCalculation(vec3 lightDir, vec3 normal, vec3 pos, int image)
 vec3 calculateSunLight(DirectionalLight sun, vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0, vec3 cameraPosWorld, int image)
 {
     vec3 directionToLight = sun.direction;
-    directionToLight = normalize(-directionToLight);
+    directionToLight = normalize(vec3(directionToLight.x, -directionToLight.y, -directionToLight.z));
     float shadow = ShadowCalculation(directionToLight, surfaceNormal, cameraPosWorld, image);
-
+    return vec3(0.f);
     if (shadow <= 0) return vec3(0.f);
 
     vec3 intensity = sun.color.xyz * sun.color.w;
@@ -324,12 +324,10 @@ void main()
 	//UVs = parallaxOcclusionMapping(UVs, TBN * viewDirection);
 
 	vec3 tangentNormal = texture(storageSampler[fRID[2]], UVs).xyz * 255.f/127.f - 128.f/127.f;
-
 	//vec3 surfaceNormal = texture(normalSpec, projCoords).rgb;
     vec3 surfaceNormal = normalize(TBN * tangentNormal);
 
     //vec3 surfaceNormal = normalize(fragNormalWorld);
-    surfaceNormal.z = -surfaceNormal.z;
 
     vec3 diffcont = vec3(0.f);
     //float diffcont = 0.f;
@@ -351,13 +349,12 @@ void main()
     };
 
     //vec4 fragPosViewSpace = ubo.view * vec4(fragPosWorld, 1.f);
-    float depth = gl_FragCoord.z;//abs(fragPosViewSpace.z);
-    image = 0;
-    
+    float depth = LinearizeDepth(gl_FragCoord.z);
+
     for (int i = 0; i < 4; i++) {if (depth < ubo.depthValues[i]) {image = i; break;}}
     if (image == -1) image = 3;
 
-    //image = push.RIDo;
+    //image = 1;
 
     //vec3 diffuseLight = vec3(0.f);//vec3(0.02f, 0.01f, 0.08f);
     Lo += calculateSunLight(sun, surfaceNormal, UVs, viewDirection, F0, cameraPosWorld, image);
@@ -374,6 +371,6 @@ void main()
     //outColor = vec4(vec3(depth), 0.f);
     //outColor = vec4(debugColours[image], 0.f);
     outColor = diffuse + vec4(Lo, 0.f);
-    //outColor = vec4(texture(storageSampler[fRID[push.RIDo]], fragUv).rgb, 1.f);
+    //outColor = vec4(texture(storageSampler[9], fragUv).rgb, 1.f);
     //outColor = vec4(texture(shadowStorage[fRIDo], fragUv).rgb, 1.f);
 }

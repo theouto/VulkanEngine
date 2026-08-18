@@ -113,7 +113,9 @@ void main()
   vec4 positionWorld = instanceMatrix * vec4(position, 1.f);
   gl_Position = ubo.projection * ubo.view * positionWorld;
 
-  fragNormalWorld = normalize(mat3(invScaleMatrix * mat) * normal);
+  vec3 nuNormal = normal;
+
+  fragNormalWorld = normalize(mat3(invScaleMatrix * rotationMatrix * push.normalMatrix) * normal);
   fragPosWorld = positionWorld.xyz;
   fragUv = uv;
   fmodifiers = modifiers;

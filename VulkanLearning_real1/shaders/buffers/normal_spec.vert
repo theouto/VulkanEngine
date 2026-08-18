@@ -100,7 +100,7 @@ void main()
 
   gl_Position = ubo.projection * ubo.view * positionWorld;
 
-  fragNormalWorld = normalize(mat3(invScaleMatrix * push.normalMatrix) * normal);
+  fragNormalWorld = normalize(mat3(invScaleMatrix * rotationMatrix * push.normalMatrix) * normal);
   fragPosWorld = positionWorld.xyz;
   fragUv = uv;
   for (int i = 0; i < 6; i++)

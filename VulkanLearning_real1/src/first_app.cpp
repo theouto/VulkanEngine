@@ -116,7 +116,7 @@ namespace lve
 
     glm::vec3 rot = {1.f, 5.f, 0.f};
     std::cout << "\n\n\nAll loaded, rendering: 🙏\n\n\n\n\n\n\n";
-    float radius = 2.f;
+    float radius = 1.f;
     float farPlane = 400.f;
     float nearPlane = 0.01f;
 	while (theEvents.eventHandler())
@@ -172,7 +172,7 @@ namespace lve
                 ubo.lightPos = rot;
                 std::vector<float> arro = {farPlane / 50.f, farPlane / 25.f, farPlane / 10.f, farPlane / 2.f};
                 auto matrices = DirectionalLightSystem::getLightSpaceMatrices(arro, ubo.inverseView,
-                                                                              rot, nearPlane, farPlane);
+                                                                              glm::normalize(rot), nearPlane, farPlane);
 
                 for (int i = 0; i < LveSwapChain::SHADOW_CASCADES; i++)
                 {

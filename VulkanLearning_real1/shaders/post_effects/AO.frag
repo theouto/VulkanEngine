@@ -80,7 +80,7 @@ void main()
 
   //if (push.normalDepth == 0) outColor = vec4(vec3(LinearizeDepth(texture(depthBuffer, texCoords).r)/FAR), 1.f);
   //outColor = vec4(texture(normalSpec, texCoords).rgb, 1.f);
-  outColor = vec4(vec3(LinearizeDepth(texture(shadowStorage[0], texCoords).r)/200.f), 0.5f);
+  //outColor = vec4(vec3(LinearizeDepth(texture(shadowStorage[2], texCoords).r)/200.f), 0.5f);
 
   //return;
 
