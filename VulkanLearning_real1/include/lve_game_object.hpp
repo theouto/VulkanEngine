@@ -65,7 +65,7 @@ namespace lve {
         std::string matName = "";
         std::string modelName = "";
   
-        XXH32_hash_t hash;
+        XXH32_hash_t materialHash;
         XXH32_hash_t instanceHash;
         int RID = 0;
 

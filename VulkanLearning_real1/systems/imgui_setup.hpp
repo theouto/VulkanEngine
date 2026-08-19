@@ -39,6 +39,7 @@ namespace lve
     void materials();
     void materialControl();
     void reloadMaterial();
+    void updateMaterial();
     bool eventWatcher();
 
     private:

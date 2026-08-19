@@ -1,6 +1,6 @@
 #include "../include/lve_textures.hpp"
 
-#include <stb_image.h>
+#include "../thirdparty/stb_image/stb_image.h"
 #include <iostream>
 
 #include <iostream>

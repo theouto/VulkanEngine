@@ -66,7 +66,7 @@ namespace lve
     if (!material.is_open()) {throw std::runtime_error("Failed to open material file!");}
     XXH32_hash_t hash = XXH32(path.c_str(), path.length(), 0);
 
-    object.hash = hash;
+    object.materialHash = hash;
 
     std::string dummy;
     std::vector<float> loader(4);
@@ -201,8 +201,8 @@ namespace lve
 
   void LveMaterials::pushValues(uint* RID, float* modified, LveGameObject& object)
   {
-    auto tex = bindlessTextureSet.at(object.hash);
-    auto mod = modifiers.at(object.hash);
+    auto tex = bindlessTextureSet.at(object.materialHash);
+    auto mod = modifiers.at(object.materialHash);
 
     for (int i = 0; i < 6; i++)
     {
@@ -213,6 +213,6 @@ namespace lve
 
   std::vector<std::shared_ptr<LveTextures>> LveMaterials::write_test(LveDevice& lveDevice)
   {
-    return {std::make_shared<LveTextures>(lveDevice, "textures/NA.png",LveTextures::COLOR), std::make_shared<LveTextures>(lveDevice, "textures/NAM.png", LveTextures::COLOR)};
+    return {std::make_shared<LveTextures>(lveDevice, "textures/NA.png", LveTextures::COLOR), std::make_shared<LveTextures>(lveDevice, "textures/NAM.png", LveTextures::COLOR)};
   }
 }

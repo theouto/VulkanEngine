@@ -82,6 +82,12 @@ namespace lve
         void setScale(uint32_t index, glm::vec3 scale) {instanceData[index].scale = scale;}
         void setTranslation(uint32_t index, glm::vec3 translation) {instanceData[index].translation = translation;}
         void setRotation(uint32_t index, glm::vec3 rotation) {instanceData[index].rotation = rotation;}
+        void setMaterial(uint32_t index, uint32_t* RID, float* modi)
+        {
+          instanceData[index].RIDone = glm::vec3{RID[0], RID[1], RID[2]};
+          instanceData[index].RIDtwo = glm::vec3{RID[3], RID[4], RID[5]};
+          instanceData[index].modifiers = glm::vec4{modi[0], modi[1], modi[2], modi[3]};
+        }
 
         glm::vec3 getScale(uint32_t index){return instanceData[index].scale;}
         glm::vec3 getRotation(uint32_t index){return instanceData[index].rotation;}
@@ -91,6 +97,9 @@ namespace lve
 
 		void bind(VkCommandBuffer);
 		void draw(VkCommandBuffer);
+
+        void updateInstances();
+        void updateMaterial();
 
 	private:
 		void createVertexBuffers(const std::vector<Vertex> &vertices);

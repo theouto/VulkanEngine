@@ -130,7 +130,7 @@ namespace lve
   void Imgui_LVE::materials()
   {
     for (int i = 0; i < keys.size(); i++)
-    { 
+    {
       if (ImGui::Button(sceneManager.handler().name(keys[i]).c_str(), ImVec2())) key = keys[i];
       ImGui::Spacing();
     }
@@ -153,22 +153,22 @@ namespace lve
 
     ImGui::LabelText("\nRotation", "");
 
-    update += ImGui::SliderFloat("X-rot", &gameObjects.at(object).transform.rotation.x, -10.f, 10.f) ||
-              ImGui::SliderFloat("Y-rot", &gameObjects.at(object).transform.rotation.y, -10.f, 10.f) ||
-              ImGui::SliderFloat("Z-rot", &gameObjects.at(object).transform.rotation.z, -10.f, 10.f);
+    update += ImGui::SliderFloat("X-rot", &gameObjects.at(object).transform.rotation.x, -365.f, 365.f) |
+              ImGui::SliderFloat("Y-rot", &gameObjects.at(object).transform.rotation.y, -365.f, 365.f) |
+              ImGui::SliderFloat("Z-rot", &gameObjects.at(object).transform.rotation.z, -365.f, 365.f);
 
 
     ImGui::LabelText("\nScale", "");
 
-    update += ImGui::SliderFloat("X-scale", &gameObjects.at(object).transform.scale.x, -10.f, 10.f) ||
-              ImGui::SliderFloat("Y-scale", &gameObjects.at(object).transform.scale.y, -10.f, 10.f) ||
+    update += ImGui::SliderFloat("X-scale", &gameObjects.at(object).transform.scale.x, -10.f, 10.f) |
+              ImGui::SliderFloat("Y-scale", &gameObjects.at(object).transform.scale.y, -10.f, 10.f) |
               ImGui::SliderFloat("Z-scale", &gameObjects.at(object).transform.scale.z, -10.f, 10.f);
 
     ImGui::LabelText("\nMaterial", "");
     ImGui::InputText("materialFile: ", materialFile, 1024);
-    if(ImGui::Button("change material", ImVec2(100.f, 20.f))) materialChange();
+    if(ImGui::Button("change material", ImVec2(100.f, 20.f))) {materialChange(); update = true;}
 
-    if (update) std::cout << "yeah, this works\n"; //gameObjects.at(object).update();
+    if (update) {gameObjects.at(object).update(); gameObjects.at(object).model->updateInstances();}
 
     ImGui::InputInt("Shadowmap", &gameObjects.at(object).RID, 1, 1);
   }
@@ -222,13 +222,12 @@ namespace lve
 
     ImGui::LabelText("\nMaterial properties", "");
 
-    if (ImGui::SliderFloat("roughness", &sceneManager.handler().modi(key)[0], 0, 1) ||
-        ImGui::SliderFloat("specular", &sceneManager.handler().modi(key)[1], 0, 1) ||
-        ImGui::SliderFloat("ao", &sceneManager.handler().modi(key)[2], 0, 1) ||
+    if (ImGui::SliderFloat("roughness", &sceneManager.handler().modi(key)[0], 0, 1) |
+        ImGui::SliderFloat("specular", &sceneManager.handler().modi(key)[1], 0, 1) |
+        ImGui::SliderFloat("ao", &sceneManager.handler().modi(key)[2], 0, 1) |
         ImGui::SliderFloat("metal", &sceneManager.handler().modi(key)[3], 0, 1))
     {
-      //boolean map for skipping already updated models
-      //All_models->materialUpdate();
+      updateMaterial();
     }
 
 
@@ -242,6 +241,27 @@ namespace lve
                                           *lveRenderer.bindlessSetLayout,
                                           *lveRenderer.descriptorPool,
                                           lveRenderer.getBindlessLayout());
+  }
+
+  void Imgui_LVE::updateMaterial()
+  {
+    for (auto &kv : gameObjects)
+    {
+      if (key != kv.second.materialHash) continue;
+      sceneManager.handler().pushValues(kv.second.textures, kv.second.modifiers, kv.second);
+      kv.second.update();
+    }
+
+    std::unordered_map<XXH32_hash_t, bool> models;
+
+    for (auto &kv : gameObjects)
+    {
+      try {models.at(kv.second.instanceHash);} catch (std::out_of_range e)
+      {
+        kv.second.model->updateInstances();
+        models.emplace(kv.second.instanceHash, true);
+      }
+    }
   }
 
   void Imgui_LVE::materialChange()

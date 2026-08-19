@@ -85,7 +85,6 @@ namespace lve
       model->setRotation(instanceIndex, transform.rotation);
       model->setScale(instanceIndex, transform.scale);
       model->setTranslation(instanceIndex, transform.translation);
-
-      
+      model->setMaterial(instanceIndex, textures, modifiers);
     }
 }

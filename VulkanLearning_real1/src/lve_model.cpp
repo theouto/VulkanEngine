@@ -5,7 +5,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 #define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader.h>
+#include "../thirdparty/tinyobjloader/tiny_obj_loader.h"
 
 #include <cassert>
 #include <cstring>
@@ -115,10 +115,11 @@ namespace lve
 
 	  instanceBuffer = std::make_unique<LveBuffer>(lveDevice, instanceSize, instanceCount, 
         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-	  	VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+	  	VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
       std::cout << "try to copy\n";
       lveDevice.copyBuffer(stagingBuffer.getBuffer(), instanceBuffer->getBuffer(), bufferSize);
+      assert(instanceBuffer->map() == VK_SUCCESS && "unable to map instanceBuffer");
       std::cout << "copies\n";
     }
 
@@ -159,6 +160,12 @@ namespace lve
       uint32_t index = instanceData.size();
       instanceData.push_back(toAdd);
       return index; //just in case
+    }
+
+    void LveModel::updateInstances()
+    {
+      instanceBuffer->writeToBuffer(instanceData.data());
+      instanceBuffer->flush();
     }
 
 	std::vector<VkVertexInputBindingDescription> LveModel::Vertex::getBindingDescriptions()
