@@ -2,14 +2,14 @@
 -1
 Cube 0
 models/cube.obj
-materials/wet_sand.thmat
+materials/nerd.thmat
 0 0 0
 0.25 -0.55 0.25
 24 245 133
 -1
 Cube 1
 models/cube.obj
-materials/ice.thmat
+materials/nerd.thmat
 0 0 2
 0.25 -0.25 0.25
 0 0 0

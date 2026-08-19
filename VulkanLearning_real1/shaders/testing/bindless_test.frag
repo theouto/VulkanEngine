@@ -195,9 +195,9 @@ float ShadowCalculation(vec3 lightDir, vec3 normal, vec3 pos, int image)
 vec3 calculateSunLight(DirectionalLight sun, vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0, vec3 cameraPosWorld, int image)
 {
     vec3 directionToLight = sun.direction;
-    directionToLight = normalize(vec3(directionToLight.x, -directionToLight.y, -directionToLight.z));
+    directionToLight = normalize(vec3(-directionToLight.x, -directionToLight.y, -directionToLight.z));
     float shadow = ShadowCalculation(directionToLight, surfaceNormal, cameraPosWorld, image);
-    return vec3(0.f);
+
     if (shadow <= 0) return vec3(0.f);
 
     vec3 intensity = sun.color.xyz * sun.color.w;

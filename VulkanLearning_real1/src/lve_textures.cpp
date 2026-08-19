@@ -78,7 +78,7 @@ namespace lve
 		stbi_image_free(pixels);
 
 		LveTextures::createImage(texWidth, texHeight, textureFormat, VK_IMAGE_TILING_OPTIMAL, 
-			VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
+			VK_IMAGE_USAGE_2_TRANSFER_SRC_BIT_KHR | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
 
 		transitionImageLayout(textureImage, textureFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -196,6 +196,7 @@ namespace lve
 		imageInfo.usage = usage;
 		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT; //changed
 		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        imageInfo.flags = VkImageCreateFlags{VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT};
 
 		if (vkCreateImage(lveDevice.device(), &imageInfo, nullptr, &image) != VK_SUCCESS) 
 		{
