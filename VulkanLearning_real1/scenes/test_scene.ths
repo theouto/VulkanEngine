@@ -38,20 +38,20 @@ Point Light 3
 software.
 models/smooth_vase.obj
 materials/wet_rock.thmat
--1 -1 0
+-1 1 0
 2 2 2
 0 0 0
 -1
 and again!
 models/sponza.obj
 materials/wet_rock.thmat
-0 0.5 -0.3
+0 -0.5 -0.3
 0.005 -0.005 0.005
 0 0 0
 -1
 AOI
 models/cube.obj
 materials/wet_rock.thmat
-2 -1 0
+2 1 0
 1.433 -0.517 0.278
 3.899 -0.361 -0.072

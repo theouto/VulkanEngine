@@ -91,10 +91,12 @@ void main()
 
   mat4 rotationMatrix = rotateZ(rotation.x * rotator) * rotateY(rotation.y * rotator) * rotateX(rotation.z * rotator);
 
-  mat4 mat = {push.modelMatrix[0], push.modelMatrix[1], push.modelMatrix[2], vec4(translation, 1.f)};
+  mat4 mat = {push.modelMatrix[0], push.modelMatrix[1], push.modelMatrix[2], vec4(vec3(0.f), 1.f)};
 
-  mat4 instanceMatrix = rotationMatrix * mat;
-  instanceMatrix = scaleMatrix * instanceMatrix;
+  mat4 instanceMatrix = scaleMatrix * mat;
+  instanceMatrix = rotationMatrix * instanceMatrix;
+
+  instanceMatrix[3] = vec4(translation.x, -translation.y, translation.z, 1.f);
 
   vec4 positionWorld = instanceMatrix * vec4(position, 1.f);
 
