@@ -241,6 +241,8 @@ namespace lve
                                           *lveRenderer.bindlessSetLayout,
                                           *lveRenderer.descriptorPool,
                                           lveRenderer.getBindlessLayout());
+
+    materialChange();
   }
 
   void Imgui_LVE::updateMaterial()
@@ -271,6 +273,8 @@ namespace lve
                                 *lveRenderer.bindlessSetLayout, 
                                 lveRenderer.getBindlessLayout(),
                                 materialFile);
+
+    updateMaterial();
 
     keys = sceneManager.handler().keys();
   }
