@@ -117,10 +117,8 @@ namespace lve
         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 	  	VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
-      std::cout << "try to copy\n";
       lveDevice.copyBuffer(stagingBuffer.getBuffer(), instanceBuffer->getBuffer(), bufferSize);
       assert(instanceBuffer->map() == VK_SUCCESS && "unable to map instanceBuffer");
-      std::cout << "copies\n";
     }
 
 	void LveModel::draw(VkCommandBuffer commandBuffer)

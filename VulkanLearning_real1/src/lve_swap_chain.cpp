@@ -617,7 +617,7 @@ namespace lve {
       imageInfo.arrayLayers = 1;
       imageInfo.format = VK_FORMAT_B8G8R8A8_UNORM;
       imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-      imageInfo.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // Ensure initial layout is set.
+      imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; // Ensure initial layout is set.
       imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
       imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
       imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // Explicitly set sharing mode.

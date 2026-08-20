@@ -89,6 +89,8 @@ namespace lve
           instanceData[index].modifiers = glm::vec4{modi[0], modi[1], modi[2], modi[3]};
         }
 
+        void flush() {instanceBuffer->flush();}
+
         glm::vec3 getScale(uint32_t index){return instanceData[index].scale;}
         glm::vec3 getRotation(uint32_t index){return instanceData[index].rotation;}
         glm::vec3 getTranslation(uint32_t index){return instanceData[index].translation;}
