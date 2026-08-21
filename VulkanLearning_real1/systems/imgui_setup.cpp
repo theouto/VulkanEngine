@@ -281,21 +281,28 @@ namespace lve
 
   void Imgui_LVE::objectLoader()
   {
-        std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, modelFile);
         auto object = LveGameObject::createGameObject();
-        object.model = lveModel;
         object.transform.translation = trans;
         object.transform.scale = scale;
         object.transform.rotation = rot;
+        object.instanceIndex = sceneManager.retrieveModel(XXH32(modelFile, (std::string(modelFile)).length(), 0), modelFile);
+        object.model = sceneManager.getActiveModel();
         object.name = modelFile;
         object.modelName = modelFile;
         object.matName = materialFile;
         object.type = -1;
+
         sceneManager.loadModel(object, *lveRenderer.globalPool, 
                                        *lveRenderer.descriptorPool, 
                                        *lveRenderer.bindlessSetLayout,
                                        lveRenderer.getBindlessLayout(),
                                         materialFile);
+
+        std::vector<uint32_t> arr = sceneManager.handler().retrieveBindless(materialFile, *lveRenderer.bindlessSetLayout, 
+                                                                            *lveRenderer.descriptorPool, lveRenderer.getBindlessLayout(),
+                                                                            object);
+
+        object.model->addInstanceData(scale, trans, rot, arr, sceneManager.handler().modi(XXH32(materialFile, std::string(materialFile).length(), 0)));
 
         keys = sceneManager.handler().keys();
 

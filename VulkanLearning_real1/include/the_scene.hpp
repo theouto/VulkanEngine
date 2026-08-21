@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "lve_renderer.hpp"
@@ -36,6 +37,7 @@ namespace lve
                                 const char* path);
 
       uint32_t retrieveModel(XXH32_hash_t hash, std::string model);
+      std::shared_ptr<LveModel> getActiveModel() {return lveModel;}
 
       LveMaterials& handler() {return *materialHandler;}
       //LveDescriptorSetLayout& mattLayout(){return *matLayout;}
