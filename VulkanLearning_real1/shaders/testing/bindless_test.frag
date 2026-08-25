@@ -95,6 +95,20 @@ mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
 
 //==============================================================================
 
+vec3 BurleyDiffuse(float lightAng, float viewAng, float halfAng, vec2 UVs)
+{
+  float f90 = 0.5f + 2.f * texture(storageSampler[fRID[1]], UVs).r * halfAng * halfAng * fmodifiers[0];
+  float Fl = pow((1 - lightAng), 5);
+  float Fv = pow((1 - viewAng), 5);
+
+  float t1 = 1 + (f90 - 1) * Fl;
+  float t2 = 1 + (f90 - 1) * Fv;
+
+  return texture(storageSampler[fRID[0]], UVs).xyz/M_PI * t1 * t2;
+}
+
+//==============================================================================
+
 float DistributionGGX(vec3 N, vec3 H, float a)
 {
     float a2     = a*a;
@@ -182,10 +196,8 @@ float ShadowCalculation(vec3 lightDir, vec3 normal, vec3 pos, int image)
     vec3 projCoords = FragPosLightSpace[image].xyz / FragPosLightSpace[image].w;
     vec2 uv = projCoords.xy * 0.5 + 0.5;
     float currentDepth = projCoords.z ;
-    //projCoords = projCoords * 0.5 + 0.5; 
 
     float shadow = calculateRandPCF(currentDepth, uv, image);
-    //float shadow = PCSS_DirectionalLight(vec3(uv, projCoords.z), 1.5f, pos);
 
     return clamp(shadow, 0.f, 1.f);
 }
@@ -205,18 +217,25 @@ vec3 calculateSunLight(DirectionalLight sun, vec3 surfaceNormal, vec2 UVs, vec3 
 
     vec3 fres = fresnelSchlick(clamp(dot(halfAngle, viewDirection), 0.f, 1.f), F0);
  
-    float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(storageSampler[fRID[1]], UVs).r * fmodifiers[0]);
+    //float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(storageSampler[fRID[1]], UVs).r * fmodifiers[0]);
 
-    float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(storageSampler[fRID[1]], UVs).x, 0.001f, 1.f) * fmodifiers[1]);
+    float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(storageSampler[fRID[1]], UVs).x * fmodifiers[1], 0.001f, 1.f));
 
-    vec3 numerator = specular * diff * fres;
-    float denominator = 4.0 * max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0) + 0.0001;
+    
+    vec3 diff = BurleyDiffuse(
+              max(dot(directionToLight, surfaceNormal), 0.0),
+              max(dot(viewDirection, surfaceNormal), 0.0),
+              max(dot(directionToLight, halfAngle), 0.0),
+              UVs);
+    
+    vec3 numerator = specular * (diff + fres);
+    //* 4.f;
+    float denominator = max(max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0), 0.08);
     vec3 spec = numerator / denominator;
 
     vec3 kD = metallic(fres, texture(storageSampler[fRID[5]], UVs).r * fmodifiers[3]);
 
-    float NdotL = max(dot(surfaceNormal, directionToLight), 0.f);
-   
+    float NdotL = max(dot(surfaceNormal, directionToLight), 0.f); 
 
     return (shadow) * (kD * texture(storageSampler[fRID[0]], UVs).rgb / M_PI + spec) * intensity * NdotL;
 }
@@ -239,22 +258,21 @@ vec3 calculateLights(vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
 
         vec3 fres = fresnelSchlick(clamp(dot(halfAngle, viewDirection), 0.f, 1.f), F0);
         
-        float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(storageSampler[fRID[1]], UVs).r * fmodifiers[0]);
-
-        /*
+        //float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(storageSampler[fRID[1]], UVs).r * fmodifiers[0]);
+        
         vec3 diff = BurleyDiffuse(
-              dot(directionToLight, surfaceNormal),
-              dot(viewDirection, surfaceNormal),
-              dot(halfAngle, directionToLight), 
+              max(dot(directionToLight, surfaceNormal), 0.0),
+              max(dot(viewDirection, surfaceNormal), 0.0),
+              max(dot(directionToLight, halfAngle), 0.0),
               UVs);
         
-        diffcont += diff;
-        */
+        //diffcont += diff;
+        
 
         float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(storageSampler[fRID[1]], UVs).x, 0.001f, 1.f) * fmodifiers[1]);
 
-        vec3 numerator = specular * diff * fres;
-        float denominator = 4.0 * max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0) + 0.0001;
+        vec3 numerator = specular * (diff + fres);
+        float denominator = max(max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0), 0.08);
         vec3 spec = numerator / denominator;
 
         vec3 kD = metallic(fres, texture(storageSampler[fRID[5]], UVs).r * fmodifiers[3]);
