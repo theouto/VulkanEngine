@@ -107,7 +107,7 @@ namespace lve
         float mouseX = 0.f;
         float mouseY = 0.f;
 
-        sceneManager.load("scenes/cube_hell.ths", *lveRenderer.globalPool);
+        sceneManager.load("scenes/test_scene.ths", *lveRenderer.globalPool);
 
         Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow, gameObjects, sceneManager};
 
@@ -117,8 +117,8 @@ namespace lve
     glm::vec3 rot = {1.f, 5.f, 0.f};
     std::cout << "\n\n\nAll loaded, rendering: 🙏\n\n\n\n\n\n\n";
     float radius = 1.f;
-    float farPlane = 400.f;
-    float nearPlane = 0.01f;
+    float farPlane = 500.f;
+    float nearPlane = 0.1f;
 	while (theEvents.eventHandler())
     {
             auto newTime = std::chrono::high_resolution_clock::now();
@@ -170,13 +170,13 @@ namespace lve
                 ubo.width = lveWindow.getExtent().width;
                 ubo.height = lveWindow.getExtent().height;
                 ubo.lightPos = rot;
-                std::vector<float> arro = {farPlane / 50.f, farPlane / 25.f, farPlane / 10.f, farPlane / 2.f};
+                std::vector<float> arro = {farPlane / 150.f, farPlane / 75.f, farPlane / 30.f, farPlane / 10.f};
                 auto matrices = DirectionalLightSystem::getLightSpaceMatrices(arro, ubo.inverseView,
                                                                               glm::normalize(rot), nearPlane, farPlane);
 
                 for (int i = 0; i < LveSwapChain::SHADOW_CASCADES; i++)
                 {
-                  ubo.depthValues[i] =  arro[i];
+                  ubo.depthValues[i] = arro[i];
                   ubo.lightSpaceMatrix[i] = matrices[i];/*DirectionalLightSystem::lightViewProjection(
                   rot,
                   frameInfo.camera.getPosition() + offset,

@@ -30,7 +30,8 @@ namespace lve
         int padding;
         glm::mat4 lightSpaceMatrix[4]{1.f, 1.f, 1.f, 1.f};
         glm::vec3 lightPos{-1.f, 2.f, -1.f};
-        float depthValues[4];
+        float paddingdeux;
+        glm::vec4 depthValues;
 	};
 
 	struct FrameInfo

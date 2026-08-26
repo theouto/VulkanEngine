@@ -1,7 +1,7 @@
 #version 450
 #extension GL_EXT_nonuniform_qualifier : enable
-#define NEAR 0.01f
-#define FAR 400.f
+#define NEAR 0.1f
+#define FAR 500.f
 
 layout(location = 0) in vec3 fragPosWorld;
 layout(location = 1) in vec3 fragNormalWorld;
@@ -54,8 +54,8 @@ layout(set = 0, binding = 0) uniform GlobalUbo
   int padding;
   mat4 lightSpaceMatrix[4]; //this is ugly
   vec3 lightPos;
-  //float padding;
-  float depthValues[4];
+  float paddingdeux;
+  vec4 depthValues;
 } ubo;
 
 const float M_PI = 3.1415926538;
@@ -321,7 +321,7 @@ void main()
 
     float prePassDepth = texture(depthMap, projCoords).r;
 
-    if (prePassDepth < currDepth) discard;
+    //if (prePassDepth < currDepth) discard;
 
 	vec3 cameraPosWorld = ubo.invView[3].xyz;
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld);
@@ -366,9 +366,11 @@ void main()
       {0.5, 0.5, 0.5}
     };
 
-    //vec4 fragPosViewSpace = ubo.view * vec4(fragPosWorld, 1.f);
-    float depth = LinearizeDepth(gl_FragCoord.z);
+    vec4 fragPosViewSpace = ubo.view * vec4(fragPosWorld, 1.f);
+    float depth = abs(fragPosViewSpace.z);
+    //float depth = LinearizeDepth(gl_FragCoord.z);
 
+    //FAR/(250 - i * 20)
     for (int i = 0; i < 4; i++) {if (depth < ubo.depthValues[i]) {image = i; break;}}
     if (image == -1) image = 3;
 

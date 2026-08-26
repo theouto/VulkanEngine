@@ -141,7 +141,8 @@ namespace lve
     center /= corners.size();
 
     const auto lightView = glm::lookAt(center - glm::normalize(rot),
-                                       center, glm::vec3(0.f, 1.f ,0.f));
+                                       center,
+                                       glm::vec3(0.f, 1.f ,0.f));
 
     float minX = std::numeric_limits<float>::max();
     float maxX = std::numeric_limits<float>::lowest();
@@ -161,7 +162,7 @@ namespace lve
     }
 
     // Tune this parameter according to the scene
-    constexpr float zMult = 20.0f;
+    constexpr float zMult = 10.0f;
     if (minZ < 0)
     {
         minZ *= zMult;
@@ -179,7 +180,7 @@ namespace lve
         maxZ *= zMult;
     }
 
-    const glm::mat4 lightProjection = glm::ortho(minX, maxX, -minY, -maxY, minZ, maxZ);
+    const glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
     return lightProjection * lightView;
   }
 
