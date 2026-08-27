@@ -31,7 +31,8 @@ namespace lve
     void drawDepth(FrameInfo &frameInfo, glm::mat4 matrix, glm::vec3 lightPos);
     static std::vector<glm::mat4> getLightSpaceMatrices(std::vector<float> depthValues,
                                                  const glm::mat4& projView, const glm::vec3 rot,
-                                                 const float nearPlane, const float farPlane);
+                                                 const float nearPlane, const float farPlane,
+                                                 const float fovy, const float aspectRatio);
 
     private:
 
@@ -39,7 +40,8 @@ namespace lve
       void createPipeLineLayout();
       static std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4 &projView);
       static glm::mat4 getLightSpaceMatrix(const glm::mat4& projView, const glm::vec3 rot,
-                                    const float nearPlane, const float farPlane);
+                                    const float nearPlane, const float farPlane,
+                                    const float fovy, const float aspectRatio);
 
       glm::mat4 lightSpaceMatrix{1.f};
       std::vector<VkDescriptorSetLayout> setLayouts = {};

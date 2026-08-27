@@ -1,4 +1,5 @@
 #version 450
+#extension GL_EXT_scalar_block_layout : enable
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
@@ -27,7 +28,7 @@ struct PointLight
 	vec4 color;
 };
 
-layout(set = 0, binding = 0) uniform GlobalUbo 
+layout(std430, set = 0, binding = 0) uniform GlobalUbo 
 {
   mat4 projection;
   mat4 view;
@@ -121,10 +122,10 @@ void main()
   fragPosWorld = positionWorld.xyz;
   fragUv = uv;
   fmodifiers = modifiers;
-  FragPosLightSpace[0] = ubo.lightSpaceMatrix[0] * positionWorld;
 
   for (int i = 0; i < 6; i++)
   {
     if (i < 3) {fRID[i] = RIDone[i];} else {fRID[i] = RIDtwo[i - 3];}
+    if (i < 4) FragPosLightSpace[i] = ubo.lightSpaceMatrix[i] * positionWorld;
   }
 }

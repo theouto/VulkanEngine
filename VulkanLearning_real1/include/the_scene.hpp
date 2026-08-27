@@ -23,6 +23,10 @@ namespace lve
 
       void createPointLightHelper(std::ifstream& scene);
       void createObjectHelper(std::ifstream& scene, LveDescriptorPool& pool);
+      void createObject(std::string name, std::string model,
+                              std::string material, glm::vec3 translation,
+                              glm::vec3 scale, glm::vec3 rotation,
+                              LveDescriptorPool& pool);
 
       void loadModel(LveGameObject& object, LveDescriptorPool& pool, 
                            LveDescriptorPool& bindlessPool, 

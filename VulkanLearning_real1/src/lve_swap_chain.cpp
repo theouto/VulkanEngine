@@ -621,6 +621,7 @@ namespace lve {
       imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
       imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
       imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // Explicitly set sharing mode.
+      imageInfo.flags = VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
 
       if (vkCreateImage(device.device(), &imageInfo, nullptr, &normalImage) != VK_SUCCESS)
       {

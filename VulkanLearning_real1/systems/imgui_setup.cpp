@@ -145,9 +145,9 @@ namespace lve
     bool update = false;
 
     update += ImGui::InputFloat("X", &gameObjects.at(object).transform.translation.x,
-                      1.f, 10.f, "%.4f") ||
+                      1.f, 10.f, "%.4f") |
               ImGui::InputFloat("Y", &gameObjects.at(object).transform.translation.y,
-                      1.f, 10.f) ||
+                      1.f, 10.f) |
               ImGui::InputFloat("Z", &gameObjects.at(object).transform.translation.z,
                       1.f, 10.f);
 
@@ -168,7 +168,7 @@ namespace lve
     ImGui::InputText("materialFile: ", materialFile, 1024);
     if(ImGui::Button("change material", ImVec2(100.f, 20.f))) {materialChange(); update = true;}
 
-    if (update) {gameObjects.at(object).update(); gameObjects.at(object).model->updateInstances();}
+    if (update) {gameObjects.at(object).update(); if (gameObjects.at(object).type == -1) gameObjects.at(object).model->updateInstances();}
 
     ImGui::InputInt("Shadowmap", &gameObjects.at(object).RID, 1, 1);
   }
@@ -249,6 +249,7 @@ namespace lve
   {
     for (auto &kv : gameObjects)
     {
+      if (kv.second.type != -1) continue;
       if (key != kv.second.materialHash) continue;
       sceneManager.handler().pushValues(kv.second.textures, kv.second.modifiers, kv.second);
       kv.second.update();
@@ -258,6 +259,7 @@ namespace lve
 
     for (auto &kv : gameObjects)
     {
+      if (kv.second.type != -1) continue; 
       try {models.at(kv.second.instanceHash);} catch (std::out_of_range e)
       {
         kv.second.model->updateInstances();
@@ -281,6 +283,7 @@ namespace lve
 
   void Imgui_LVE::objectLoader()
   {
+    /*
         auto object = LveGameObject::createGameObject();
         object.transform.translation = trans;
         object.transform.scale = scale;
@@ -303,11 +306,19 @@ namespace lve
                                                                             object);
 
         object.model->addInstanceData(scale, trans, rot, arr, sceneManager.handler().modi(XXH32(materialFile, std::string(materialFile).length(), 0)));
+    */
 
-        keys = sceneManager.handler().keys();
+    sceneManager.createObject(modelFile, modelFile,
+                              materialFile, trans,
+                              scale, rot, *lveRenderer.descriptorPool);
 
-        scale = {1.f, 1.f, 1.f};
-        rot = {0.f, 0.f, 0.f};
-        trans = {0.f, 0.f, 0.f};
+    //keys = sceneManager.handler().keys();
+    updateMaterial();
+
+    std::cout << "hi!\n";
+
+    scale = {1.f, 1.f, 1.f};
+    rot = {0.f, 0.f, 0.f};
+    trans = {0.f, 0.f, 0.f};
   }
 }

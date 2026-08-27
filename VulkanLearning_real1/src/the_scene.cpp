@@ -155,6 +155,39 @@ namespace lve
     getline(scene, line); //clear the line
   }
 
+  void LveScene::createObject(std::string name, std::string model,
+                              std::string material, glm::vec3 translation,
+                              glm::vec3 scale, glm::vec3 rotation,
+                              LveDescriptorPool& pool)
+  {
+    XXH32_hash_t hash = XXH32(model.c_str(), model.length(), 0);
+    uint32_t instanceIndex = retrieveModel(hash, model);
+
+    LveGameObject object = LveGameObject::createGameObject();
+    object.model = lveModel;
+    object.matName = material;
+    object.modelName = model;
+    object.instanceHash = hash;
+    object.instanceIndex = instanceIndex;
+
+    std::vector<uint32_t> arr = materialHandler->retrieveBindless(material, *lveRenderer.bindlessSetLayout, 
+                        *lveRenderer.descriptorPool, lveRenderer.getBindlessLayout(),
+                                    object);
+
+    //It's good to have this here as well in the event of a change in model data, necessitating a move away from the
+    //previous instance. Sure, I could extradite the data in the model change, but that's a TODO: for a later date.
+    for (int i = 0; i < arr.size(); i++) {object.textures[i] = arr[i];}
+    object.transform.translation = translation;
+    object.transform.rotation = rotation;
+    object.transform.scale = scale;
+    object.name = name;
+
+    object.model->addInstanceData(scale, translation, rotation, arr,
+                                  materialHandler->modi(XXH32(material.c_str(), material.length(), 0)));
+
+    gameObjects.emplace(object.getId(), std::move(object));
+  }
+
   void LveScene::createPointLightHelper(std::ifstream& scene)
   {
     getline(scene, name);

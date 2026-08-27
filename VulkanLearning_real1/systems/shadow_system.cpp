@@ -1,7 +1,9 @@
 #include "shadow_system.hpp"
+
 #include <memory>
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
+#include <iostream>
 
 namespace lve
 {
@@ -129,9 +131,13 @@ namespace lve
   }
 
   glm::mat4 DirectionalLightSystem::getLightSpaceMatrix(const glm::mat4& projView, const glm::vec3 rot,
-                                                        const float nearPlane, const float farPlane)
+                                                        const float nearPlane, const float farPlane,
+                                                        const float fovy, const float aspectRatio)
   {
-    const auto corners = getFrustumCornersWorldSpace(projView);
+    const auto proj = glm::perspective(
+        fovy, aspectRatio, nearPlane,
+        farPlane);
+    const auto corners = getFrustumCornersWorldSpace(proj * projView);
 
     glm::vec3 center = glm::vec3(0, 0, 0);
     for (const auto& v : corners)
@@ -140,7 +146,7 @@ namespace lve
     }
     center /= corners.size();
 
-    const auto lightView = glm::lookAt(center - glm::normalize(rot),
+    const auto lightView = glm::lookAt(center - rot,
                                        center,
                                        glm::vec3(0.f, 1.f ,0.f));
 
@@ -162,7 +168,7 @@ namespace lve
     }
 
     // Tune this parameter according to the scene
-    constexpr float zMult = 10.0f;
+    constexpr float zMult = 20.0f;
     if (minZ < 0)
     {
         minZ *= zMult;
@@ -180,28 +186,32 @@ namespace lve
         maxZ *= zMult;
     }
 
-    const glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
+    //std::cout << "minX :" << minX << " maxX: " << maxX << " minY: " << minY << " maxY: " << maxY << '\n';
+    //std::cout << lightView[0][0] << " " << lightView[1][0] << " " << lightView[2][0] << " " << lightView[3][0] << '\n';
+
+    const glm::mat4 lightProjection = glm::ortho(minX, maxX, -minY, -maxY, minZ, maxZ);
     return lightProjection * lightView;
   }
 
   std::vector<glm::mat4> DirectionalLightSystem::getLightSpaceMatrices(std::vector<float> depthValues,
                                                  const glm::mat4& projView, const glm::vec3 rot,
-                                                 const float nearPlane, const float farPlane)
+                                                 const float nearPlane, const float farPlane,
+                                                 const float fovy, const float aspectRatio)
   {
     std::vector<glm::mat4> ret;
     for (size_t i = 0; i < depthValues.size() + 1; ++i)
     {
         if (i == 0)
         {
-            ret.push_back(getLightSpaceMatrix(projView, rot, nearPlane, depthValues[i]));
+            ret.push_back(getLightSpaceMatrix(projView, rot, nearPlane, depthValues[i], fovy, aspectRatio));
         }
         else if (i < depthValues.size())
         {
-            ret.push_back(getLightSpaceMatrix(projView, rot, depthValues[i - 1], depthValues[i]));
+            ret.push_back(getLightSpaceMatrix(projView, rot, depthValues[i - 1], depthValues[i], fovy, aspectRatio));
         }
         else
         {
-            ret.push_back(getLightSpaceMatrix(projView, rot, depthValues[i - 1], farPlane));
+            ret.push_back(getLightSpaceMatrix(projView, rot, depthValues[i - 1], farPlane, fovy, aspectRatio));
         }
     }
     return ret;

@@ -107,7 +107,7 @@ namespace lve
         float mouseX = 0.f;
         float mouseY = 0.f;
 
-        sceneManager.load("scenes/test_scene.ths", *lveRenderer.globalPool);
+        sceneManager.load("scenes/cube_hell.ths", *lveRenderer.globalPool);
 
         Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow, gameObjects, sceneManager};
 
@@ -171,8 +171,9 @@ namespace lve
                 ubo.height = lveWindow.getExtent().height;
                 ubo.lightPos = rot;
                 std::vector<float> arro = {farPlane / 150.f, farPlane / 75.f, farPlane / 30.f, farPlane / 10.f};
-                auto matrices = DirectionalLightSystem::getLightSpaceMatrices(arro, ubo.inverseView,
-                                                                              glm::normalize(rot), nearPlane, farPlane);
+                auto matrices = DirectionalLightSystem::getLightSpaceMatrices(arro, camera.getInverseView(),
+                                                                              glm::normalize(rot), nearPlane, farPlane, 
+                                                                              glm::radians(50.f), lveRenderer.getAspectRatio());
 
                 for (int i = 0; i < LveSwapChain::SHADOW_CASCADES; i++)
                 {
