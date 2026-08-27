@@ -102,13 +102,9 @@ namespace lve
       writeBindless(toWrite, descLayout, descPool, bindlessSet);
       for (int i = 0; i < 4; i++) {material >> loader[i];}
 
-      std::cout << "emplacing bindless texture set...\n";
-
       bindlessTextureSet.emplace(hash, load);
       modifiers.emplace(hash, loader);
       files.emplace(hash, filepaths);
-
-      std::cout << "emplaced!\n";
 
     };
 

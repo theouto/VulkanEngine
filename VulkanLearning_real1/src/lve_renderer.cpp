@@ -73,8 +73,6 @@ void LveRenderer::generateDescriptors()
     .addImage(0, &nerd2, 1)
     .build(bindlessLayout);
 
-  std::cout << "\n\nbindless: " << bindlessLayout << "\n\n";
-
   auto shadow = getShadowInfo(0);
 
   LveDescriptorWriter(*shadowSetLayout, *shadowPool)

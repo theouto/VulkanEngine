@@ -36,8 +36,6 @@ namespace lve
                 .writeImage(1, &descInfo)
                 .build(skyDesc);
 
-    std::cout << "check\n";
-
     skyDescriptors = {globalSetLayout, skyLayout->getDescriptorSetLayout()};
   }
 

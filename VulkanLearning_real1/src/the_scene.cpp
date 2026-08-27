@@ -209,7 +209,6 @@ namespace lve
       lveModel = models.at(hash);
       instanceCount = lveModel->getInstanceCount();} catch (std::out_of_range e)
     {
-      std::cout << "new model!\n";
       lveModel = LveModel::createModelFromFile(lveDevice, model);
       models.emplace(hash, lveModel);
       lveModel = models.at(hash);

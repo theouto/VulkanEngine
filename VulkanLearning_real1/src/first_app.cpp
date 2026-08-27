@@ -67,7 +67,6 @@ namespace lve
         for (int i = 0; i < LveSwapChain::SHADOW_CASCADES; i++)
         {
           shadowSystems[i] = std::make_unique<DirectionalLightSystem>(lveDevice, lveRenderer.getSwapChainShadowPass(i),lveRenderer.getGlobalLayout());
-          std::cout << lveRenderer.getSwapChainShadowPass(i) << '\n';
         }
 
         NormalSpecPass normalSpecPass{lveDevice, lveRenderer.getSwapChainNormalPass(), 
