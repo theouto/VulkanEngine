@@ -29,7 +29,9 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
             .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 65536)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 65536)
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 65536)
-            .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT | VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_SAMPLER, 400)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 400)
+            .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT)
             .build();
 
     descriptorPool = LveDescriptorPool::Builder(lveDevice)
@@ -51,13 +53,13 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
             .build();
 
     bindlessSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1000)
-            .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1000, 
+                        VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT) //Thing for later | VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT)
+            .addDescriptorFlags(VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT)
             .build();
 
     shadowSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
             .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 4)
-            .addBindingFlag(VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT)
             .build(); 
 }
 

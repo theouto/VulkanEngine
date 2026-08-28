@@ -20,22 +20,23 @@ namespace lve {
                 uint32_t binding,
                 VkDescriptorType descriptorType,
                 VkShaderStageFlags stageFlags,
-                uint32_t count = 1);
+                uint32_t count = 1,
+                VkDescriptorBindingFlags flags = 0);
 
-            Builder& addBindingFlag(
-                     VkDescriptorBindingFlags bindingFlags,
-                     uint32_t count = 1);
+            Builder& addDescriptorFlags(VkDescriptorSetLayoutCreateFlagBits bindingFlags);
 
             std::unique_ptr<LveDescriptorSetLayout> build() const;
 
         private:
             LveDevice& lveDevice;
             std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings{};
-            std::vector<VkDescriptorBindingFlags> bindingFlags{};
+            std::unordered_map<uint32_t, VkDescriptorBindingFlags> bindingFlags{};
+            VkDescriptorSetLayoutCreateFlagBits descriptorFlags{};
         };
 
         LveDescriptorSetLayout(
-            LveDevice& lveDevice, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
+            LveDevice& lveDevice, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings, 
+            VkDescriptorSetLayoutCreateFlagBits descriptorFlags, std::unordered_map<uint32_t, VkDescriptorBindingFlags> bindingFlags);
         ~LveDescriptorSetLayout(){}
         LveDescriptorSetLayout(const LveDescriptorSetLayout&) = delete;
         LveDescriptorSetLayout& operator=(const LveDescriptorSetLayout&) = delete;
@@ -47,7 +48,8 @@ namespace lve {
         LveDevice& lveDevice;
         VkDescriptorSetLayout descriptorSetLayout;
         std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings;
-        std::vector<VkDescriptorBindingFlags> bindingFlags;
+        std::unordered_map<uint32_t, VkDescriptorBindingFlags> bindingFlags;
+        VkDescriptorSetLayoutCreateFlagBits descriptorFlags;
 
         friend class LveDescriptorWriter;
     };

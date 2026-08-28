@@ -2,7 +2,7 @@
 #include "../include/lve_textures.hpp"
 
 // std
-#include <array>
+#include <iostream>
 #include <cassert>
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
@@ -15,7 +15,8 @@ namespace lve {
         uint32_t binding,
         VkDescriptorType descriptorType,
         VkShaderStageFlags stageFlags,
-        uint32_t count) {
+        uint32_t count,
+        VkDescriptorBindingFlags flags) {
         assert(bindings.count(binding) == 0 && "Binding already in use");
         VkDescriptorSetLayoutBinding layoutBinding{};
         layoutBinding.binding = binding;
@@ -23,49 +24,50 @@ namespace lve {
         layoutBinding.descriptorCount = count;
         layoutBinding.stageFlags = stageFlags;
         bindings[binding] = layoutBinding;
+        bindingFlags[binding] = flags;
         return *this;
     }
 
     //TODO: remove this hacky piece of shit and make something neater
-    LveDescriptorSetLayout::Builder& LveDescriptorSetLayout::Builder::addBindingFlag(
-                     VkDescriptorBindingFlags bindingFlags,
-                     uint32_t count)
+    LveDescriptorSetLayout::Builder& LveDescriptorSetLayout::Builder::addDescriptorFlags(
+                     VkDescriptorSetLayoutCreateFlagBits flags)
     {
-        VkDescriptorBindingFlags flags{};
-        flags = bindingFlags;
-        this->bindingFlags.push_back(flags);
-
+        descriptorFlags = flags;
         return *this;
     }
 
     std::unique_ptr<LveDescriptorSetLayout> LveDescriptorSetLayout::Builder::build() const {
-        return std::make_unique<LveDescriptorSetLayout>(lveDevice, bindings);
+        return std::make_unique<LveDescriptorSetLayout>(lveDevice, bindings, descriptorFlags, bindingFlags);
     }
 
     // *************** Descriptor Set Layout *********************
 
     LveDescriptorSetLayout::LveDescriptorSetLayout(
-        LveDevice& lveDevice, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings)
-        : lveDevice{ lveDevice }, bindings{ bindings } {
+        LveDevice& lveDevice, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings, 
+            VkDescriptorSetLayoutCreateFlagBits descriptorFlags, std::unordered_map<uint32_t, VkDescriptorBindingFlags> bindingFlags)
+        : lveDevice{ lveDevice }, bindings{ bindings }, descriptorFlags{descriptorFlags}, bindingFlags{bindingFlags} {
         std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
         for (auto kv : bindings) {
             setLayoutBindings.push_back(kv.second);
+        }
+        std::vector<VkDescriptorBindingFlags> setLayoutBindingFlags{};
+        for (auto kv : bindingFlags)
+        {
+          setLayoutBindingFlags.push_back(kv.second);
         }
 
         VkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo{};
         descriptorSetLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
         descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
+        descriptorSetLayoutInfo.flags = descriptorFlags;
 
-        if (bindingFlags.size() > 0) 
-        {
-            VkDescriptorSetLayoutBindingFlagsCreateInfo flags{};
-            flags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
-            flags.pBindingFlags = &bindingFlags[0];
-            flags.bindingCount = 1;
+        VkDescriptorSetLayoutBindingFlagsCreateInfo flags{};
+        flags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
+        flags.pBindingFlags = setLayoutBindingFlags.data();
+        flags.bindingCount = static_cast<uint32_t>(setLayoutBindingFlags.size());
 
-            descriptorSetLayoutInfo.pNext = &flags;
-        }
+        descriptorSetLayoutInfo.pNext = &flags;
 
         if (vkCreateDescriptorSetLayout(
             lveDevice.device(),

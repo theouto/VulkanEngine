@@ -168,7 +168,7 @@ namespace lve
     }
 
     // Tune this parameter according to the scene
-    constexpr float zMult = 20.0f;
+    constexpr float zMult = 10.0f;
     if (minZ < 0)
     {
         minZ *= zMult;
@@ -189,7 +189,7 @@ namespace lve
     //std::cout << "minX :" << minX << " maxX: " << maxX << " minY: " << minY << " maxY: " << maxY << '\n';
     //std::cout << lightView[0][0] << " " << lightView[1][0] << " " << lightView[2][0] << " " << lightView[3][0] << '\n';
 
-    const glm::mat4 lightProjection = glm::ortho(minX, maxX, -minY, -maxY, minZ, maxZ);
+    const glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
     return lightProjection * lightView;
   }
 

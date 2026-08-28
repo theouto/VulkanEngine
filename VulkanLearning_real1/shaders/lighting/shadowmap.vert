@@ -1,9 +1,17 @@
 #version 450
+
 layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 normal;
+layout(location = 2) in vec2 uv;
 
 layout(location = 3) in vec3 scale;
 layout(location = 4) in vec3 rotation;
 layout(location = 5) in vec3 translation;
+layout(location = 6) in ivec3 RIDone;
+layout(location = 7) in ivec3 RIDtwo;
+layout(location = 8) in vec4 modifiers;
+
+
 
 const float PI = 3.1415926535897932384626433832795;
 const float rotator = PI / 180.f;

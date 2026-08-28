@@ -37,11 +37,11 @@ namespace lve
 
         struct InstanceData
         {
-          glm::vec3 translation;
-          glm::vec3 rotation;
-          glm::vec3 scale;
-          glm::ivec3 RIDone;
-          glm::ivec3 RIDtwo;
+          alignas(16) glm::vec3 translation;
+          alignas(16) glm::vec3 rotation;
+          alignas(16) glm::vec3 scale;
+          alignas(16) glm::ivec3 RIDone;
+          alignas(16) glm::ivec3 RIDtwo;
           glm::vec4 modifiers;
 
           static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();

@@ -106,7 +106,7 @@ namespace lve
         float mouseX = 0.f;
         float mouseY = 0.f;
 
-        sceneManager.load("scenes/cube_hell.ths", *lveRenderer.globalPool);
+        sceneManager.load("scenes/test_scene.ths", *lveRenderer.globalPool);
 
         Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow, gameObjects, sceneManager};
 
@@ -114,7 +114,7 @@ namespace lve
 	auto currentTime = std::chrono::high_resolution_clock::now();
 
     glm::vec3 rot = {1.f, 5.f, 0.f};
-    std::cout << "\n\n\nAll loaded, rendering: 🙏\n\n\n\n\n\n\n";
+    std::cout << "All loaded, rendering: 🙏\n\n\n";
     float radius = 1.f;
     float farPlane = 500.f;
     float nearPlane = 0.1f;

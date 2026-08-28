@@ -15,9 +15,10 @@ layout(location = 8) in vec4 modifiers;
 layout(location = 0) out vec3 fragPosWorld;
 layout(location = 1) out vec3 fragNormalWorld;
 layout(location = 2) out vec2 fragUv;
-layout(location = 3) out vec4 FragPosLightSpace[4];
-layout(location = 7) out uint fRID[6];
-layout(location = 13) out vec4 fmodifiers;
+layout(location = 3) out mat4 FragPosLightSpace;
+layout(location = 7) out ivec3 fRIDone;
+layout(location = 8) out ivec3 fRIDtwo;
+layout(location = 9) out vec4 fmodifiers;
 
 const float PI = 3.1415926535897932384626433832795;
 const float rotator = PI / 180.f;
@@ -123,9 +124,11 @@ void main()
   fragUv = uv;
   fmodifiers = modifiers;
 
-  for (int i = 0; i < 6; i++)
+  fRIDone = RIDone;
+  fRIDtwo = RIDtwo;
+
+  for (int i = 0; i < 4; i++)
   {
-    if (i < 3) {fRID[i] = RIDone[i];} else {fRID[i] = RIDtwo[i - 3];}
-    if (i < 4) FragPosLightSpace[i] = ubo.lightSpaceMatrix[i] * positionWorld;
+    FragPosLightSpace[i] = ubo.lightSpaceMatrix[i] * positionWorld;
   }
 }
