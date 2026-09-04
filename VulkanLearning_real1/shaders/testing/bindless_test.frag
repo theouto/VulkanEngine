@@ -182,7 +182,7 @@ float calculateRandPCF(float currentDepth, vec2 uv, int image)
        {
             vec2 randomOffset = vec2(rand(uv + vec2(x, y)), rand(uv - vec2(x, y))) * texelSize;
 
-            float pcfDepth = texture(shadowStorage[image], uv + vec2(float(x)/steps, float(y)/steps) * texelSize + randomOffset*4).r; 
+            float pcfDepth = texture(shadowStorage[nonuniformEXT(image)], uv + vec2(float(x)/steps, float(y)/steps) * texelSize + randomOffset*4).r; 
             shadow += currentDepth - bias < pcfDepth ? 1.0 : 0.0;
        }
     }
@@ -220,7 +220,7 @@ vec3 calculateSunLight(DirectionalLight sun, vec3 surfaceNormal, vec2 UVs, vec3 
  
     //float diff = GeometrySmith(surfaceNormal, viewDirection, directionToLight ,texture(storageSampler[fRID[1]], UVs).r * fmodifiers[0]);
 
-    float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(storageSampler[fRIDone[1]], UVs).x * fmodifiers[1], 0.001f, 1.f));
+    float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(storageSampler[nonuniformEXT(fRIDone[1])], UVs).x * fmodifiers[1], 0.001f, 1.f));
 
     
     vec3 diff = BurleyDiffuse(
@@ -234,11 +234,11 @@ vec3 calculateSunLight(DirectionalLight sun, vec3 surfaceNormal, vec2 UVs, vec3 
     float denominator = max(max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0), 0.08);
     vec3 spec = numerator / denominator;
 
-    vec3 kD = metallic(fres, texture(storageSampler[fRIDtwo[2]], UVs).r * fmodifiers[3]);
+    vec3 kD = metallic(fres, texture(storageSampler[nonuniformEXT(fRIDtwo[2])], UVs).r * fmodifiers[3]);
 
     float NdotL = max(dot(surfaceNormal, directionToLight), 0.f); 
 
-    return (shadow) * (kD * texture(storageSampler[fRIDone[0]], UVs).rgb / M_PI + spec) * intensity * NdotL;
+    return (shadow) * (kD * texture(storageSampler[nonuniformEXT(fRIDone[0])], UVs).rgb / M_PI + spec) * intensity * NdotL;
 }
 
 vec3 calculateLights(vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
@@ -270,17 +270,17 @@ vec3 calculateLights(vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
         //diffcont += diff;
         
 
-        float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(storageSampler[fRIDone[1]], UVs).x, 0.001f, 1.f) * fmodifiers[1]);
+        float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(storageSampler[nonuniformEXT(fRIDone[1])], UVs).x, 0.001f, 1.f) * fmodifiers[1]);
 
         vec3 numerator = specular * (diff + fres);
         float denominator = max(max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0), 0.08);
         vec3 spec = numerator / denominator;
 
-        vec3 kD = metallic(fres, texture(storageSampler[fRIDtwo[2]], UVs).r * fmodifiers[3]);
+        vec3 kD = metallic(fres, texture(storageSampler[nonuniformEXT(fRIDtwo[2])], UVs).r * fmodifiers[3]);
 
         float NdotL = max(dot(surfaceNormal, directionToLight), 0.f);
 
-        Lo += (kD * texture(storageSampler[fRIDone[0]], UVs).rgb / M_PI + spec) * intensity * NdotL;
+        Lo += (kD * texture(storageSampler[nonuniformEXT(fRIDone[0])], UVs).rgb / M_PI + spec) * intensity * NdotL;
     }
 
     return Lo;
@@ -342,7 +342,7 @@ void main()
 
 	//UVs = parallaxOcclusionMapping(UVs, TBN * viewDirection);
 
-	vec3 tangentNormal = texture(storageSampler[fRIDone[2]], UVs).xyz * 255.f/127.f - 128.f/127.f;
+	vec3 tangentNormal = texture(storageSampler[nonuniformEXT(fRIDone[2])], UVs).xyz * 255.f/127.f - 128.f/127.f;
 	//vec3 surfaceNormal = texture(normalSpec, projCoords).rgb;
     vec3 surfaceNormal = normalize(TBN * tangentNormal);
 
@@ -353,7 +353,7 @@ void main()
 
     vec3 F0 = vec3(0.04);
     float halfView = dot(normalize(viewDirection + surfaceNormal), surfaceNormal); 
-    F0 = mix(F0, texture(storageSampler[fRIDone[0]], UVs).rgb, texture(storageSampler[fRIDtwo[2]], UVs).r * fmodifiers[3]);
+    F0 = mix(F0, texture(storageSampler[nonuniformEXT(fRIDone[0])], UVs).rgb, texture(storageSampler[nonuniformEXT(fRIDtwo[2])], UVs).r * fmodifiers[3]);
 
     vec3 Lo = vec3(0.f);
 
@@ -384,14 +384,15 @@ void main()
     //https://www.youtube.com/watch?v=BFld4EBO2RE great video!
     vec3 lambda = exp(-0.0005f * currDepth * vec3(.5f, 1.f, 4.f));
 
-    vec4 diffuse = texture(storageSampler[fRIDone[0]], UVs) * (vec4(diffuseLight, 0.0) * texture(storageSampler[fRIDtwo[1]], UVs).r * fmodifiers[2] +
+    vec4 diffuse = texture(storageSampler[nonuniformEXT(fRIDone[0])], UVs) * (vec4(diffuseLight, 0.0) * texture(storageSampler[nonuniformEXT(fRIDtwo[1])], UVs).r * fmodifiers[2] +
                     vec4(0.01f, 0.01f, 0.02f, 0.f));
 
     diffuse = vec4(lambda, 0.f) * diffuse + vec4((1 - lambda), 0.f) * vec4(0.1f, 0.1f, 0.1f, 0.f);
 
     //outColor = vec4(vec3(depth), 0.f);
     //outColor = vec4(debugColours[image], 0.f);
+    //outColor = vec4(debugColours[fRIDone[0] % 4], 0.f);
     outColor = diffuse + vec4(Lo, 0.f);
-    //outColor = vec4(texture(storageSampler[9], fragUv).rgb, 1.f);
+    //outColor = vec4(texture(storageSampler[nonuniformEXT(fRIDone[0])], fragUv).rgb, 1.f);
     //outColor = vec4(texture(shadowStorage[fRIDo], fragUv).rgb, 1.f);
 }

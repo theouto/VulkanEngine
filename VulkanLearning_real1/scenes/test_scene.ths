@@ -1,4 +1,4 @@
-10
+11
 0
 Point Light 9
 0.0157 0.824 0.745
@@ -55,3 +55,10 @@ materials/wet_rock.thmat
 2 1 0
 1.433 -0.517 0.278
 3.899 -0.361 -0.072
+-1
+mustard
+models/blahaj.obj
+materials/bluethingy.thmat
+0 2 0
+2 2 2
+0 0 0

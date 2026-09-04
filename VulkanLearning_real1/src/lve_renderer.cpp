@@ -53,8 +53,8 @@ void LveRenderer::createResources() //I got tired of having such a dogshit rende
             .build();
 
     bindlessSetLayout = LveDescriptorSetLayout::Builder(lveDevice)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1000, 
-                        VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT) //Thing for later | VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1000,
+                        VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT)//Thing for later | VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT)
             .addDescriptorFlags(VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT)
             .build();
 

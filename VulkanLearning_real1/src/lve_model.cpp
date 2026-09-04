@@ -114,7 +114,7 @@ namespace lve
 	  stagingBuffer.writeToBuffer((void*)instanceData.data());
 
 	  instanceBuffer = std::make_unique<LveBuffer>(lveDevice, instanceSize, instanceCount, 
-        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 	  	VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
       lveDevice.copyBuffer(stagingBuffer.getBuffer(), instanceBuffer->getBuffer(), bufferSize);
