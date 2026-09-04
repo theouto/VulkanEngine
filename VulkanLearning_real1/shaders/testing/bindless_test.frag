@@ -98,14 +98,14 @@ mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
 
 vec3 BurleyDiffuse(float lightAng, float viewAng, float halfAng, vec2 UVs)
 {
-  float f90 = 0.5f + 2.f * texture(storageSampler[fRIDone[1]], UVs).r * halfAng * halfAng * fmodifiers[0];
+  float f90 = 0.5f + 2.f * texture(storageSampler[nonuniformEXT(fRIDone[1])], UVs).r * halfAng * halfAng * fmodifiers[0];
   float Fl = pow((1 - lightAng), 5);
   float Fv = pow((1 - viewAng), 5);
 
   float t1 = 1 + (f90 - 1) * Fl;
   float t2 = 1 + (f90 - 1) * Fv;
 
-  return texture(storageSampler[fRIDone[0]], UVs).xyz/M_PI * t1 * t2;
+  return texture(storageSampler[nonuniformEXT(fRIDone[0])], UVs).xyz/M_PI * t1 * t2;
 }
 
 //==============================================================================
