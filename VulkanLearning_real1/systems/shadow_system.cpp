@@ -109,6 +109,7 @@ namespace lve
   //https://learnopengl.com/Guest-Articles/2021/CSM
   std::vector<glm::vec4> DirectionalLightSystem::getFrustumCornersWorldSpace(const glm::mat4& projView)
   {
+    glm::mat4 inverseView = glm::inverse(projView);
     std::vector<glm::vec4> frustumCorners;
     for (unsigned int x = 0; x < 2; ++x)
     {
@@ -117,7 +118,7 @@ namespace lve
             for (unsigned int z = 0; z < 2; ++z)
             {
                 const glm::vec4 pt = 
-                    projView * glm::vec4(
+                    inverseView * glm::vec4(
                         2.0f * x - 1.0f,
                         2.0f * y - 1.0f,
                         2.0f * z - 1.0f,
@@ -130,14 +131,14 @@ namespace lve
     return frustumCorners;
   }
 
-  glm::mat4 DirectionalLightSystem::getLightSpaceMatrix(const glm::mat4& projView, const glm::vec3 rot,
+  glm::mat4 DirectionalLightSystem::getLightSpaceMatrix(const glm::mat4& view, const glm::vec3 rot,
                                                         const float nearPlane, const float farPlane,
                                                         const float fovy, const float aspectRatio)
   {
     const auto proj = glm::perspective(
         fovy, aspectRatio, nearPlane,
         farPlane);
-    const auto corners = getFrustumCornersWorldSpace(proj * projView);
+    const auto corners = getFrustumCornersWorldSpace(proj * view);
 
     glm::vec3 center = glm::vec3(0, 0, 0);
     for (const auto& v : corners)
@@ -194,7 +195,7 @@ namespace lve
   }
 
   std::vector<glm::mat4> DirectionalLightSystem::getLightSpaceMatrices(std::vector<float> depthValues,
-                                                 const glm::mat4& projView, const glm::vec3 rot,
+                                                 const glm::mat4& view, const glm::vec3 rot,
                                                  const float nearPlane, const float farPlane,
                                                  const float fovy, const float aspectRatio)
   {
@@ -203,15 +204,15 @@ namespace lve
     {
         if (i == 0)
         {
-            ret.push_back(getLightSpaceMatrix(projView, rot, nearPlane, depthValues[i], fovy, aspectRatio));
+            ret.push_back(getLightSpaceMatrix(view, rot, nearPlane, depthValues[i], fovy, aspectRatio));
         }
         else if (i < depthValues.size())
         {
-            ret.push_back(getLightSpaceMatrix(projView, rot, depthValues[i - 1], depthValues[i], fovy, aspectRatio));
+            ret.push_back(getLightSpaceMatrix(view, rot, depthValues[i - 1], depthValues[i], fovy, aspectRatio));
         }
         else
         {
-            ret.push_back(getLightSpaceMatrix(projView, rot, depthValues[i - 1], farPlane, fovy, aspectRatio));
+            ret.push_back(getLightSpaceMatrix(view, rot, depthValues[i - 1], farPlane, fovy, aspectRatio));
         }
     }
     return ret;

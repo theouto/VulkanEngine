@@ -96,7 +96,7 @@ namespace lve
         float mouseX = 0.f;
         float mouseY = 0.f;
 
-        sceneManager.load("scenes/cube_hell.ths", *lveRenderer.globalPool);
+        sceneManager.load("scenes/test_scene.ths", *lveRenderer.globalPool);
 
         Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow, gameObjects, sceneManager};
 
