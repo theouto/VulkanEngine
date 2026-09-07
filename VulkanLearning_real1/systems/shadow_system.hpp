@@ -1,13 +1,9 @@
 #pragma once
 
-#include "../include/lve_renderer.hpp"
-#include "../include/lve_buffer.hpp"
 #include "../include/lve_pipeline.hpp"
-#include "../include/lve_descriptors.hpp"
 #include "../include/lve_frame_info.hpp"
 
 #include <memory>
-#include <stdexcept>
 #include <vulkan/vulkan_core.h>
 #include <vector>
 
@@ -29,10 +25,9 @@ namespace lve
                     const glm::vec3 &cameraPosition, float sceneRadius); 
 
     void drawDepth(FrameInfo &frameInfo, glm::mat4 matrix, glm::vec3 lightPos);
-    static std::vector<glm::mat4> getLightSpaceMatrices(std::vector<float> depthValues,
-                                                 const glm::mat4& projView, const glm::vec3 rot,
-                                                 const float nearPlane, const float farPlane,
-                                                 const float fovy, const float aspectRatio);
+
+    static void updateCascades(std::vector<glm::mat4>& matrices, std::vector<float>& depth,
+                        float nearClip, float farClip, glm::mat4 invView, glm::vec3 lightDir);
 
     private:
 

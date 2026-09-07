@@ -159,18 +159,16 @@ namespace lve
                 ubo.width = lveWindow.getExtent().width;
                 ubo.height = lveWindow.getExtent().height;
                 ubo.lightPos = rot;
-                std::vector<float> arro = {farPlane / 150.f, farPlane / 75.f, farPlane / 30.f, farPlane / 10.f};
-                auto matrices = DirectionalLightSystem::getLightSpaceMatrices(arro, camera.getView(),
-                                                                              glm::normalize(rot), nearPlane, farPlane,
-                                                                              glm::radians(50.f), lveRenderer.getAspectRatio());
+                std::vector<float> arro(LveSwapChain::SHADOW_CASCADES);
+                std::vector<glm::mat4> matrices(LveSwapChain::SHADOW_CASCADES);
+
+                DirectionalLightSystem::updateCascades(matrices, arro, nearPlane, farPlane,
+                                                       camera.getInverseView(), rot);
 
                 for (int i = 0; i < LveSwapChain::SHADOW_CASCADES; i++)
                 {
                   ubo.depthValues[i] = arro[i];
-                  ubo.lightSpaceMatrix[i] = matrices[i];/*DirectionalLightSystem::lightViewProjection(
-                  rot,
-                  frameInfo.camera.getPosition() + offset,
-                  radius * 5);*/
+                  ubo.lightSpaceMatrix[i] = matrices[i];
                 }
 
                 pointLightSystem.update(frameInfo, ubo);
