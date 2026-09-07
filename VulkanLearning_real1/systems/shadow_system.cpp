@@ -177,7 +177,7 @@ namespace lve
       radius = std::ceil(radius * 16.0f) / 16.0f;
 
       //this is the bit that I need to fix
-      radius *= (i+1) * 5.5f;
+      radius *= (splitDist * clipRange);
       //std::cout << "radius " << i << ": " << radius << '\n';
 
 	  glm::vec3 maxExtents = glm::vec3(radius);

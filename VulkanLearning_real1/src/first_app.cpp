@@ -96,7 +96,7 @@ namespace lve
         float mouseX = 0.f;
         float mouseY = 0.f;
 
-        sceneManager.load("scenes/test_scene.ths", *lveRenderer.globalPool);
+        sceneManager.load("scenes/cube_hell.ths", *lveRenderer.globalPool);
 
         Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow, gameObjects, sceneManager};
 
@@ -119,7 +119,7 @@ namespace lve
                                             lveWindow.getExtent().height/2);
 
 
-            if (cameraController.mousecontrol) SDL_WarpMouseInWindow(lveWindow.getSDLwindow(), 
+            if (cameraController.mousecontrol) SDL_WarpMouseInWindow(lveWindow.getSDLwindow(),
                                                static_cast<float>(lveWindow.getExtent().width/2),
                                                static_cast<float>(lveWindow.getExtent().height/2));
 
