@@ -100,8 +100,9 @@ namespace lve
 
     void LveModel::createInstanceBuffer()
     {
-      VkDeviceSize bufferSize = sizeof(InstanceData) * instanceCount;
+      VkDeviceSize bufferSize = sizeof(InstanceData) * instanceData.size();
 	  uint32_t instanceSize = sizeof(InstanceData);
+      uint32_t instanceCount = instanceData.size();
 
 	  LveBuffer stagingBuffer
 	  {
@@ -113,7 +114,7 @@ namespace lve
 	  stagingBuffer.map();
 	  stagingBuffer.writeToBuffer((void*)instanceData.data());
 
-	  instanceBuffer = std::make_unique<LveBuffer>(lveDevice, instanceSize, instanceCount, 
+	  instanceBuffer = std::make_unique<LveBuffer>(lveDevice, instanceSize, instanceData.size(), 
         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 	  	VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
@@ -121,15 +122,21 @@ namespace lve
       assert(instanceBuffer->map() == VK_SUCCESS && "unable to map instanceBuffer");
     }
 
+    void LveModel::updateBuffer()
+    {
+      if (instanceBuffer != nullptr) instanceBuffer->unmap();
+      createInstanceBuffer();
+    }
+
 	void LveModel::draw(VkCommandBuffer commandBuffer)
 	{
 		if (hasIndexBuffer)
 		{
-			vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, 0, 0, 0);
+			vkCmdDrawIndexed(commandBuffer, indexCount, instanceData.size(), 0, 0, 0);
         }
 		else
 		{
-			vkCmdDraw(commandBuffer, vertexCount, instanceCount, 0, 0);
+			vkCmdDraw(commandBuffer, vertexCount, instanceData.size(), 0, 0);
 		}
 	}
 

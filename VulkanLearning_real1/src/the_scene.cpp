@@ -163,6 +163,8 @@ namespace lve
     XXH32_hash_t hash = XXH32(model.c_str(), model.length(), 0);
     uint32_t instanceIndex = retrieveModel(hash, model);
 
+    std::cout << instanceIndex;
+
     LveGameObject object = LveGameObject::createGameObject();
     object.model = lveModel;
     object.matName = material;
@@ -184,6 +186,7 @@ namespace lve
 
     object.model->addInstanceData(scale, translation, rotation, arr,
                                   materialHandler->modi(XXH32(material.c_str(), material.length(), 0)));
+    object.model->updateBuffer();
 
     gameObjects.emplace(object.getId(), std::move(object));
   }
@@ -213,17 +216,6 @@ namespace lve
       models.emplace(hash, lveModel);
       lveModel = models.at(hash);
       return 0;
-    }
-
-    if (instanceCount > 8192)
-    {
-      std::cout << "new model!\n";
-      lveModel = LveModel::createModelFromFile(lveDevice, model);
-      models.emplace(hash+1, lveModel);
-      lveModel = models.at(hash+1);
-      //TODO: fix this inevitable problem that I am sidelining for the moment
-    } else {
-      lveModel->upInstanceCount();
     }
 
     return lveModel->getInstanceCount() - 1;

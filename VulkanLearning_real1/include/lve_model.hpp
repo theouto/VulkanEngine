@@ -71,13 +71,13 @@ namespace lve
       	VkDescriptorPool descriptorPool;
 
 		std::vector<VkDescriptorSet> descriptorSets;
-        void upInstanceCount(){instanceCount++;}
 
 		static std::unique_ptr<LveModel> createModelFromFile(LveDevice& device, const std::string &filepath);
 
         uint32_t addInstanceData(glm::vec3 scale, glm::vec3 translation, glm::vec3 rotation, std::vector<uint32_t> material, std::vector<float> materialModifiers);
 
         void createInstanceBuffer();
+        void updateBuffer();
 
         void setScale(uint32_t index, glm::vec3 scale) {instanceData[index].scale = scale;}
         void setTranslation(uint32_t index, glm::vec3 translation) {instanceData[index].translation = translation;}
@@ -95,7 +95,7 @@ namespace lve
         glm::vec3 getRotation(uint32_t index){return instanceData[index].rotation;}
         glm::vec3 getTranslation(uint32_t index){return instanceData[index].translation;}
 
-        uint32_t getInstanceCount() {return instanceCount;}
+        uint32_t getInstanceCount() {return instanceData.size();}
 
 		void bind(VkCommandBuffer);
 		void draw(VkCommandBuffer);
@@ -118,8 +118,7 @@ namespace lve
         XXH32_hash_t material_name;
 
         std::vector<InstanceData> instanceData;
-        std::unique_ptr<LveBuffer> instanceBuffer;
-        uint32_t instanceCount = 1;
+        std::unique_ptr<LveBuffer> instanceBuffer = nullptr;
 
 		bool hasIndexBuffer = false;
 		std::unique_ptr<LveBuffer> indexBuffer;

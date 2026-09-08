@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 #include "lve_renderer.hpp"
@@ -41,6 +42,7 @@ namespace lve
                                 const char* path);
 
       uint32_t retrieveModel(XXH32_hash_t hash, std::string model);
+      std::unordered_map<uint32_t, std::shared_ptr<LveModel>>& modelMap() {return models;}
       std::shared_ptr<LveModel> getActiveModel() {return lveModel;}
 
       LveMaterials& handler() {return *materialHandler;}

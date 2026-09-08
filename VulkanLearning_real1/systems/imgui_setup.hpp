@@ -13,6 +13,7 @@
 #include "../include/the_scene.hpp"
 #include "../include/lve_descriptors.hpp"
 #include "../include/lve_swap_chain.hpp"
+#include "../include/the_events.hpp"
 
 namespace lve
 {
@@ -20,7 +21,7 @@ namespace lve
   {
     public:
     
-    Imgui_LVE(LveDevice &device, LveRenderer &render, LveWindow &window, LveGameObject::Map& map, LveScene& scene);
+    Imgui_LVE(LveDevice &device, LveRenderer &render, LveWindow &window, LveGameObject::Map& map, LveScene& scene, TheEvents& events);
     ~Imgui_LVE()
     {
       ImGui_ImplVulkan_Shutdown();
@@ -68,6 +69,7 @@ namespace lve
     LveDevice& lveDevice;
     LveRenderer& lveRenderer;
     LveWindow& lveWindow;
+    TheEvents& eventHandler;
     VkDescriptorPool pool;
   };
 

@@ -9,8 +9,8 @@
 
 namespace lve 
 {
-  Imgui_LVE::Imgui_LVE(LveDevice &device, LveRenderer &render, LveWindow &window, LveGameObject::Map& map, LveScene& scene) 
-      : lveDevice{device}, lveWindow{window}, lveRenderer{render}, gameObjects{map}, sceneManager{scene}
+  Imgui_LVE::Imgui_LVE(LveDevice &device, LveRenderer &render, LveWindow &window, LveGameObject::Map& map, LveScene& scene, TheEvents& events) 
+      : lveDevice{device}, lveWindow{window}, lveRenderer{render}, gameObjects{map}, sceneManager{scene}, eventHandler{events}
   {
     init();
   }
@@ -257,14 +257,9 @@ namespace lve
 
     std::unordered_map<XXH32_hash_t, bool> models;
 
-    for (auto &kv : gameObjects)
+    for (auto &kv : sceneManager.modelMap())
     {
-      if (kv.second.type != -1) continue; 
-      try {models.at(kv.second.instanceHash);} catch (std::out_of_range e)
-      {
-        kv.second.model->updateInstances();
-        models.emplace(kv.second.instanceHash, true);
-      }
+        kv.second->updateInstances();
     }
   }
 
@@ -312,10 +307,9 @@ namespace lve
                               materialFile, trans,
                               scale, rot, *lveRenderer.descriptorPool);
 
-    //keys = sceneManager.handler().keys();
-    updateMaterial();
-
-    std::cout << "hi!\n";
+    keys = sceneManager.handler().keys();
+    eventHandler.addToUpdate(sceneManager.getActiveModel());
+    //updateMaterial();
 
     scale = {1.f, 1.f, 1.f};
     rot = {0.f, 0.f, 0.f};

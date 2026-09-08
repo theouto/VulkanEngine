@@ -96,9 +96,9 @@ namespace lve
         float mouseX = 0.f;
         float mouseY = 0.f;
 
-        sceneManager.load("scenes/cube_hell.ths", *lveRenderer.globalPool);
+        sceneManager.load("scenes/light_test.ths", *lveRenderer.globalPool);
 
-        Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow, gameObjects, sceneManager};
+        Imgui_LVE imgui{lveDevice, lveRenderer, lveWindow, gameObjects, sceneManager, theEvents};
 
 
 	auto currentTime = std::chrono::high_resolution_clock::now();
