@@ -168,7 +168,11 @@ namespace lve
     ImGui::InputText("materialFile: ", materialFile, 1024);
     if(ImGui::Button("change material", ImVec2(100.f, 20.f))) {materialChange(); update = true;}
 
-    if (update) {gameObjects.at(object).update(); if (gameObjects.at(object).type == -1) gameObjects.at(object).model->updateInstances();}
+    if (update) 
+    {
+      gameObjects.at(object).update();
+      if (gameObjects.at(object).type == -1) gameObjects.at(object).model->updateInstances();
+    }
 
     ImGui::InputInt("Shadowmap", &gameObjects.at(object).RID, 1, 1);
   }
@@ -190,9 +194,9 @@ namespace lve
 
 
     ImGui::LabelText("\nRotation", "");
-    ImGui::InputFloat("X-rot", &rot.x, -10.f, 10.f);
-    ImGui::InputFloat("Y-rot", &rot.y, -10.f, 10.f);
-    ImGui::InputFloat("Z-rot", &rot.z, -10.f, 10.f);
+    ImGui::InputFloat("X-rot", &rot.x, -365.f, 365.f);
+    ImGui::InputFloat("Y-rot", &rot.y, -365.f, 365.f);
+    ImGui::InputFloat("Z-rot", &rot.z, -365.f, 365.f);
 
 
     ImGui::LabelText("\nScale", "");
@@ -309,7 +313,6 @@ namespace lve
 
     keys = sceneManager.handler().keys();
     eventHandler.addToUpdate(sceneManager.getActiveModel());
-    //updateMaterial();
 
     scale = {1.f, 1.f, 1.f};
     rot = {0.f, 0.f, 0.f};

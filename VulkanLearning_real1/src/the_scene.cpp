@@ -149,7 +149,7 @@ namespace lve
 
     object.model->addInstanceData(scale, translation, rotation, arr, 
                                   materialHandler->modi(XXH32(material.c_str(), material.length(), 0)));
-
+    object.instanceIndex = retrieveModel(hash, model);
     gameObjects.emplace(object.getId(), std::move(object));
 
     getline(scene, line); //clear the line
@@ -163,8 +163,6 @@ namespace lve
     XXH32_hash_t hash = XXH32(model.c_str(), model.length(), 0);
     uint32_t instanceIndex = retrieveModel(hash, model);
 
-    std::cout << instanceIndex;
-
     LveGameObject object = LveGameObject::createGameObject();
     object.model = lveModel;
     object.matName = material;
@@ -176,8 +174,6 @@ namespace lve
                         *lveRenderer.descriptorPool, lveRenderer.getBindlessLayout(),
                                     object);
 
-    //It's good to have this here as well in the event of a change in model data, necessitating a move away from the
-    //previous instance. Sure, I could extradite the data in the model change, but that's a TODO: for a later date.
     for (int i = 0; i < arr.size(); i++) {object.textures[i] = arr[i];}
     object.transform.translation = translation;
     object.transform.rotation = rotation;
@@ -186,6 +182,7 @@ namespace lve
 
     object.model->addInstanceData(scale, translation, rotation, arr,
                                   materialHandler->modi(XXH32(material.c_str(), material.length(), 0)));
+    object.instanceIndex = retrieveModel(hash, model);
     object.model->updateBuffer();
 
     gameObjects.emplace(object.getId(), std::move(object));

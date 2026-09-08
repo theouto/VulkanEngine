@@ -46,22 +46,10 @@ namespace lve
       std::shared_ptr<LveModel> getActiveModel() {return lveModel;}
 
       LveMaterials& handler() {return *materialHandler;}
-      //LveDescriptorSetLayout& mattLayout(){return *matLayout;}
 
     private:
 
       LveDevice& lveDevice;
-
-      /*
-      std::unique_ptr<LveDescriptorSetLayout> matLayout = LveDescriptorSetLayout::Builder(lveDevice)
-            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //albedo
-            .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //specular
-            .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //normal
-            .addBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //roughness
-            .addBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //AO
-            .addBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT) //metalness
-            .build();
-      */
 
       std::string line, model, material, name;
       float intensity, radius;
