@@ -147,8 +147,9 @@ namespace lve
     object.transform.scale = scale;
     object.name = name;
 
-    object.model->addInstanceData(scale, translation, rotation, arr, 
+    object.model->addInstanceData(object.transform.mat4(), object.transform.normalMatrix(), arr, 
                                   materialHandler->modi(XXH32(material.c_str(), material.length(), 0)));
+
     object.instanceIndex = retrieveModel(hash, model);
     gameObjects.emplace(object.getId(), std::move(object));
 
@@ -180,7 +181,7 @@ namespace lve
     object.transform.scale = scale;
     object.name = name;
 
-    object.model->addInstanceData(scale, translation, rotation, arr,
+    object.model->addInstanceData(object.transform.mat4(), object.transform.normalMatrix(), arr,
                                   materialHandler->modi(XXH32(material.c_str(), material.length(), 0)));
     object.instanceIndex = retrieveModel(hash, model);
     object.model->updateBuffer();

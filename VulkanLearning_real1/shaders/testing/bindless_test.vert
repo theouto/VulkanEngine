@@ -5,12 +5,18 @@ layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 uv;
 
-layout(location = 3) in vec3 scale;
-layout(location = 4) in vec3 rotation;
-layout(location = 5) in vec3 translation;
-layout(location = 6) in ivec3 RIDone;
-layout(location = 7) in ivec3 RIDtwo;
-layout(location = 8) in vec4 modifiers;
+layout(location = 3) in vec4 modelMatrixI;
+layout(location = 4) in vec4 modelMatrixII;
+layout(location = 5) in vec4 modelMatrixIII;
+layout(location = 6) in vec4 modelMatrixIV;
+
+layout(location = 7) in vec3 normalMatrixI;
+layout(location = 8) in vec3 normalMatrixII;
+layout(location = 9) in vec3 normalMatrixIII;
+
+layout(location = 10) in ivec3 RIDone;
+layout(location = 11) in ivec3 RIDtwo;
+layout(location = 12) in vec4 modifiers;
 
 layout(location = 0) out vec3 fragPosWorld;
 layout(location = 1) out vec3 fragNormalWorld;
@@ -89,6 +95,7 @@ mat4 rotateX(float angle)
 
 void main()
 {
+  /*
   mat4 scaleMatrix =
   {
     vec4(scale.x, 0, 0, 0),
@@ -113,13 +120,17 @@ void main()
   instanceMatrix = rotationMatrix * instanceMatrix;
 
   instanceMatrix[3] = vec4(translation.x, -translation.y, translation.z, 1.f);
+  */
+
+  mat4 instanceMatrix = mat4(modelMatrixI, modelMatrixII, modelMatrixIII, modelMatrixIV);
+  mat3 normalInstanceMatrix = mat3(normalMatrixI, normalMatrixII, normalMatrixIII);
 
   vec4 positionWorld = instanceMatrix * vec4(position, 1.f);
   gl_Position = ubo.projection * ubo.view * positionWorld;
 
   vec3 nuNormal = normal;
 
-  fragNormalWorld = normalize(mat3(rotationMatrix * invScaleMatrix * push.normalMatrix) * normal);
+  fragNormalWorld = normalize(mat3(normalInstanceMatrix) * normal);
   fragPosWorld = positionWorld.xyz;
   fragUv = uv;
   fmodifiers = modifiers;

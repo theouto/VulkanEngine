@@ -9,45 +9,45 @@ namespace lve
 {
 	glm::mat4 TransformComponent::mat4() 
 	{
-		const float c3 = glm::cos(0.f);
-		const float s3 = glm::sin(0.f);
-		const float c2 = glm::cos(0.f);
-		const float s2 = glm::sin(0.f);
-		const float c1 = glm::cos(0.f);
-		const float s1 = glm::sin(0.f);
+		const float c3 = glm::cos(rotation.z);
+		const float s3 = glm::sin(rotation.z);
+		const float c2 = glm::cos(rotation.y);
+		const float s2 = glm::sin(rotation.y);
+		const float c1 = glm::cos(rotation.x);
+		const float s1 = glm::sin(rotation.x);
 		return glm::mat4
 		{
 			{
-				(c1 * c3 + s1 * s2 * s3),
-				(c2 * s3),
-				(c1 * s2 * s3 - c3 * s1),
+				scale.x * (c1 * c3 + s1 * s2 * s3),
+				scale.x * (c2 * s3),
+				scale.x * (c1 * s2 * s3 - c3 * s1),
 				0.0f,
 			},
 			{
-				(c3 * s1 * s2 - c1 * s3),
-				(c2 * c3),
-				(c1 * c3 * s2 + s1 * s3),
+				scale.y * (c3 * s1 * s2 - c1 * s3),
+				scale.y * (c2 * c3),
+				scale.y * (c1 * c3 * s2 + s1 * s3),
 				0.0f,
 			},
 			{
-				(c2 * s1),
-				(-s2),
-				(c1 * c2),
+				scale.z * (c2 * s1),
+				scale.z * (-s2),
+				scale.z * (c1 * c2),
 				0.0f,
 			},
-			//{translation.x, translation.y, translation.z, 1.0f} 
-            glm::vec4{glm::vec3{0.f}, 1.f}};
+			{translation.x, -translation.y, translation.z, 1.0f}};
+            //glm::vec4{glm::vec3{0.f}, 1.f}};
 	}
 
 	glm::mat3 TransformComponent::normalMatrix()
 	{
-		const float c3 = glm::cos(0.f);
-		const float s3 = glm::sin(0.f);
-		const float c2 = glm::cos(0.f);
-		const float s2 = glm::sin(0.f);
-		const float c1 = glm::cos(0.f);
-		const float s1 = glm::sin(0.f);
-		const glm::vec3 invScale{1.f};
+		const float c3 = glm::cos(rotation.z);
+		const float s3 = glm::sin(rotation.z);
+		const float c2 = glm::cos(rotation.y);
+		const float s2 = glm::sin(rotation.y);
+		const float c1 = glm::cos(rotation.x);
+		const float s1 = glm::sin(rotation.x);
+		const glm::vec3 invScale = 1.f / scale;
 
 		return glm::mat3{
 			{
@@ -84,9 +84,8 @@ namespace lve
     {
       if (type == -1)
       {
-        model->setRotation(instanceIndex, transform.rotation);
-        model->setScale(instanceIndex, transform.scale);
-        model->setTranslation(instanceIndex, transform.translation);
+        model->setModelMatrix(instanceIndex, transform.mat4());
+        model->setNormalMatrix(instanceIndex, transform.normalMatrix());
         model->setMaterial(instanceIndex, textures, modifiers);
       }
     }

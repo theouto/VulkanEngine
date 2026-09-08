@@ -153,9 +153,9 @@ namespace lve
 
     ImGui::LabelText("\nRotation", "");
 
-    update += ImGui::SliderFloat("X-rot", &gameObjects.at(object).transform.rotation.x, -365.f, 365.f) |
-              ImGui::SliderFloat("Y-rot", &gameObjects.at(object).transform.rotation.y, -365.f, 365.f) |
-              ImGui::SliderFloat("Z-rot", &gameObjects.at(object).transform.rotation.z, -365.f, 365.f);
+    update += ImGui::SliderFloat("X-rot", &gameObjects.at(object).transform.rotation.x, -10.f, 10.f) |
+              ImGui::SliderFloat("Y-rot", &gameObjects.at(object).transform.rotation.y, -10.f, 10.f) |
+              ImGui::SliderFloat("Z-rot", &gameObjects.at(object).transform.rotation.z, -10.f, 10.f);
 
 
     ImGui::LabelText("\nScale", "");

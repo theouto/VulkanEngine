@@ -51,7 +51,7 @@ namespace lve
 	PipelineConfigInfo pipelineConfig{};
 	LvePipeline::defaultPipelineConfigInfo(pipelineConfig);
     LvePipeline::defaultPipelineShadowInfo(pipelineConfig);
-    pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_FRONT_BIT;
+    pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
 
     pipelineConfig.renderPass = renderPass;
 	pipelineConfig.pipelineLayout = pipelineLayout;
@@ -120,7 +120,7 @@ namespace lve
 	float ratio = maxZ / minZ;
 
     float cascadeSplits[LveSwapChain::SHADOW_CASCADES];
-    float cascadeSplitLambda = 0.95f;
+    float cascadeSplitLambda = 0.98f;
 
 	// Calculate split depths based on view camera frustum
 	// Based on method presented in https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
