@@ -51,7 +51,7 @@ namespace lve
 	PipelineConfigInfo pipelineConfig{};
 	LvePipeline::defaultPipelineConfigInfo(pipelineConfig);
     LvePipeline::defaultPipelineShadowInfo(pipelineConfig);
-    pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
+    pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_FRONT_BIT;
 
     pipelineConfig.renderPass = renderPass;
 	pipelineConfig.pipelineLayout = pipelineLayout;
@@ -177,7 +177,7 @@ namespace lve
       radius = std::ceil(radius * 16.0f) / 16.0f;
 
       //this is the bit that I need to fix
-      radius *= (splitDist * clipRange);
+      radius *= (splitDist * clipRange)/1.35f;
       //std::cout << "radius " << i << ": " << radius << '\n';
 
 	  glm::vec3 maxExtents = glm::vec3(radius);
