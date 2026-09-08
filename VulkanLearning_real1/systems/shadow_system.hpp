@@ -27,7 +27,7 @@ namespace lve
     void drawDepth(FrameInfo &frameInfo, glm::mat4 matrix, glm::vec3 lightPos);
 
     static void updateCascades(std::vector<glm::mat4>& matrices, std::vector<float>& depth,
-                        float nearClip, float farClip, glm::mat4 invView, glm::vec3 lightDir);
+                        float nearClip, float farClip, glm::mat4 invView, glm::vec3 lightDir, float lambda);
 
     private:
 

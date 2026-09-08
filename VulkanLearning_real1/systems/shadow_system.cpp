@@ -109,7 +109,7 @@ namespace lve
   //https://github.com/SaschaWillems/Vulkan/blob/master/examples/shadowmappingcascade/shadowmappingcascade.cpp
   //Sascha Willems, you are great
   void DirectionalLightSystem::updateCascades(std::vector<glm::mat4>& matrices, std::vector<float>& cascadeDepth, 
-                      float nearClip, float farClip, glm::mat4 invCam, glm::vec3 lightPos)
+                      float nearClip, float farClip, glm::mat4 invCam, glm::vec3 lightPos, float lambda)
   {
 	float clipRange = farClip - nearClip;
 
@@ -120,7 +120,7 @@ namespace lve
 	float ratio = maxZ / minZ;
 
     float cascadeSplits[LveSwapChain::SHADOW_CASCADES];
-    float cascadeSplitLambda = 0.98f;
+    float cascadeSplitLambda = lambda;
 
 	// Calculate split depths based on view camera frustum
 	// Based on method presented in https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html

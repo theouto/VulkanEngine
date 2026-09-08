@@ -163,7 +163,7 @@ namespace lve
                 std::vector<glm::mat4> matrices(LveSwapChain::SHADOW_CASCADES);
 
                 DirectionalLightSystem::updateCascades(matrices, arro, nearPlane, farPlane,
-                                                       camera.getInverseView(), rot);
+                                                       camera.getInverseView(), rot, imgui.getLambda());
 
                 for (int i = 0; i < LveSwapChain::SHADOW_CASCADES; i++)
                 {

@@ -41,6 +41,7 @@ namespace lve
     void materialControl();
     void reloadMaterial();
     void updateMaterial();
+    float getLambda(){return lambda;}
     bool eventWatcher();
 
     private:
@@ -64,6 +65,9 @@ namespace lve
     std::vector<bool> tabbi = {true, false};
     std::vector<bool> tabs = {true, false, false};
     int object = 1;
+
+    float lambda = 0.95f;
+
     LveScene& sceneManager;
     LveGameObject::Map& gameObjects;
     LveDevice& lveDevice;
