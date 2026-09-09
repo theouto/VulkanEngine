@@ -177,7 +177,7 @@ namespace lve
       radius = std::ceil(radius * 16.0f) / 16.0f;
 
       //this is the bit that I need to fix
-      radius *= (splitDist * clipRange)/1.35f;
+      radius *= (splitDist * clipRange)/1.09f;
       //std::cout << "radius " << i << ": " << radius << '\n';
 
 	  glm::vec3 maxExtents = glm::vec3(radius);
@@ -187,7 +187,7 @@ namespace lve
 
 	  glm::vec3 lightDir = normalize(lightPos);
 	  glm::mat4 lightViewMatrix = glm::lookAt(frustumCenter - lightDir * -minExtents.z, frustumCenter, glm::vec3(0.0f, 1.0f, 0.0f));
-	  glm::mat4 lightOrthoMatrix = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, -zMult, (maxExtents.z - minExtents.z) * zMult);
+	  glm::mat4 lightOrthoMatrix = glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, -zMult, (maxExtents.z - minExtents.z));
 
 	  //Store split distance and matrix in cascade
 	  //cascades[i].splitDepth = (camera.getNearClip() + splitDist * clipRange) * -1.0f;
