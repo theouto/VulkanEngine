@@ -657,7 +657,6 @@ namespace lve {
           VK_SUCCESS) {
           throw std::runtime_error("failed to create texture image view!");
       }
-
     }
 
     void LveSwapChain::createNormalBuffers()

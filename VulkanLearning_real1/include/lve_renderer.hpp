@@ -128,7 +128,7 @@ namespace lve
         VkDescriptorSetLayout getGlobalLayout() {return globalSetLayout->getDescriptorSetLayout();}
         VkDescriptorSet getLayout(uint32_t index) {return globalSetLayouts[index];}
         VkDescriptorSet shadowSet() {return _shadowSet;}
-        
+
         void generateDescriptors();
         void updateDescriptors();
         void testerholyFUCK();

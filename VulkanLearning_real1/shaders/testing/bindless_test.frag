@@ -174,15 +174,17 @@ float calculateRandPCF(float currentDepth, vec2 uv, int image)
     float shadow = 0.f;
 
     int steps = 2;
-    vec2 texelSize = 1.0 / textureSize(shadowStorage[image], 0);
+    vec2 textureSized = textureSize(shadowStorage[nonuniformEXT(image)], 0);
+    vec2 texelSize = 1.0/textureSized;
     float bias = 0.0005f;//0.00009f;
+
     for(int x = -steps; x <= steps; ++x)
     {
        for(int y = -steps; y <= steps; ++y)
        {
             vec2 randomOffset = vec2(rand(uv + vec2(x, y)), rand(uv - vec2(x, y))) * texelSize;
 
-            float pcfDepth = texture(shadowStorage[nonuniformEXT(image)], uv + vec2(float(x)/steps, float(y)/steps) * texelSize + randomOffset*2).r; 
+            float pcfDepth = texture(shadowStorage[nonuniformEXT(image)], uv + vec2(float(x)/steps, float(y)/steps) * texelSize + randomOffset).r; 
             shadow += currentDepth - bias < pcfDepth ? 1.0 : 0.0;
        }
     }
@@ -270,7 +272,7 @@ vec3 calculateLights(vec3 surfaceNormal, vec2 UVs, vec3 viewDirection, vec3 F0)
         //diffcont += diff;
         
 
-        float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(storageSampler[nonuniformEXT(fRIDone[1])], UVs).x, 0.001f, 1.f) * fmodifiers[1]);
+        float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(storageSampler[nonuniformEXT(fRIDone[1])], UVs).x * fmodifiers[1], 0.001f, 1.f));
 
         vec3 numerator = specular * (diff + fres);
         float denominator = max(max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0), 0.08);
@@ -370,7 +372,7 @@ void main()
     float depth = abs(fragPosViewSpace.z);
 
     for (int i = 0; i < 4; i++) {if (depth < ubo.depthValues[i]) {image = i; break;}}
-    if (image == -1) image = 3;
+    if (image < 0) image = 3;
 
     //image = 1;
 
@@ -387,7 +389,7 @@ void main()
     diffuse = vec4(lambda, 0.f) * diffuse + vec4((1 - lambda), 0.f) * vec4(0.1f, 0.1f, 0.1f, 0.f);
 
     //outColor = vec4(vec3(depth), 0.f);
-    //outColor = vec4(debugColours[image], 0.f);
+    //outColor = diffuse + vec4(Lo, 0.f) + vec4(debugColours[image]/5.f, 0.f);
     //outColor = vec4(debugColours[fRIDone[0] % 4], 0.f);
     outColor = diffuse + vec4(Lo, 0.f);
     //outColor = vec4(texture(storageSampler[nonuniformEXT(fRIDone[0])], fragUv).rgb, 1.f);
