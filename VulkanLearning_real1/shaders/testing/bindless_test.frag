@@ -183,8 +183,9 @@ float calculateRandPCF(float currentDepth, vec2 uv, int image)
        for(int y = -steps; y <= steps; ++y)
        {
             vec2 randomOffset = vec2(rand(uv + vec2(x, y)), rand(uv - vec2(x, y))) * texelSize;
+            float depth = texture(shadowStorage[nonuniformEXT(image)], uv + vec2(float(x)/steps, float(y)/steps) * texelSize).r;
 
-            float pcfDepth = texture(shadowStorage[nonuniformEXT(image)], uv + vec2(float(x)/steps, float(y)/steps) * texelSize + randomOffset).r; 
+            float pcfDepth = texture(shadowStorage[nonuniformEXT(image)], uv + vec2(float(x)/steps, float(y)/steps) * texelSize + randomOffset * abs(currentDepth - bias - abs(depth)) * 200).r; 
             shadow += currentDepth - bias < pcfDepth ? 1.0 : 0.0;
        }
     }
