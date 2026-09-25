@@ -61,9 +61,20 @@ namespace lve
 
     ImGui::Begin("Directional light");
 
-    ImGui::SliderFloat("X", &rotationnn->x, -5.0f, 5.0f);
-    ImGui::SliderFloat("Y", &rotationnn->y, 0.0f, 10.0f);
+    bool print = 0;
+
+    print += ImGui::SliderFloat("X", &rotationnn->x, -5.0f, 5.0f) |
+    ImGui::SliderFloat("Y", &rotationnn->y, 0.0f, 10.0f) |
     ImGui::SliderFloat("Z", &rotationnn->z, -5.0f, 5.0f);
+
+    /*
+    if (print)
+    {
+      auto lala = glm::normalize(*rotationnn);
+      std::cout << lala.x << " " << lala.y << " " << lala.z << '\n';
+    }
+    */
+
     ImGui::SliderFloat("Lambda", &lambda, 0.f, 1.f);
 
     ImGui::End();

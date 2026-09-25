@@ -121,7 +121,7 @@ class LveSwapChain {
         std::vector<VkDeviceMemory> shadowMemory;
         std::vector<VkImage> shadowImage;
         std::vector<VkImageView> shadowDepthView;
-        VkExtent2D shadowExtent = {1024 * 4, 1024 * 4};
+        VkExtent2D shadowExtent = {1024, 1024};
 
         LveDevice &device;
         VkExtent2D windowExtent;

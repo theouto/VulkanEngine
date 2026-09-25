@@ -45,23 +45,19 @@ float LinearizeDepth(float depth)
   return NEAR * FAR / (FAR + depth * (NEAR - FAR));	
 }
 
-mat3 cotangent_frame( vec3 N, vec3 p, vec2 uv )
+mat3 cotangent_frame( vec3 normal, vec3 worldPos, vec2 texCoord )
 {
-    // get edge vectors of the pixel triangle
-    vec3 dp1 = dFdx(p);
-    vec3 dp2 = dFdy(p);
-    vec2 duv1 = dFdx(uv);
-    vec2 duv2 = dFdy(uv);
+  vec3 Q1 = dFdx(worldPos);
+  vec3 Q2 = dFdy(worldPos);
+  vec2 st1 = dFdx(texCoord);
+  vec2 st2 = dFdy(texCoord);
 
-    // solve the linear system
-    vec3 dp2perp = cross( dp2, N );
-    vec3 dp1perp = cross( N, dp1 );
-    vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
-    vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
+  vec3 N = normalize(normal);
+  vec3 T = normalize(Q1 * st2.t - Q2 * st1.t);
+  vec3 B = -normalize(cross(N, T));
 
-    // construct a scale-invariant frame 
-    float invmax = inversesqrt( max( dot(T,T), dot(B,B) ) );
-    return mat3( T * invmax, B * invmax, N );
+  mat3 TBN = mat3(T, B, N);
+  return TBN;
 }
 
 vec3 perturb_normal( vec3 N, vec3 V, vec2 texcoord ) 
@@ -88,7 +84,7 @@ void main()
     vec3 cameraPosWorld = ubo.invView[3].xyz;
 	vec3 viewDirection = normalize(cameraPosWorld - fragPosWorld);
 
-    surfaceNormal = perturb_normal(surfaceNormal, viewDirection, UVs);
+    surfaceNormal = perturb_normal(surfaceNormal, fragPosWorld, UVs);
     //surfaceNormal.z = -surfaceNormal.z;
 
     float spec = texture(textures[fRID[nonuniformEXT(1)]], UVs).r;
