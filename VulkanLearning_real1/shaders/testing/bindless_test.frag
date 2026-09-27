@@ -251,12 +251,12 @@ vec3 surfaceLightingHelper(vec2 UVs, vec3 surfaceNormal, vec3 viewDirection, vec
     max(dot(directionToLight, halfAngle), 0.0),
     UVs);
 
-  vec3 numerator = specular * (diff + fres);
+  vec3 numerator = specular * (diff);
 
   float denominator = max(max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0), 0.08);
   vec3 spec = numerator / denominator;
 
-  vec3 kD = metallic(fres, texture(storageSampler[nonuniformEXT(fRIDtwo[2])], UVs).r * fmodifiers[3]);
+  vec3 kD = metallic(diff, texture(storageSampler[nonuniformEXT(fRIDtwo[2])], UVs).r * fmodifiers[3]);
 
   float NdotL = max(dot(surfaceNormal, directionToLight), 0.f);
 
