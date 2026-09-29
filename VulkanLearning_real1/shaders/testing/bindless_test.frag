@@ -185,9 +185,9 @@ vec3 metallic(vec3 fres, float metal)
 
 //==============================================================================
 
-vec3 fresnelSchlick(float cosTheta, vec3 F0)
+vec3 fresnelSchlick(float cosTheta, vec3 F0, vec3 F90)
 {
-    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+    return F0 + (F90 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
 //==============================================================================
@@ -241,8 +241,6 @@ vec3 surfaceLightingHelper(vec2 UVs, vec3 surfaceNormal, vec3 viewDirection, vec
   if (dot(normalize(fragNormalWorld), directionToLight) < 0) return vec3(0.f);
   vec3 halfAngle = normalize(directionToLight + viewDirection);
 
-  vec3 fres = fresnelSchlick(clamp(dot(halfAngle, viewDirection), 0.f, 1.f), F0);
-
   float specular = DistributionGGX(surfaceNormal, halfAngle, clamp(texture(storageSampler[nonuniformEXT(fRIDone[1])], UVs).x * fmodifiers[1], 0.001f, 1.f));
 
   vec3 diff = BurleyDiffuse(
@@ -251,13 +249,13 @@ vec3 surfaceLightingHelper(vec2 UVs, vec3 surfaceNormal, vec3 viewDirection, vec
     max(dot(directionToLight, halfAngle), 0.0),
     UVs);
 
-  vec3 numerator = specular * (diff);
+  vec3 fres = fresnelSchlick(clamp(dot(halfAngle, viewDirection), 0.f, 1.f), F0, diff);
+  vec3 numerator = specular * (diff + fres);
 
   float denominator = max(max(dot(surfaceNormal, viewDirection), 0.0) * max(dot(surfaceNormal, directionToLight), 0.0), 0.08);
   vec3 spec = numerator / denominator;
 
-  vec3 kD = metallic(diff, texture(storageSampler[nonuniformEXT(fRIDtwo[2])], UVs).r * fmodifiers[3]);
-
+  vec3 kD = metallic(fres, texture(storageSampler[nonuniformEXT(fRIDtwo[2])], UVs).r * fmodifiers[3]);
   float NdotL = max(dot(surfaceNormal, directionToLight), 0.f);
 
   return (kD * texture(storageSampler[nonuniformEXT(fRIDone[0])], UVs).rgb / M_PI + spec) * intensity * NdotL;
