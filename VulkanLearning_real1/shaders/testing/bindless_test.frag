@@ -10,6 +10,7 @@ layout(location = 3) in mat4 FragPosLightSpace;
 layout(location = 7) flat in ivec3 fRIDone;
 layout(location = 8) flat in ivec3 fRIDtwo;
 layout(location = 9) in vec4 fmodifiers;
+layout(location = 10) flat in int meshID;
 
 layout(location = 0) out vec4 outColor;
 
@@ -353,7 +354,24 @@ void main()
       {0.5, 0, 0},
       {0, 0.5, 0},
       {0, 0, 0.5},
-      {0.5, 0.5, 0.5}
+      {0.5, 0.5, 0.5},
+      {0.1, 0.3, 0.8},
+      {0.8, 0.1, 0.2},
+      {0.1, 0.1, 0.1},
+      {0.5, 0, 0},
+      {0, 0.5, 0},
+      {0, 0, 0.5},
+      {0.5, 0.5, 0.5},
+      {0.1, 0.3, 0.8},
+      {0.8, 0.1, 0.2},
+      {0.1, 0.1, 0.1},
+      {0.5, 0, 0},
+      {0, 0.5, 0},
+      {0, 0, 0.5},
+      {0.5, 0.5, 0.5},
+      {0.1, 0.3, 0.8},
+      {0.8, 0.1, 0.2},
+      {0.1, 0.1, 0.1},
     };
 
     vec4 fragPosViewSpace = ubo.view * vec4(fragPosWorld, 1.f);
@@ -361,6 +379,10 @@ void main()
 
     for (int i = 0; i < 4; i++) {if (depth < ubo.depthValues[i]) {image = i; break;}}
     if (image < 0) image = 3;
+
+    int tester;
+    for (tester = 0; tester < meshID; tester++){}
+    if (tester > 20) tester %= 20;
 
     //image = 1;
 
@@ -381,6 +403,7 @@ void main()
     //outColor = vec4(debugColours[fRIDone[0] % 4], 0.f);
     outColor = diffuse + vec4(Lo, 0.f);
     //outColor = vec4(fragPosWorld, 1.0);
+    //outColor = vec4(debugColours[tester], 1.f);
     //outColor = vec4(texture(storageSampler[nonuniformEXT(fRIDone[0])], fragUv).rgb, 1.f);
     //outColor = vec4(texture(shadowStorage[fRIDo], fragUv).rgb, 1.f);
 }

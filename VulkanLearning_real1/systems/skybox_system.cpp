@@ -75,6 +75,7 @@ namespace lve
 		pipelineConfig.bindingDescriptions.clear();
 		pipelineConfig.renderPass = renderPass;
 		pipelineConfig.pipelineLayout = pipelineLayout;
+        pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
         pipelineConfig.depthStencilInfo.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
 		std::vector<std::string> filePaths = { "shaders/compiled/skybox.vert.spv",
 			"shaders/compiled/skybox.frag.spv" };

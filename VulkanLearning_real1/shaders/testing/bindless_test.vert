@@ -3,7 +3,7 @@
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
-layout(location = 2) in vec2 uv;
+layout(location = 2) in vec3 uv;
 
 layout(location = 3) in vec4 modelMatrixI;
 layout(location = 4) in vec4 modelMatrixII;
@@ -25,6 +25,7 @@ layout(location = 3) out mat4 FragPosLightSpace;
 layout(location = 7) out ivec3 fRIDone;
 layout(location = 8) out ivec3 fRIDtwo;
 layout(location = 9) out vec4 fmodifiers;
+layout(location = 10) out int meshID;
 
 const float PI = 3.1415926535897932384626433832795;
 const float rotator = PI / 180.f;
@@ -132,8 +133,10 @@ void main()
 
   fragNormalWorld = normalize(mat3(normalInstanceMatrix) * normal);
   fragPosWorld = positionWorld.xyz;
-  fragUv = uv;
+  fragUv = uv.xy;
   fmodifiers = modifiers;
+
+  meshID = int(uv.z);
 
   fRIDone = RIDone;
   fRIDtwo = RIDtwo;
