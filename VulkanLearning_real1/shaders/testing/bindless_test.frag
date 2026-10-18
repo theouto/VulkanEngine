@@ -196,11 +196,16 @@ float rand(vec2 co) {
     return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
+// https://blog.demofox.org/2022/01/01/interleaved-gradient-noise-a-different-kind-of-low-discrepancy-sequence/
+float randf(int x, int y) {
+    return mod(52.9829189 * mod(0.06711056 * float(x) + 0.00583715 * float(y), 1.0), 1.0);
+}
+
 float calculateRandPCF(float currentDepth, vec2 uv, int image)
 {
     float shadow = 0.f;
 
-    int steps = 2;
+    int steps = 6;
     vec2 textureSized = textureSize(shadowStorage[nonuniformEXT(image)], 0);
     vec2 texelSize = 1.0/textureSized;
     float bias = 0.0005f;//0.00009f;
@@ -209,11 +214,11 @@ float calculateRandPCF(float currentDepth, vec2 uv, int image)
     {
        for(int y = -steps; y <= steps; ++y)
        {
-            vec2 randomOffset = vec2(rand(uv + vec2(x, y)), rand(uv - vec2(x, y))) * texelSize;
-            //float depth = texture(shadowStorage[nonuniformEXT(image)], uv + vec2(float(x)/steps, float(y)/steps) * texelSize).r;
-            //float weird = abs(currentDepth - bias - abs(depth)) * 200;
+            vec2 randomOffset = vec2(randf(int(gl_FragCoord.x), int(gl_FragCoord.y)), randf(int(gl_FragCoord.y), int(gl_FragCoord.x))) * texelSize * 2;
+            float depth = texture(shadowStorage[nonuniformEXT(image)], uv + vec2(float(x)/steps, float(y)/steps) * texelSize + randomOffset).r;
+            float weird = abs(currentDepth - bias - abs(depth)) * 50;
 
-            float pcfDepth = texture(shadowStorage[nonuniformEXT(image)], uv + vec2(float(x)/steps, float(y)/steps) * texelSize + randomOffset).r;
+            float pcfDepth = texture(shadowStorage[nonuniformEXT(image)], uv + vec2(float(x)/steps, float(y)/steps) * texelSize * weird + randomOffset).r;
             shadow += currentDepth - bias < pcfDepth ? 1.0 : 0.0;
        }
     }
