@@ -198,7 +198,7 @@ namespace lve
 
 		attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position)});
 		attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal)});
-		attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv)});
+		attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, uv)});
 
 		return attributeDescriptions;
 	}
@@ -246,10 +246,13 @@ namespace lve
 		vertices.clear();
 		indices.clear();
 
+        uint32_t meshes = 0;
+
 		std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
 		for (const auto& shape : shapes)
 		{
+
 			for (const auto& index : shape.mesh.indices)
 			{
 				Vertex vertex{};
@@ -279,7 +282,7 @@ namespace lve
 				{
 					vertex.uv = {
 					attrib.texcoords[2 * index.texcoord_index + 0],
-					1.f - attrib.texcoords[2 * index.texcoord_index + 1], };
+					1.f - attrib.texcoords[2 * index.texcoord_index + 1], meshes};
 				}
 
 				if (uniqueVertices.count(vertex) == 0)
@@ -289,6 +292,8 @@ namespace lve
 				}
 				indices.push_back(uniqueVertices[vertex]);
 			}
+
+          meshes++;
 		}
 	}
 

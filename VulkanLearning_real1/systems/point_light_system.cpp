@@ -70,6 +70,7 @@ namespace lve
 		pipelineConfig.bindingDescriptions.clear();
 		pipelineConfig.renderPass = renderPass;
 		pipelineConfig.pipelineLayout = pipelineLayout;
+        pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
 		std::vector<std::string> filePaths = { "shaders/compiled/point_light.vert.spv",
 			"shaders/compiled/point_light.frag.spv" };
 		lvePipeline = std::make_unique<LvePipeline>(lveDevice, 
