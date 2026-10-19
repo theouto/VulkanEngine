@@ -206,20 +206,20 @@ float calculateRandPCF(float currentDepth, vec2 uv, int image)
 {
     float shadow = 0.f;
 
-    int steps = 6;
+    int steps = 4;
     vec2 textureSized = textureSize(shadowStorage[nonuniformEXT(image)], 0);
     vec2 texelSize = 1.0/textureSized;
-    float bias = 0.0005f;//0.00009f;
+    float bias = 0.0007f;//0.00009f;
+
+    vec2 randomOffset = vec2(randf(int(gl_FragCoord.x), int(gl_FragCoord.y)), randf(int(gl_FragCoord.y), int(gl_FragCoord.x))) * texelSize * 4;
+    float depth = texture(shadowStorage[nonuniformEXT(image)], uv + randomOffset).r;
+    float weird = abs(currentDepth - bias - abs(depth)) * 50;
 
     for(int x = -steps; x <= steps; ++x)
     {
        for(int y = -steps; y <= steps; ++y)
        {
-            vec2 randomOffset = vec2(randf(int(gl_FragCoord.x), int(gl_FragCoord.y)), randf(int(gl_FragCoord.y), int(gl_FragCoord.x))) * texelSize * 2;
-            float depth = texture(shadowStorage[nonuniformEXT(image)], uv + vec2(float(x)/steps, float(y)/steps) * texelSize + randomOffset).r;
-            float weird = abs(currentDepth - bias - abs(depth)) * 50;
-
-            float pcfDepth = texture(shadowStorage[nonuniformEXT(image)], uv + vec2(float(x)/steps, float(y)/steps) * texelSize * weird + randomOffset).r;
+            float pcfDepth = texture(shadowStorage[nonuniformEXT(image)], (uv + vec2(float(x)/steps, float(y)/steps) * texelSize * weird + randomOffset)).r;
             shadow += currentDepth - bias < pcfDepth ? 1.0 : 0.0;
        }
     }
